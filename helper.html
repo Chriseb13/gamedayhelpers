@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Become a Helper | GameDay Helpers</title>
+<meta name="description" content="Get paid to run GameChanger and keep score at youth games in Tampa Bay. Apply to be a GameDay Helper. Launching summer 2026.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="banner">Launching in Tampa Bay &middot; Summer 2026</div>
+
+<header>
+  <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
+  <button class="menu-btn" onclick="document.getElementById('nav').classList.toggle('open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <nav id="nav">
+    <a href="index.html">Home</a>
+    <a href="coaches.html">For Coaches</a>
+    <a href="helper.html" class="active">For Helpers</a>
+    <a href="blog.html">Updates</a>
+    <a href="mailto:info@gamedayhelpers.com">Contact</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">For Helpers</div>
+  <h1>Get Paid to Run<span class="o">Game Day.</span></h1>
+  <p class="lead">Coaches need a hand keeping score, running GameChanger, or working the scoreboard. If you know the game, that hand is you. Flexible, local, and you keep every dollar.</p>
+  <div class="cta">
+    <a class="btn btn-orange" href="#apply"><span>CREATE MY PROFILE</span></a>
+  </div>
+  <p class="note">We are building the network now. Set up your profile to be first in line when games start this summer.</p>
+</section>
+
+<section style="background:var(--soft);border-top:1px solid #eef0f3;border-bottom:1px solid #eef0f3;">
+  <div class="wrap">
+    <div class="eyebrow">What it takes</div>
+    <h2>If this is <span class="o">you</span>, sign up.</h2>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><div><div class="st">YOU KNOW THE GAME</div><div class="sd">You can follow baseball or softball well enough to score it. We will help with GameChanger.</div></div></div>
+      <div class="step"><div class="n">02</div><div><div class="st">YOU'RE 14 OR OLDER</div><div class="sd">Teens, parents, and retirees all make great helpers. Under 18 needs a parent's OK.</div></div></div>
+      <div class="step"><div class="n">03</div><div><div class="st">YOU CAN GET TO THE FIELD</div><div class="sd">You pick the little leagues you will drive to. We only match you to those.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="apply">
+  <div class="wrap">
+    <div class="eyebrow">Create your profile</div>
+    <h2>Build your <span class="o">helper profile.</span></h2>
+    <p class="lead" style="margin:14px 0 26px;">Takes two minutes. This becomes your profile, so coaches can see your skill, your sports, and how many games you've scored. No commitment.</p>
+
+    <div class="form-card" id="helperCard">
+      <div class="field">
+        <label>Full name <span class="req">*</span></label>
+        <input type="text" id="h_name" required>
+      </div>
+      <div class="field">
+        <label>Age <span class="req">*</span></label>
+        <input type="number" id="h_age" min="13" max="99" required>
+        <div class="hint">Must be 14 or older. Under 18 needs a parent's OK before your first game. Your age stays private and never shows on your profile.</div>
+      </div>
+      <div class="field">
+        <label>Email <span class="req">*</span></label>
+        <input type="email" id="h_email" required>
+        <div class="hint">We'll send a confirmation here.</div>
+      </div>
+      <div class="field">
+        <label>Cell phone <span class="req">*</span></label>
+        <input type="tel" id="h_phone" required>
+        <div class="hint">How coaches reach you to lock in a game.</div>
+      </div>
+
+      <div class="field">
+        <label>Which little leagues can you work? <span class="req">*</span></label>
+        <div class="hint" style="margin-bottom:8px;">Pick every league you would drive to. These are the Tampa District 6 leagues.</div>
+        <div class="chips" id="h_leagues">
+          <span class="chip"><input type="checkbox" id="l1" value="Bayshore"><label for="l1">Bayshore</label></span>
+          <span class="chip"><input type="checkbox" id="l2" value="Interbay"><label for="l2">Interbay</label></span>
+          <span class="chip"><input type="checkbox" id="l3" value="Keystone"><label for="l3">Keystone</label></span>
+          <span class="chip"><input type="checkbox" id="l4" value="Northside"><label for="l4">Northside</label></span>
+          <span class="chip"><input type="checkbox" id="l5" value="Northwest"><label for="l5">Northwest</label></span>
+          <span class="chip"><input type="checkbox" id="l6" value="Palma Ceia"><label for="l6">Palma Ceia</label></span>
+          <span class="chip"><input type="checkbox" id="l7" value="Tampa Bay"><label for="l7">Tampa Bay</label></span>
+          <span class="chip"><input type="checkbox" id="l8" value="West Tampa"><label for="l8">West Tampa</label></span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Which sports can you help with? <span class="req">*</span></label>
+        <div class="chips" id="h_sports">
+          <span class="chip"><input type="checkbox" id="s1" value="Baseball"><label for="s1">Baseball</label></span>
+          <span class="chip"><input type="checkbox" id="s2" value="Softball"><label for="s2">Softball</label></span>
+          <span class="chip"><input type="checkbox" id="s3" value="Other"><label for="s3">Other</label></span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>What can you do? <span class="req">*</span></label>
+        <div class="chips" id="h_roles">
+          <span class="chip"><input type="checkbox" id="r1" value="Keep score"><label for="r1">Keep score</label></span>
+          <span class="chip"><input type="checkbox" id="r2" value="Run GameChanger"><label for="r2">Run GameChanger</label></span>
+          <span class="chip"><input type="checkbox" id="r3" value="Work scoreboard"><label for="r3">Work scoreboard</label></span>
+          <span class="chip"><input type="checkbox" id="r4" value="Run livestream"><label for="r4">Run livestream</label></span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Your scorekeeping skill level <span class="req">*</span></label>
+        <select id="h_skill" required>
+          <option value="">Select</option>
+          <option>New (willing to learn)</option>
+          <option>Intermediate</option>
+          <option>Experienced</option>
+          <option>Expert</option>
+        </select>
+        <div class="hint">Shows on your profile so coaches know what they're getting.</div>
+      </div>
+
+      <div class="field">
+        <label>Games scored before GameDay Helpers</label>
+        <input type="number" id="h_prior" min="0" max="9999" value="0">
+        <div class="hint">Your own count from past seasons. Your GameDay Helpers total starts at 0 and climbs automatically every game you score.</div>
+      </div>
+
+      <div class="field">
+        <label>When are you usually free?</label>
+        <div class="chips" id="h_avail">
+          <span class="chip"><input type="checkbox" id="a1" value="Weekday evenings"><label for="a1">Weekday evenings</label></span>
+          <span class="chip"><input type="checkbox" id="a2" value="Saturdays"><label for="a2">Saturdays</label></span>
+          <span class="chip"><input type="checkbox" id="a3" value="Sundays"><label for="a3">Sundays</label></span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Anything else? <span class="hint" style="display:inline;font-weight:400;">(optional)</span></label>
+        <textarea id="h_notes" placeholder="Coaching experience, your own kids in the league, etc."></textarea>
+      </div>
+
+      <button class="submit" id="h_submit" onclick="submitHelper()">Create my profile</button>
+      <div class="err" id="h_err"></div>
+      <p class="note" style="margin-top:14px;">By signing up you agree to be contacted about helper opportunities. We never share your info outside GameDay Helpers.</p>
+    </div>
+
+    <div class="success" id="helperSuccess">
+      <h2>You're on the <span class="o">list.</span></h2>
+      <p>Check your email for a confirmation. We will reach out as games in your leagues come up. Thanks for stepping up.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers">
+  <div class="flinks">
+    <a href="index.html">Home</a>
+    <a href="coaches.html">For Coaches</a>
+    <a href="blog.html">Updates</a>
+    <a href="mailto:info@gamedayhelpers.com">Contact</a>
+  </div>
+  <div class="small">You coach. We score. &nbsp;&middot;&nbsp; Tampa Bay, FL &nbsp;&middot;&nbsp; &copy; 2026 GameDay Helpers<br>
+  Currently in beta. <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
+</footer>
+
+<script>
+  const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+  function getChecked(id){return Array.from(document.querySelectorAll('#'+id+' input:checked')).map(e=>e.value).join(', ');}
+  function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.style.display='block';}
+
+  async function submitHelper(){
+    const name=document.getElementById('h_name').value.trim();
+    const age=document.getElementById('h_age').value.trim();
+    const email=document.getElementById('h_email').value.trim();
+    const phone=document.getElementById('h_phone').value.trim();
+    const leagues=getChecked('h_leagues');
+    const sports=getChecked('h_sports');
+    const roles=getChecked('h_roles');
+    const skill=document.getElementById('h_skill').value;
+    const prior=document.getElementById('h_prior').value.trim()||'0';
+    const avail=getChecked('h_avail');
+    const notes=document.getElementById('h_notes').value.trim();
+    document.getElementById('h_err').style.display='none';
+    if(!name||!age||!email||!phone){showErr('h_err','Please fill in all required fields.');return;}
+    if(parseInt(age)<14){showErr('h_err','Helpers must be at least 14 years old.');return;}
+    if(!leagues){showErr('h_err','Pick at least one little league.');return;}
+    if(!sports){showErr('h_err','Pick at least one sport.');return;}
+    if(!roles){showErr('h_err','Pick at least one thing you can do.');return;}
+    if(!skill){showErr('h_err','Pick your skill level.');return;}
+    const btn=document.getElementById('h_submit');btn.disabled=true;btn.textContent='Sending...';
+    const payload={type:'HELPER',name,age,email,phone,leagues,sports,roles,skill,priorGames:prior,availability:avail,notes,submittedAt:new Date().toISOString()};
+    try{
+      await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+      document.getElementById('helperCard').style.display='none';
+      document.getElementById('helperSuccess').style.display='block';
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){btn.disabled=false;btn.textContent='Create my profile';showErr('h_err','Something went wrong. Please try again.');}
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Coaches | GameDay Helpers</title>
+<meta name="description" content="Get a vetted scorekeeper for your season. GameDay Helpers season pass for Tampa Bay youth coaches. Launching summer 2026.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="banner">Launching in Tampa Bay &middot; Summer 2026</div>
+
+<header>
+  <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
+  <button class="menu-btn" onclick="document.getElementById('nav').classList.toggle('open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <nav id="nav">
+    <a href="index.html">Home</a>
+    <a href="coaches.html" class="active">For Coaches</a>
+    <a href="helper.html">For Helpers</a>
+    <a href="blog.html">Updates</a>
+    <a href="mailto:info@gamedayhelpers.com">Contact</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">For Coaches</div>
+  <h1>Coach the Game.<span class="o">We'll Keep the Score.</span></h1>
+  <p class="lead">You signed up to coach kids, not to chase down a parent every game to run GameChanger. A GameDay Helpers season pass gets you a vetted scorekeeper for your whole season.</p>
+  <div class="cta">
+    <a class="btn btn-orange" href="#join"><span>GET EARLY ACCESS</span></a>
+  </div>
+  <p class="note">Founding coaches get first pick of helpers and locked-in beta pricing.</p>
+</section>
+
+<section style="background:var(--soft);border-top:1px solid #eef0f3;border-bottom:1px solid #eef0f3;">
+  <div class="wrap">
+    <div class="eyebrow">The Season Pass</div>
+    <h2>One pass. <span class="o">A scorekeeper all season.</span></h2>
+    <p class="lead" style="margin-top:14px;">Instead of scrambling game to game, you buy one season pass and get access to our network of vetted helpers for every game on your schedule. Think of it like a season ticket: pay once, covered all season.</p>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><div><div class="st">BUY YOUR SEASON PASS</div><div class="sd">One flat fee for the season, around 15 games. No per-game transaction fees.</div></div></div>
+      <div class="step"><div class="n">02</div><div><div class="st">REQUEST HELPERS ALL SEASON</div><div class="sd">Need someone Saturday? Pull from the helper pool that serves your little league.</div></div></div>
+      <div class="step"><div class="n">03</div><div><div class="st">PAY YOUR HELPER DIRECTLY</div><div class="sd">You set and pay the game rate straight to your helper. We never touch the transaction.</div></div></div>
+    </div>
+    <p class="note" style="text-align:left;margin-top:18px;">
+      <strong>Why direct pay?</strong> It keeps your cost down, gets every dollar to the helper, and keeps things simple. The season pass is for access to a reliable, vetted network. The game rate is between you and your helper.
+    </p>
+  </div>
+</section>
+
+<section id="join">
+  <div class="wrap">
+    <div class="eyebrow">Founding Coaches</div>
+    <h2>Get on the <span class="o">early list.</span></h2>
+    <p class="lead" style="margin:14px 0 26px;">We are matching our first coaches with helpers ahead of the summer 2026 launch. Drop your info and we will keep you posted as we open up your league. No payment now.</p>
+
+    <div class="form-card" id="coachCard">
+      <div class="field">
+        <label>Your name <span class="req">*</span></label>
+        <input type="text" id="c_name" required>
+      </div>
+      <div class="field">
+        <label>Email <span class="req">*</span></label>
+        <input type="email" id="c_email" required>
+        <div class="hint">Where we send updates.</div>
+      </div>
+      <div class="field">
+        <label>Cell phone <span class="req">*</span></label>
+        <input type="tel" id="c_phone" required>
+      </div>
+      <div class="field">
+        <label>Team name</label>
+        <input type="text" id="c_team">
+      </div>
+      <div class="field">
+        <label>Which little league are you in? <span class="req">*</span></label>
+        <div class="chips" id="c_leagues">
+          <span class="chip"><input type="checkbox" id="cl1" value="Bayshore"><label for="cl1">Bayshore</label></span>
+          <span class="chip"><input type="checkbox" id="cl2" value="Interbay"><label for="cl2">Interbay</label></span>
+          <span class="chip"><input type="checkbox" id="cl3" value="Keystone"><label for="cl3">Keystone</label></span>
+          <span class="chip"><input type="checkbox" id="cl4" value="Northside"><label for="cl4">Northside</label></span>
+          <span class="chip"><input type="checkbox" id="cl5" value="Northwest"><label for="cl5">Northwest</label></span>
+          <span class="chip"><input type="checkbox" id="cl6" value="Palma Ceia"><label for="cl6">Palma Ceia</label></span>
+          <span class="chip"><input type="checkbox" id="cl7" value="Tampa Bay"><label for="cl7">Tampa Bay</label></span>
+          <span class="chip"><input type="checkbox" id="cl8" value="West Tampa"><label for="cl8">West Tampa</label></span>
+          <span class="chip"><input type="checkbox" id="cl9" value="Other"><label for="cl9">Other</label></span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Anything else? <span class="hint" style="display:inline;font-weight:400;">(optional)</span></label>
+        <textarea id="c_notes" placeholder="Sport, age group, how many games a season, etc."></textarea>
+      </div>
+      <button class="submit" id="c_submit" onclick="submitCoach()">Keep me posted</button>
+      <div class="err" id="c_err"></div>
+    </div>
+
+    <div class="success" id="coachSuccess">
+      <h2>You're on the <span class="o">list.</span></h2>
+      <p>Thanks for stepping up early. We will reach out as we open helper matching in your league. Check your email for a confirmation.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers">
+  <div class="flinks">
+    <a href="index.html">Home</a>
+    <a href="helper.html">For Helpers</a>
+    <a href="blog.html">Updates</a>
+    <a href="mailto:info@gamedayhelpers.com">Contact</a>
+  </div>
+  <div class="small">You coach. We score. &nbsp;&middot;&nbsp; Tampa Bay, FL &nbsp;&middot;&nbsp; &copy; 2026 GameDay Helpers<br>
+  Currently in beta. <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
+</footer>
+
+<script>
+  const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+  function getChecked(id){return Array.from(document.querySelectorAll('#'+id+' input:checked')).map(e=>e.value).join(', ');}
+  function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.style.display='block';}
+
+  async function submitCoach(){
+    const name=document.getElementById('c_name').value.trim();
+    const email=document.getElementById('c_email').value.trim();
+    const phone=document.getElementById('c_phone').value.trim();
+    const team=document.getElementById('c_team').value.trim();
+    const leagues=getChecked('c_leagues');
+    const notes=document.getElementById('c_notes').value.trim();
+    document.getElementById('c_err').style.display='none';
+    if(!name||!email||!phone){showErr('c_err','Please fill in name, email, and phone.');return;}
+    if(!leagues){showErr('c_err','Pick at least one little league.');return;}
+    const btn=document.getElementById('c_submit');btn.disabled=true;btn.textContent='Sending...';
+    const payload={type:'COACH',name,email,phone,team,leagues,notes,submittedAt:new Date().toISOString()};
+    try{
+      await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+      document.getElementById('coachCard').style.display='none';
+      document.getElementById('coachSuccess').style.display='block';
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){btn.disabled=false;btn.textContent='Keep me posted';showErr('c_err','Something went wrong. Please try again.');}
+  }
+</script>
+</body>
+</html>

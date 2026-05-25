@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leave a Review | GameDay Helpers</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .starpick{display:flex;gap:10px;justify-content:center;margin:8px 0 4px;}
+  .starpick button{background:none;border:none;font-size:42px;line-height:1;cursor:pointer;color:#d8dde4;transition:color .1s;padding:0;}
+  .starpick button.on{color:var(--orange);}
+  .rlabel{text-align:center;font-weight:700;color:var(--gray);font-size:14px;min-height:20px;margin-bottom:14px;}
+</style>
+</head>
+<body>
+
+<div class="banner">You coach. We score.</div>
+
+<header>
+  <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="form-card" id="reviewCard">
+      <h2 style="text-align:center;">Rate <span class="o" id="who">your helper</span></h2>
+      <p class="lead" style="text-align:center;font-size:16px;margin:10px 0 22px;">How did the game go? This takes 20 seconds.</p>
+
+      <div class="starpick" id="stars">
+        <button data-v="1">&#9733;</button>
+        <button data-v="2">&#9733;</button>
+        <button data-v="3">&#9733;</button>
+        <button data-v="4">&#9733;</button>
+        <button data-v="5">&#9733;</button>
+      </div>
+      <div class="rlabel" id="rlabel"></div>
+
+      <div class="field">
+        <label>Anything to add? <span class="hint" style="display:inline;font-weight:400;">(optional)</span></label>
+        <textarea id="comment" placeholder="On time, knew the app, easy to work with..."></textarea>
+      </div>
+
+      <button class="submit" id="rsubmit" onclick="submitReview()">Submit review</button>
+      <div class="err" id="rerr"></div>
+    </div>
+
+    <div class="success" id="reviewSuccess">
+      <h2>Thank you.</h2>
+      <p>Your review is in. It helps the whole GameDay Helpers community find reliable people.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers">
+  <div class="small">You coach. We score. &nbsp;&middot;&nbsp; &copy; 2026 GameDay Helpers</div>
+</footer>
+
+<script>
+  const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+
+  const params = new URLSearchParams(location.search);
+  const gameId = params.get('g') || '';
+  const revieweeId = params.get('rev') || '';
+  const revName = params.get('revname') || '';
+  const revieweeRole = params.get('role') || 'helper';   // who is being reviewed
+  const reviewerRole = params.get('by') || 'coach';      // who is writing it
+  if (revName) document.getElementById('who').textContent = revName;
+
+  let rating = 0;
+  const labels = {1:"Poor",2:"Fair",3:"Good",4:"Great",5:"Excellent"};
+  const starBtns = Array.from(document.querySelectorAll('#stars button'));
+  starBtns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      rating = parseInt(b.dataset.v,10);
+      starBtns.forEach(x=>x.classList.toggle('on', parseInt(x.dataset.v,10) <= rating));
+      document.getElementById('rlabel').textContent = labels[rating] || '';
+    });
+  });
+
+  function showErr(m){const e=document.getElementById('rerr');e.textContent=m;e.style.display='block';}
+
+  async function submitReview(){
+    document.getElementById('rerr').style.display='none';
+    if(!rating){showErr('Tap a star to rate.');return;}
+    if(!gameId){showErr('This review link is missing its game. Please use the link from your email.');return;}
+    const btn=document.getElementById('rsubmit');btn.disabled=true;btn.textContent='Sending...';
+    const payload={type:'REVIEW',gameId,revieweeId,revieweeRole,reviewerRole,stars:rating,comment:document.getElementById('comment').value.trim()};
+    try{
+      await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+      document.getElementById('reviewCard').style.display='none';
+      document.getElementById('reviewSuccess').style.display='block';
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){btn.disabled=false;btn.textContent='Submit review';showErr('Something went wrong. Please try again.');}
+  }
+</script>
+</body>
+</html>
