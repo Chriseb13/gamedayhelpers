@@ -4,10 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>For Coaches | GameDay Helpers</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="Get a vetted scorekeeper for your season. GameDay Helpers season pass for Tampa Bay youth coaches. Launching summer 2026.">
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body style="position:relative;">
+
+<div class="takeover" id="takeover">
+  <div class="check">&#10003;</div>
+  <h1>You're on<span class="o">the list.</span></h1>
+  <p>Thanks for stepping up early. We'll reach out as we open helper matching in your league.</p>
+  <div class="inbox">Check your inbox for a confirmation email</div>
+  <div class="sub">You coach. We score.</div>
+</div>
 
 <div class="banner">Launching in Tampa Bay &middot; Summer 2026</div>
 
@@ -20,7 +32,7 @@
     <a href="index.html">Home</a>
     <a href="coaches.html" class="active">For Coaches</a>
     <a href="helper.html">For Helpers</a>
-    <a href="blog.html">Updates</a>
+    <a href="news.html">News</a>
     <a href="mailto:info@gamedayhelpers.com">Contact</a>
   </nav>
 </header>
@@ -39,14 +51,17 @@
   <div class="wrap">
     <div class="eyebrow">The Season Pass</div>
     <h2>One pass. <span class="o">A scorekeeper all season.</span></h2>
-    <p class="lead" style="margin-top:14px;">Instead of scrambling game to game, you buy one season pass and get access to our network of vetted helpers for every game on your schedule. Think of it like a season ticket: pay once, covered all season.</p>
+    <p class="lead" style="margin-top:14px;">Instead of scrambling game to game, you buy one season pass and get access to our network of vetted helpers for every game on your schedule. Think of it like a season ticket: pay once, covered all year.</p>
+
+    <div class="price" style="margin:26px 0 8px;">$99 a year<small>Flat. One coach, one team, all season. You pay your helper separately per game.</small></div>
+
     <div class="steps">
-      <div class="step"><div class="n">01</div><div><div class="st">BUY YOUR SEASON PASS</div><div class="sd">One flat fee for the season, around 15 games. No per-game transaction fees.</div></div></div>
-      <div class="step"><div class="n">02</div><div><div class="st">REQUEST HELPERS ALL SEASON</div><div class="sd">Need someone Saturday? Pull from the helper pool that serves your little league.</div></div></div>
-      <div class="step"><div class="n">03</div><div><div class="st">PAY YOUR HELPER DIRECTLY</div><div class="sd">You set and pay the game rate straight to your helper. We never touch the transaction.</div></div></div>
+      <div class="step"><div class="n">01</div><div><div class="st">GET YOUR SEASON PASS</div><div class="sd">$99 flat for the year. No per-game fees to us, ever.</div></div></div>
+      <div class="step"><div class="n">02</div><div><div class="st">REQUEST HELPERS ALL SEASON</div><div class="sd">Need someone Saturday? We line up a vetted helper from your little league.</div></div></div>
+      <div class="step"><div class="n">03</div><div><div class="st">PAY YOUR HELPER DIRECTLY</div><div class="sd">You set and pay the game rate straight to your helper. We never touch it.</div></div></div>
     </div>
     <p class="note" style="text-align:left;margin-top:18px;">
-      <strong>Why direct pay?</strong> It keeps your cost down, gets every dollar to the helper, and keeps things simple. The season pass is for access to a reliable, vetted network. The game rate is between you and your helper.
+      <strong>How the money works:</strong> Your $99 covers access and matching for the whole year, that's what you pay us. The game rate is between you and your helper, paid directly. Two separate things, so every dollar of game pay reaches your helper.
     </p>
   </div>
 </section>
@@ -100,6 +115,7 @@
     <div class="success" id="coachSuccess">
       <h2>You're on the <span class="o">list.</span></h2>
       <p>Thanks for stepping up early. We will reach out as we open helper matching in your league. Check your email for a confirmation.</p>
+      <p style="margin-top:18px;"><a class="btn btn-orange" style="display:inline-block;" href="request-game.html"><span>Got a game? Request a helper</span></a></p>
     </div>
   </div>
 </section>
@@ -109,7 +125,7 @@
   <div class="flinks">
     <a href="index.html">Home</a>
     <a href="helper.html">For Helpers</a>
-    <a href="blog.html">Updates</a>
+    <a href="news.html">News</a>
     <a href="mailto:info@gamedayhelpers.com">Contact</a>
   </div>
   <div class="small">You coach. We score. &nbsp;&middot;&nbsp; Tampa Bay, FL &nbsp;&middot;&nbsp; &copy; 2026 GameDay Helpers<br>
@@ -117,7 +133,7 @@
 </footer>
 
 <script>
-  const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyodeLRuSQncbf4_9xrjAF6ssuWPQ6gZ8fW8DVuDHHQuv2QMU8RS-EruhHCqg2_vBsY/exec";
   function getChecked(id){return Array.from(document.querySelectorAll('#'+id+' input:checked')).map(e=>e.value).join(', ');}
   function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.style.display='block';}
 
@@ -136,7 +152,7 @@
     try{
       await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
       document.getElementById('coachCard').style.display='none';
-      document.getElementById('coachSuccess').style.display='block';
+      document.getElementById('takeover').classList.add('show');
       window.scrollTo({top:0,behavior:'smooth'});
     }catch(e){btn.disabled=false;btn.textContent='Keep me posted';showErr('c_err','Something went wrong. Please try again.');}
   }

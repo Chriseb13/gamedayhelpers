@@ -4,10 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Become a Helper | GameDay Helpers</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="Get paid to run GameChanger and keep score at youth games in Tampa Bay. Apply to be a GameDay Helper. Launching summer 2026.">
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body style="position:relative;">
+
+<div class="takeover" id="takeover">
+  <div class="check">&#10003;</div>
+  <h1>You're on<span class="o">the team.</span></h1>
+  <p id="takeoverMsg">Welcome aboard. We'll reach out as games in your leagues come up.</p>
+  <div class="inbox">Check your inbox for a confirmation email</div>
+  <div class="sub">You coach. We score.</div>
+</div>
 
 <div class="banner">Launching in Tampa Bay &middot; Summer 2026</div>
 
@@ -20,7 +32,7 @@
     <a href="index.html">Home</a>
     <a href="coaches.html">For Coaches</a>
     <a href="helper.html" class="active">For Helpers</a>
-    <a href="blog.html">Updates</a>
+    <a href="news.html">News</a>
     <a href="mailto:info@gamedayhelpers.com">Contact</a>
   </nav>
 </header>
@@ -38,11 +50,11 @@
 <section style="background:var(--soft);border-top:1px solid #eef0f3;border-bottom:1px solid #eef0f3;">
   <div class="wrap">
     <div class="eyebrow">What it takes</div>
-    <h2>If this is <span class="o">you</span>, sign up.</h2>
+    <h2>What makes a <span class="o">great helper.</span></h2>
     <div class="steps">
-      <div class="step"><div class="n">01</div><div><div class="st">YOU KNOW THE GAME</div><div class="sd">You can follow baseball or softball well enough to score it. We will help with GameChanger.</div></div></div>
-      <div class="step"><div class="n">02</div><div><div class="st">YOU'RE 14 OR OLDER</div><div class="sd">Teens, parents, and retirees all make great helpers. Under 18 needs a parent's OK.</div></div></div>
-      <div class="step"><div class="n">03</div><div><div class="st">YOU CAN GET TO THE FIELD</div><div class="sd">You pick the little leagues you will drive to. We only match you to those.</div></div></div>
+      <div class="step"><div class="n">01</div><div><div class="st">YOU KNOW BASEBALL OR SOFTBALL</div><div class="sd">Enough to follow a game and keep score. New to GameChanger? We'll show you, it's easy.</div></div></div>
+      <div class="step"><div class="n">02</div><div><div class="st">YOU'RE 14 OR OLDER</div><div class="sd">Teens, parents, and retirees all make great helpers. Under 18 needs a parent's permission first.</div></div></div>
+      <div class="step"><div class="n">03</div><div><div class="st">YOU CAN GET TO THE FIELD</div><div class="sd">You choose which little leagues you'll travel to. We only match you to games there.</div></div></div>
     </div>
   </div>
 </section>
@@ -94,7 +106,6 @@
         <div class="chips" id="h_sports">
           <span class="chip"><input type="checkbox" id="s1" value="Baseball"><label for="s1">Baseball</label></span>
           <span class="chip"><input type="checkbox" id="s2" value="Softball"><label for="s2">Softball</label></span>
-          <span class="chip"><input type="checkbox" id="s3" value="Other"><label for="s3">Other</label></span>
         </div>
       </div>
 
@@ -140,14 +151,44 @@
         <textarea id="h_notes" placeholder="Coaching experience, your own kids in the league, etc."></textarea>
       </div>
 
+      <div id="parentBlock" style="display:none;background:#fff4ec;border:1.5px solid var(--orange);border-radius:12px;padding:18px;margin-bottom:18px;">
+        <div class="plabel" style="color:var(--orange-dark);">Because you're under 18</div>
+        <p class="hint" style="margin:0 0 14px;">A parent or guardian has to approve before you can work any games. We'll email them to confirm.</p>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Parent / guardian name <span class="req">*</span></label>
+          <input type="text" id="h_parent_name">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Parent / guardian email <span class="req">*</span></label>
+          <input type="email" id="h_parent_email">
+          <div class="hint">We email them a consent link. You're not active until they approve.</div>
+        </div>
+      </div>
+
+      <div class="field" style="background:var(--soft);border:1px solid #eef0f3;border-radius:12px;padding:16px;">
+        <label style="margin-bottom:12px;">Before you sign up <span class="req">*</span></label>
+        <label style="font-weight:500;font-size:14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;">
+          <input type="checkbox" id="ck_phone" style="width:auto;margin-top:3px;flex-shrink:0;">
+          <span>I have a working smartphone and can run the GameChanger app at games.</span>
+        </label>
+        <label style="font-weight:500;font-size:14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;">
+          <input type="checkbox" id="ck_truth" style="width:auto;margin-top:3px;flex-shrink:0;">
+          <span>Everything I entered, including my experience, is truthful and accurate.</span>
+        </label>
+        <label style="font-weight:500;font-size:14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:0;">
+          <input type="checkbox" id="ck_terms" style="width:auto;margin-top:3px;flex-shrink:0;">
+          <span>I agree to the <a href="terms.html" target="_blank" style="color:var(--orange-dark);font-weight:700;">Terms &amp; Conditions</a>.</span>
+        </label>
+      </div>
+
       <button class="submit" id="h_submit" onclick="submitHelper()">Create my profile</button>
       <div class="err" id="h_err"></div>
-      <p class="note" style="margin-top:14px;">By signing up you agree to be contacted about helper opportunities. We never share your info outside GameDay Helpers.</p>
+      <p class="note" style="margin-top:14px;">We never share your info outside GameDay Helpers.</p>
     </div>
 
     <div class="success" id="helperSuccess">
       <h2>You're on the <span class="o">list.</span></h2>
-      <p>Check your email for a confirmation. We will reach out as games in your leagues come up. Thanks for stepping up.</p>
+      <p id="successMsg">Check your email for a confirmation. We will reach out as games in your leagues come up. Thanks for stepping up.</p>
     </div>
   </div>
 </section>
@@ -157,7 +198,7 @@
   <div class="flinks">
     <a href="index.html">Home</a>
     <a href="coaches.html">For Coaches</a>
-    <a href="blog.html">Updates</a>
+    <a href="news.html">News</a>
     <a href="mailto:info@gamedayhelpers.com">Contact</a>
   </div>
   <div class="small">You coach. We score. &nbsp;&middot;&nbsp; Tampa Bay, FL &nbsp;&middot;&nbsp; &copy; 2026 GameDay Helpers<br>
@@ -165,9 +206,15 @@
 </footer>
 
 <script>
-  const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyodeLRuSQncbf4_9xrjAF6ssuWPQ6gZ8fW8DVuDHHQuv2QMU8RS-EruhHCqg2_vBsY/exec";
   function getChecked(id){return Array.from(document.querySelectorAll('#'+id+' input:checked')).map(e=>e.value).join(', ');}
   function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.style.display='block';}
+
+  // Show parent consent block live as soon as age is under 18
+  document.getElementById('h_age').addEventListener('input', function(){
+    const a = parseInt(this.value, 10);
+    document.getElementById('parentBlock').style.display = (a >= 14 && a < 18) ? 'block' : 'none';
+  });
 
   async function submitHelper(){
     const name=document.getElementById('h_name').value.trim();
@@ -181,19 +228,36 @@
     const prior=document.getElementById('h_prior').value.trim()||'0';
     const avail=getChecked('h_avail');
     const notes=document.getElementById('h_notes').value.trim();
+    const ageNum=parseInt(age,10);
+    const isMinor = ageNum>=14 && ageNum<18;
+    const parentName=document.getElementById('h_parent_name').value.trim();
+    const parentEmail=document.getElementById('h_parent_email').value.trim();
+    const ckPhone=document.getElementById('ck_phone').checked;
+    const ckTruth=document.getElementById('ck_truth').checked;
+    const ckTerms=document.getElementById('ck_terms').checked;
+
     document.getElementById('h_err').style.display='none';
     if(!name||!age||!email||!phone){showErr('h_err','Please fill in all required fields.');return;}
-    if(parseInt(age)<14){showErr('h_err','Helpers must be at least 14 years old.');return;}
+    if(ageNum<14){showErr('h_err','Helpers must be at least 14 years old.');return;}
     if(!leagues){showErr('h_err','Pick at least one little league.');return;}
     if(!sports){showErr('h_err','Pick at least one sport.');return;}
     if(!roles){showErr('h_err','Pick at least one thing you can do.');return;}
     if(!skill){showErr('h_err','Pick your skill level.');return;}
+    if(isMinor && (!parentName || !parentEmail)){showErr('h_err','Since you are under 18, add a parent or guardian name and email.');return;}
+    if(!ckPhone || !ckTruth || !ckTerms){showErr('h_err','Please check all three boxes to continue.');return;}
+
     const btn=document.getElementById('h_submit');btn.disabled=true;btn.textContent='Sending...';
-    const payload={type:'HELPER',name,age,email,phone,leagues,sports,roles,skill,priorGames:prior,availability:avail,notes,submittedAt:new Date().toISOString()};
+    const payload={type:'HELPER',name,age,email,phone,leagues,sports,roles,skill,priorGames:prior,
+      availability:avail,notes,isMinor,parentName,parentEmail,
+      agreePhone:ckPhone,agreeTruth:ckTruth,agreeTerms:ckTerms,
+      submittedAt:new Date().toISOString()};
     try{
       await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+      if(isMinor){
+        document.getElementById('takeoverMsg').textContent="Almost there! We just emailed your parent or guardian to approve. You'll be active once they confirm.";
+      }
       document.getElementById('helperCard').style.display='none';
-      document.getElementById('helperSuccess').style.display='block';
+      document.getElementById('takeover').classList.add('show');
       window.scrollTo({top:0,behavior:'smooth'});
     }catch(e){btn.disabled=false;btn.textContent='Create my profile';showErr('h_err','Something went wrong. Please try again.');}
   }

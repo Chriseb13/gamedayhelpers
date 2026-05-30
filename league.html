@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leagues &amp; Tournaments | GameDay Helpers</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body style="position:relative;">
+
+<div class="takeover" id="takeover">
+  <div class="check">&#10003;</div>
+  <h1>Got it.<span class="o">Thanks.</span></h1>
+  <p>We'll reach out about covering your league or tournament with vetted helpers.</p>
+  <div class="inbox">Check your inbox for a confirmation email</div>
+  <div class="sub">You coach. We score.</div>
+</div>
+
+<div class="banner">Launching in Tampa Bay &middot; Summer 2026</div>
+
+<header>
+  <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
+  <button class="menu-btn" onclick="document.getElementById('nav').classList.toggle('open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <nav id="nav">
+    <a href="index.html">Home</a>
+    <a href="coaches.html">For Coaches</a>
+    <a href="helper.html">For Helpers</a>
+    <a href="news.html">News</a>
+    <a href="mailto:info@gamedayhelpers.com">Contact</a>
+  </nav>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Leagues &amp; Tournaments</div>
+    <h2>Cover your whole <span class="o">event.</span></h2>
+    <p class="lead" style="margin:14px 0 26px;">Running a league or tournament and need scorekeepers across multiple fields? Tell us what you're planning and we'll be in touch about covering it.</p>
+
+    <div class="form-card" id="leagueCard">
+      <div class="field">
+        <label>Your name <span class="req">*</span></label>
+        <input type="text" id="d_name" required>
+      </div>
+      <div class="field">
+        <label>League or organization <span class="req">*</span></label>
+        <input type="text" id="d_org" required>
+      </div>
+      <div class="field">
+        <label>Email <span class="req">*</span></label>
+        <input type="email" id="d_email" required>
+      </div>
+      <div class="field">
+        <label>Cell phone <span class="req">*</span></label>
+        <input type="tel" id="d_phone" required>
+      </div>
+      <div class="field">
+        <label>What do you need? <span class="hint" style="display:inline;font-weight:400;">(optional)</span></label>
+        <textarea id="d_notes" placeholder="How many fields, dates, tournament or season, etc."></textarea>
+      </div>
+      <button class="submit" id="d_submit" onclick="submitLeague()">Get in touch</button>
+      <div class="err" id="d_err"></div>
+    </div>
+
+    <div class="success" id="leagueSuccess">
+      <h2>Got it. <span class="o">Thanks.</span></h2>
+      <p>We'll reach out about covering your league or tournament. Check your email for a confirmation.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers">
+  <div class="flinks">
+    <a href="index.html">Home</a>
+    <a href="coaches.html">For Coaches</a>
+    <a href="helper.html">For Helpers</a>
+    <a href="mailto:info@gamedayhelpers.com">Contact</a>
+  </div>
+  <div class="small">You coach. We score. &nbsp;&middot;&nbsp; Tampa Bay, FL &nbsp;&middot;&nbsp; &copy; 2026 GameDay Helpers<br>
+  Currently in beta. <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
+</footer>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyodeLRuSQncbf4_9xrjAF6ssuWPQ6gZ8fW8DVuDHHQuv2QMU8RS-EruhHCqg2_vBsY/exec";
+  function showErr(m){const e=document.getElementById('d_err');e.textContent=m;e.style.display='block';}
+  async function submitLeague(){
+    const name=document.getElementById('d_name').value.trim();
+    const org=document.getElementById('d_org').value.trim();
+    const email=document.getElementById('d_email').value.trim();
+    const phone=document.getElementById('d_phone').value.trim();
+    const notes=document.getElementById('d_notes').value.trim();
+    document.getElementById('d_err').style.display='none';
+    if(!name||!org||!email||!phone){showErr('Please fill in all required fields.');return;}
+    const btn=document.getElementById('d_submit');btn.disabled=true;btn.textContent='Sending...';
+    const payload={type:'LEAGUE',name,org,email,phone,notes};
+    try{
+      await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+      document.getElementById('leagueCard').style.display='none';
+      document.getElementById('takeover').classList.add('show');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){btn.disabled=false;btn.textContent='Get in touch';showErr('Something went wrong. Please try again.');}
+  }
+</script>
+</body>
+</html>

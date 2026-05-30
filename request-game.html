@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request a Helper | GameDay Helpers</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body style="position:relative;">
+
+<div class="takeover" id="takeover">
+  <div class="check">&#10003;</div>
+  <h1>Request<span class="o">in.</span></h1>
+  <p>We're lining up a vetted helper from your league and will confirm with you shortly.</p>
+  <div class="inbox">Check your inbox for a confirmation email</div>
+  <div class="sub">You coach. We score.</div>
+</div>
+
+<div class="banner">Launching in Tampa Bay &middot; Summer 2026</div>
+
+<header>
+  <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
+  <button class="menu-btn" onclick="document.getElementById('nav').classList.toggle('open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <nav id="nav">
+    <a href="index.html">Home</a>
+    <a href="coaches.html">For Coaches</a>
+    <a href="helper.html">For Helpers</a>
+    <a href="news.html">News</a>
+    <a href="mailto:info@gamedayhelpers.com">Contact</a>
+  </nav>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">For Coaches</div>
+    <h2>Request a <span class="o">helper.</span></h2>
+    <p class="lead" style="margin:14px 0 26px;">Got a game coming up? Tell us when and where, and we'll line up a vetted helper from your league. You'll pay your helper directly at game time.</p>
+
+    <div class="form-card" id="gameCard">
+      <div class="field">
+        <label>Your name <span class="req">*</span></label>
+        <input type="text" id="g_name" required>
+      </div>
+      <div class="field">
+        <label>Email <span class="req">*</span></label>
+        <input type="email" id="g_email" required>
+      </div>
+      <div class="field">
+        <label>Cell phone <span class="req">*</span></label>
+        <input type="tel" id="g_phone" required>
+        <div class="hint">So we can confirm your helper fast.</div>
+      </div>
+
+      <div class="field">
+        <label>Game date &amp; time <span class="req">*</span></label>
+        <input type="datetime-local" id="g_datetime" required>
+        <div class="hint">When does the game start?</div>
+      </div>
+
+      <div class="field">
+        <label>Sport <span class="req">*</span></label>
+        <div class="chips" id="g_sport">
+          <span class="chip"><input type="radio" name="sport" id="gs1" value="Baseball"><label for="gs1">Baseball</label></span>
+          <span class="chip"><input type="radio" name="sport" id="gs2" value="Softball"><label for="gs2">Softball</label></span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Which little league? <span class="req">*</span></label>
+        <div class="chips" id="g_leagues">
+          <span class="chip"><input type="radio" name="lg" id="gl1" value="Bayshore"><label for="gl1">Bayshore</label></span>
+          <span class="chip"><input type="radio" name="lg" id="gl2" value="Interbay"><label for="gl2">Interbay</label></span>
+          <span class="chip"><input type="radio" name="lg" id="gl3" value="Keystone"><label for="gl3">Keystone</label></span>
+          <span class="chip"><input type="radio" name="lg" id="gl4" value="Northside"><label for="gl4">Northside</label></span>
+          <span class="chip"><input type="radio" name="lg" id="gl5" value="Northwest"><label for="gl5">Northwest</label></span>
+          <span class="chip"><input type="radio" name="lg" id="gl6" value="Palma Ceia"><label for="gl6">Palma Ceia</label></span>
+          <span class="chip"><input type="radio" name="lg" id="gl7" value="Tampa Bay"><label for="gl7">Tampa Bay</label></span>
+          <span class="chip"><input type="radio" name="lg" id="gl8" value="West Tampa"><label for="gl8">West Tampa</label></span>
+          <span class="chip"><input type="radio" name="lg" id="gl9" value="Other"><label for="gl9">Other</label></span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Field / location</label>
+        <input type="text" id="g_field" placeholder="Which field or park?">
+      </div>
+
+      <div class="field">
+        <label>What do you need? <span class="hint" style="display:inline;font-weight:400;">(optional)</span></label>
+        <textarea id="g_notes" placeholder="Run GameChanger, keep score, work the scoreboard, etc."></textarea>
+      </div>
+
+      <button class="submit" id="g_submit" onclick="submitGame()">Request my helper</button>
+      <div class="err" id="g_err"></div>
+    </div>
+
+    <div class="success" id="gameSuccess">
+      <h2>Request <span class="o">in.</span></h2>
+      <p>We're lining up a vetted helper from your league and will confirm with you shortly. Check your email for confirmation.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers">
+  <div class="flinks">
+    <a href="index.html">Home</a>
+    <a href="coaches.html">For Coaches</a>
+    <a href="helper.html">For Helpers</a>
+    <a href="mailto:info@gamedayhelpers.com">Contact</a>
+  </div>
+  <div class="small">You coach. We score. &nbsp;&middot;&nbsp; Tampa Bay, FL &nbsp;&middot;&nbsp; &copy; 2026 GameDay Helpers<br>
+  Currently in beta. <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
+</footer>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyodeLRuSQncbf4_9xrjAF6ssuWPQ6gZ8fW8DVuDHHQuv2QMU8RS-EruhHCqg2_vBsY/exec";
+  function checkedVal(name){const el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';}
+  function showErr(m){const e=document.getElementById('g_err');e.textContent=m;e.style.display='block';}
+
+  async function submitGame(){
+    const coachName=document.getElementById('g_name').value.trim();
+    const coachEmail=document.getElementById('g_email').value.trim();
+    const coachPhone=document.getElementById('g_phone').value.trim();
+    const datetime=document.getElementById('g_datetime').value.trim();
+    const sport=checkedVal('sport');
+    const leagues=checkedVal('lg');
+    const field=document.getElementById('g_field').value.trim();
+    const notes=document.getElementById('g_notes').value.trim();
+    document.getElementById('g_err').style.display='none';
+    if(!coachName||!coachEmail||!coachPhone){showErr('Please fill in your name, email, and phone.');return;}
+    if(!datetime){showErr('Pick the game date and time.');return;}
+    if(!sport){showErr('Pick a sport.');return;}
+    if(!leagues){showErr('Pick a little league.');return;}
+    const btn=document.getElementById('g_submit');btn.disabled=true;btn.textContent='Sending...';
+    const payload={type:'GAMEREQUEST',coachName,coachEmail,coachPhone,datetime,sport,leagues,field,notes};
+    try{
+      await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+      document.getElementById('gameCard').style.display='none';
+      document.getElementById('takeover').classList.add('show');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){btn.disabled=false;btn.textContent='Request my helper';showErr('Something went wrong. Please try again.');}
+  }
+</script>
+</body>
+</html>
