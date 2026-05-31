@@ -25,7 +25,7 @@
   </div>
 </div>
 
-<div class="banner">Launching in Tampa Bay &middot; Summer 2026</div>
+<div class="banner">Founding members signing up now &middot; Service begins Summer/Fall 2026</div>
 
 <header>
   <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
@@ -41,25 +41,41 @@
   </nav>
 </header>
 
-<section class="hero">
+<section class="hero hero-helper">
+  <div class="wrap-h">
   <div class="eyebrow">For Helpers</div>
   <h1>Get Paid to Run<span class="o">Game Day.</span></h1>
-  <p class="lead">Coaches need a hand keeping score, running GameChanger, or working the scoreboard. If you know the game, that hand is you. Flexible, local, and you keep every dollar.</p>
+  <p class="lead">You know the game. You know the app. Somewhere down the street tonight, a coach needs exactly that, and they'll pay you for it. Score on your own schedule, keep every dollar.</p>
   <div class="cta">
     <a class="btn btn-orange" href="#apply"><span>CREATE MY PROFILE</span></a>
   </div>
   <p class="note">We are building the network now. Set up your profile to be first in line when games start this summer.</p>
+  </div>
 </section>
 
 <section style="background:var(--soft);border-top:1px solid #eef0f3;border-bottom:1px solid #eef0f3;">
   <div class="wrap">
-    <div class="eyebrow">What it takes</div>
-    <h2>What makes a <span class="o">great helper.</span></h2>
+    <div class="eyebrow">Why you'll love it</div>
+    <h2>You already know how. <span class="o">Now get paid.</span></h2>
     <div class="steps">
-      <div class="step"><div class="n">01</div><div><div class="st">YOU KNOW BASEBALL OR SOFTBALL</div><div class="sd">Enough to follow a game and keep score. New to GameChanger? We'll show you, it's easy.</div></div></div>
-      <div class="step"><div class="n">02</div><div><div class="st">YOU'RE 14 OR OLDER</div><div class="sd">Teens, parents, and retirees all make great helpers. Under 18 needs a parent's permission first.</div></div></div>
-      <div class="step"><div class="n">03</div><div><div class="st">YOU CAN GET TO THE FIELD</div><div class="sd">You choose which little leagues you'll travel to. We only match you to games there.</div></div></div>
+      <div class="step"><div class="n">01</div><div><div class="st">YOU KNOW THE APP</div><div class="sd">You can run GameChanger in your sleep and keep a clean book. That skill is worth money. We connect you to coaches who need exactly that.</div></div></div>
+      <div class="step"><div class="n">02</div><div><div class="st">YOUR GAME, YOUR CALL</div><div class="sd">Pick your leagues. Pick your nights. Say yes when it works, skip when it doesn't. No boss, no shifts, no one telling you when to show up.</div></div></div>
+      <div class="step"><div class="n">03</div><div><div class="st">YOUR LEAGUES, YOUR PEOPLE</div><div class="sd">These are the fields you already know, in the community you're already part of. Familiar faces, a few innings, cash in hand.</div></div></div>
     </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">The opportunity</div>
+    <h2>Real money, <span class="o">on your time.</span></h2>
+    <p class="lead" style="margin-bottom:20px;">Some nights you score one game and grab dinner on the way home. Some weeks you run a whole slate and it actually adds up. A typical game is about two hours and pays $30 or more, set by the coach, paid straight to you, that day. You work when it suits you, around your job, your classes, your kids. The games are already happening down the street. You just start getting paid to be there.</p>
+    <div class="statband">
+      <div class="stat"><div class="snum">9,000+</div><div class="slab">youth baseball &amp; softball games a year across Tampa, real, steady demand for helpers</div></div>
+      <div class="stat"><div class="snum">$30+</div><div class="slab">a typical two-hour game, and you keep every dollar, we never take a cut</div></div>
+      <div class="stat"><div class="snum">You<br>pick</div><div class="slab">the games and the leagues you'll travel to, no boss, no set schedule</div></div>
+    </div>
+    <p class="note" style="margin-top:18px;">We're prelaunch and building the Tampa network now. Get your profile in early to be first in line when games open this summer.</p>
   </div>
 </section>
 
@@ -67,7 +83,13 @@
   <div class="wrap">
     <div class="eyebrow">Create your profile</div>
     <h2>Build your <span class="o">helper profile.</span></h2>
-    <p class="lead" style="margin:14px 0 26px;">Takes two minutes. This becomes your profile, so coaches can see your skill, your sports, and how many games you've scored. No commitment.</p>
+
+    <p class="lead" style="margin:14px 0 22px;">Takes two minutes. This becomes your profile, so coaches can see your skill, your sports, and how many games you've scored. No commitment.</p>
+
+    <div class="founding">
+      <div class="fbadge">&#9733; FOUNDING HELPER</div>
+      <div class="ftext"><strong>Only the first 50 helpers get it.</strong> Sign up during the founding window and your profile carries a permanent Founding Helper badge, proof you were here first. Once 50 are claimed, it's closed for good.</div>
+    </div>
 
     <div class="form-card" id="helperCard">
       <div class="field">
@@ -127,8 +149,7 @@
         <label>Your scorekeeping skill level <span class="req">*</span></label>
         <select id="h_skill" required>
           <option value="">Select</option>
-          <option>New (willing to learn)</option>
-          <option>Intermediate</option>
+          <option>Comfortable (I can run a game)</option>
           <option>Experienced</option>
           <option>Expert</option>
         </select>
@@ -167,6 +188,19 @@
           <input type="email" id="h_parent_email">
           <div class="hint">We email them a consent link. You're not active until they approve.</div>
         </div>
+      </div>
+
+      <div class="field">
+        <label>How do you want to get paid? <span class="req">*</span></label>
+        <div class="hint" style="margin-bottom:8px;">No cash. Pick the apps you accept. Your handle stays private and is only shared with a coach once you're matched to their game.</div>
+        <div class="chips" id="h_payapps">
+          <span class="chip"><input type="checkbox" id="pa1" value="Venmo"><label for="pa1">Venmo</label></span>
+          <span class="chip"><input type="checkbox" id="pa2" value="Cash App"><label for="pa2">Cash App</label></span>
+          <span class="chip"><input type="checkbox" id="pa3" value="PayPal"><label for="pa3">PayPal</label></span>
+          <span class="chip"><input type="checkbox" id="pa4" value="Zelle"><label for="pa4">Zelle</label></span>
+        </div>
+        <input type="text" id="h_payhandle" style="margin-top:12px;" placeholder="Your handle / username (e.g. @yourname)">
+        <div class="hint">Private. We only pass this to a coach after you've accepted their game.</div>
       </div>
 
       <div class="field" style="background:var(--soft);border:1px solid #eef0f3;border-radius:12px;padding:16px;">
@@ -232,6 +266,8 @@
     const prior=document.getElementById('h_prior').value.trim()||'0';
     const avail=getChecked('h_avail');
     const notes=document.getElementById('h_notes').value.trim();
+    const payApps=getChecked('h_payapps');
+    const payHandle=document.getElementById('h_payhandle').value.trim();
     const ageNum=parseInt(age,10);
     const isMinor = ageNum>=14 && ageNum<18;
     const parentName=document.getElementById('h_parent_name').value.trim();
@@ -247,12 +283,14 @@
     if(!sports){showErr('h_err','Pick at least one sport.');return;}
     if(!roles){showErr('h_err','Pick at least one thing you can do.');return;}
     if(!skill){showErr('h_err','Pick your skill level.');return;}
+    if(!payApps){showErr('h_err','Pick at least one way to get paid.');return;}
+    if(!payHandle){showErr('h_err','Add your payment handle so a matched coach can pay you.');return;}
     if(isMinor && (!parentName || !parentEmail)){showErr('h_err','Since you are under 18, add a parent or guardian name and email.');return;}
     if(!ckPhone || !ckTruth || !ckTerms){showErr('h_err','Please check all three boxes to continue.');return;}
 
     const btn=document.getElementById('h_submit');btn.disabled=true;btn.textContent='Sending...';
     const payload={type:'HELPER',name,age,email,phone,leagues,sports,roles,skill,priorGames:prior,
-      availability:avail,notes,isMinor,parentName,parentEmail,
+      availability:avail,notes,payApps,payHandle,isMinor,parentName,parentEmail,
       agreePhone:ckPhone,agreeTruth:ckTruth,agreeTerms:ckTerms,
       submittedAt:new Date().toISOString()};
     try{

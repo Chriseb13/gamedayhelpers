@@ -24,7 +24,7 @@
   </div>
 </div>
 
-<div class="banner">Launching in Tampa Bay &middot; Summer 2026</div>
+<div class="banner">Founding members signing up now &middot; Service begins Summer/Fall 2026</div>
 
 <header>
   <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
@@ -44,69 +44,77 @@
   <div class="wrap">
     <div class="eyebrow">For Coaches</div>
     <h2>Request a <span class="o">helper.</span></h2>
-    <p class="lead" style="margin:14px 0 26px;">Got a game coming up? Tell us when and where, and we'll line up a vetted helper from your league. You'll pay your helper directly at game time.</p>
+    <p class="lead" style="margin:14px 0 26px;">Tell us when, what you need, and your offer. We'll line up a vetted helper from your league. You pay your helper directly, like you'd pay a babysitter.</p>
 
     <div class="form-card" id="gameCard">
       <div class="field">
-        <label>Your name <span class="req">*</span></label>
-        <input type="text" id="g_name" required>
-      </div>
-      <div class="field">
-        <label>Email <span class="req">*</span></label>
+        <label>Your email <span class="req">*</span></label>
         <input type="email" id="g_email" required>
-      </div>
-      <div class="field">
-        <label>Cell phone <span class="req">*</span></label>
-        <input type="tel" id="g_phone" required>
-        <div class="hint">So we can confirm your helper fast.</div>
+        <div class="hint">We use this to pull up your team and league. Same email you signed up with.</div>
       </div>
 
       <div class="field">
         <label>Game date &amp; time <span class="req">*</span></label>
         <input type="datetime-local" id="g_datetime" required>
-        <div class="hint">When does the game start?</div>
       </div>
 
       <div class="field">
-        <label>Sport <span class="req">*</span></label>
-        <div class="chips" id="g_sport">
-          <span class="chip"><input type="radio" name="sport" id="gs1" value="Baseball"><label for="gs1">Baseball</label></span>
-          <span class="chip"><input type="radio" name="sport" id="gs2" value="Softball"><label for="gs2">Softball</label></span>
+        <label>What do you need? <span class="req">*</span></label>
+        <div class="chips" id="g_needs">
+          <span class="chip"><input type="checkbox" id="gn1" value="Keep score"><label for="gn1">Keep score</label></span>
+          <span class="chip"><input type="checkbox" id="gn2" value="Run GameChanger"><label for="gn2">Run GameChanger</label></span>
+          <span class="chip"><input type="checkbox" id="gn3" value="Work scoreboard"><label for="gn3">Work scoreboard</label></span>
+          <span class="chip"><input type="checkbox" id="gn4" value="Run livestream"><label for="gn4">Run livestream</label></span>
         </div>
       </div>
 
       <div class="field">
-        <label>Which little league? <span class="req">*</span></label>
-        <div class="chips" id="g_leagues">
-          <span class="chip"><input type="radio" name="lg" id="gl1" value="Bayshore"><label for="gl1">Bayshore</label></span>
-          <span class="chip"><input type="radio" name="lg" id="gl2" value="Interbay"><label for="gl2">Interbay</label></span>
-          <span class="chip"><input type="radio" name="lg" id="gl3" value="Keystone"><label for="gl3">Keystone</label></span>
-          <span class="chip"><input type="radio" name="lg" id="gl4" value="Northside"><label for="gl4">Northside</label></span>
-          <span class="chip"><input type="radio" name="lg" id="gl5" value="Northwest"><label for="gl5">Northwest</label></span>
-          <span class="chip"><input type="radio" name="lg" id="gl6" value="Palma Ceia"><label for="gl6">Palma Ceia</label></span>
-          <span class="chip"><input type="radio" name="lg" id="gl7" value="Tampa Bay"><label for="gl7">Tampa Bay</label></span>
-          <span class="chip"><input type="radio" name="lg" id="gl8" value="West Tampa"><label for="gl8">West Tampa</label></span>
-          <span class="chip"><input type="radio" name="lg" id="gl9" value="Other"><label for="gl9">Other</label></span>
+        <label>Your offer <span class="req">*</span></label>
+        <div class="hint" style="margin-bottom:10px;">You set the stipend for your helper. First hour starts at $20, each additional hour at $15. Pay them directly, like a babysitter.</div>
+
+        <div style="margin-bottom:14px;">
+          <div class="plabel" style="margin-bottom:6px;">First hour</div>
+          <div class="chips" id="g_first">
+            <span class="chip"><input type="radio" name="first" id="f20" value="20" checked><label for="f20">$20</label></span>
+            <span class="chip"><input type="radio" name="first" id="f25" value="25"><label for="f25">$25</label></span>
+            <span class="chip"><input type="radio" name="first" id="f30" value="30"><label for="f30">$30</label></span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div class="plabel" style="margin-bottom:6px;">Each additional hour</div>
+          <div class="chips" id="g_add">
+            <span class="chip"><input type="radio" name="addl" id="a15" value="15" checked><label for="a15">$15</label></span>
+            <span class="chip"><input type="radio" name="addl" id="a20" value="20"><label for="a20">$20</label></span>
+            <span class="chip"><input type="radio" name="addl" id="a25" value="25"><label for="a25">$25</label></span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div class="plabel" style="margin-bottom:6px;">Expected game length</div>
+          <div class="chips" id="g_len">
+            <span class="chip"><input type="radio" name="len" id="L1" value="1" checked><label for="L1">1 hr</label></span>
+            <span class="chip"><input type="radio" name="len" id="L15" value="1.5"><label for="L15">1.5 hr</label></span>
+            <span class="chip"><input type="radio" name="len" id="L2" value="2"><label for="L2">2 hr</label></span>
+            <span class="chip"><input type="radio" name="len" id="L25" value="2.5"><label for="L25">2.5 hr</label></span>
+            <span class="chip"><input type="radio" name="len" id="L3" value="3"><label for="L3">3 hr</label></span>
+          </div>
+        </div>
+
+        <div style="background:#0d0d0d;color:#fff;border-radius:12px;padding:18px;text-align:center;">
+          <div style="font-size:13px;font-weight:600;color:#99f6e4;text-transform:uppercase;letter-spacing:1px;">Your offer</div>
+          <div id="offerAmount" style="font-family:'Anton',sans-serif;font-size:40px;color:#f97316;line-height:1.1;margin-top:4px;">$20.00</div>
+          <div style="font-size:12px;color:#9ca3af;font-weight:500;margin-top:4px;">Extra innings add time at your additional-hour rate</div>
         </div>
       </div>
 
       <div class="field">
-        <label>Field / location</label>
+        <label>Field / location <span class="hint" style="display:inline;font-weight:400;">(optional)</span></label>
         <input type="text" id="g_field" placeholder="Which field or park?">
       </div>
 
-      <div class="field">
-        <label>What do you need? <span class="hint" style="display:inline;font-weight:400;">(optional)</span></label>
-        <textarea id="g_notes" placeholder="Run GameChanger, keep score, work the scoreboard, etc."></textarea>
-      </div>
-
-      <button class="submit" id="g_submit" onclick="submitGame()">Request my helper</button>
+      <button class="submit" id="g_submit" onclick="submitGame()">Send my offer</button>
       <div class="err" id="g_err"></div>
-    </div>
-
-    <div class="success" id="gameSuccess">
-      <h2>Request <span class="o">in.</span></h2>
-      <p>We're lining up a vetted helper from your league and will confirm with you shortly. Check your email for confirmation.</p>
     </div>
   </div>
 </section>
@@ -125,31 +133,51 @@
 
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQnRjGHrkyzhreSnNxQy1ReXPac4VNLT-Wkz6qggE0OOsY-3v5zjdUclYkfkD6cncs/exec";
+
+  const params = new URLSearchParams(location.search);
+  const emailParam = params.get('email');
+  if (emailParam) document.getElementById('g_email').value = emailParam;
+
   function checkedVal(name){const el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';}
+  function getChecked(id){return Array.from(document.querySelectorAll('#'+id+' input:checked')).map(e=>e.value).join(', ');}
   function showErr(m){const e=document.getElementById('g_err');e.textContent=m;e.style.display='block';}
 
+  function calcOffer(){
+    const first=parseFloat(checkedVal('first'))||20;
+    const addl=parseFloat(checkedVal('addl'))||15;
+    const len=parseFloat(checkedVal('len'))||1;
+    const addlHours=Math.max(0,len-1);
+    const total=first + (addlHours * addl);
+    return total;
+  }
+  function updateOffer(){
+    document.getElementById('offerAmount').textContent = '$' + calcOffer().toFixed(2);
+  }
+  document.querySelectorAll('#g_first input,#g_add input,#g_len input').forEach(el=>el.addEventListener('change',updateOffer));
+  updateOffer();
+
   async function submitGame(){
-    const coachName=document.getElementById('g_name').value.trim();
     const coachEmail=document.getElementById('g_email').value.trim();
-    const coachPhone=document.getElementById('g_phone').value.trim();
     const datetime=document.getElementById('g_datetime').value.trim();
-    const sport=checkedVal('sport');
-    const leagues=checkedVal('lg');
+    const needs=getChecked('g_needs');
     const field=document.getElementById('g_field').value.trim();
-    const notes=document.getElementById('g_notes').value.trim();
+    const firstRate=checkedVal('first');
+    const addlRate=checkedVal('addl');
+    const length=checkedVal('len');
+    const offer=calcOffer().toFixed(2);
     document.getElementById('g_err').style.display='none';
-    if(!coachName||!coachEmail||!coachPhone){showErr('Please fill in your name, email, and phone.');return;}
+    if(!coachEmail){showErr('Please enter your email.');return;}
     if(!datetime){showErr('Pick the game date and time.');return;}
-    if(!sport){showErr('Pick a sport.');return;}
-    if(!leagues){showErr('Pick a little league.');return;}
+    if(!needs){showErr('Pick at least one thing you need.');return;}
     const btn=document.getElementById('g_submit');btn.disabled=true;btn.textContent='Sending...';
-    const payload={type:'GAMEREQUEST',coachName,coachEmail,coachPhone,datetime,sport,leagues,field,notes};
+    const payload={type:'GAMEREQUEST',coachEmail,datetime,notes:needs,field,
+      firstRate,addlRate,length,offer};
     try{
       await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
       document.getElementById('gameCard').style.display='none';
       document.getElementById('takeover').classList.add('show');
       window.scrollTo({top:0,behavior:'smooth'});
-    }catch(e){btn.disabled=false;btn.textContent='Request my helper';showErr('Something went wrong. Please try again.');}
+    }catch(e){btn.disabled=false;btn.textContent='Send my offer';showErr('Something went wrong. Please try again.');}
   }
 </script>
 </body>
