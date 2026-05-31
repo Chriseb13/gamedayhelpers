@@ -189,6 +189,15 @@ footer .small a{color:#94a3b8;}
   animation:rise .5s ease .28s both;
 }
 .takeover .sub{margin-top:26px;font-size:14px;color:#9ca3af;font-weight:500;animation:rise .5s ease .36s both;}
+.takeover .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:30px;animation:rise .5s ease .44s both;}
+.takeover .tbtn{
+  display:inline-block;text-decoration:none;cursor:pointer;border:none;
+  padding:14px 26px;border-radius:12px;font-family:'Quicksand',sans-serif;
+  font-weight:700;font-size:15px;transition:opacity .15s;
+}
+.takeover .tbtn:hover{opacity:.88;}
+.takeover .tbtn-orange{background:var(--orange);color:#fff;}
+.takeover .tbtn-ghost{background:transparent;color:#fff;border:1.5px solid #3a3a3a;}
 @keyframes rise{0%{transform:translateY(14px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
 @media (prefers-reduced-motion: reduce){
   .takeover .check,.takeover h1,.takeover p,.takeover .inbox,.takeover .sub{animation:none;}
