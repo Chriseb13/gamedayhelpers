@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v11 - profile page on the site (Sept 30, 2026)
+ *  v12 - pricing and status copy in emails (Sept 30, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -192,7 +192,7 @@ function handleGameRequest(d) {
     tr("Game", when) + tr("Field", clean(d.field) || "TBD") + tr("You need", clean(d.notes)) +
     tr("Your offer", "$" + clean(d.offer) + " (" + clean(d.length) + " hr, $" + num(d.firstRate) + " first hour, $" + num(d.addlRate) + " each additional)") +
     "</table>" +
-    "<p><strong>What happens next:</strong> a real person (" + OWNER_NAME + ") is matching your game with a helper from your league now. You will get one email with your helper's name, phone, and payment app. Then you two text each other and lock it in.</p>" +
+    "<p><strong>What happens next:</strong> " + OWNER_NAME + " looks for an available helper from your league. A helper is not confirmed yet. If one accepts, you will get one email with your helper's name, phone, and payment app. Then you two text each other and lock it in.</p>" +
     "<p>Pay your helper directly after the game, app to app. No cash.</p>" +
     (c ? "" : "<p style='color:#b45309;'><strong>Heads up:</strong> we could not find a coach profile under this email. Take 60 seconds and <a href='" + SITE_BASE_URL + "/coaches.html'>create one</a> so we can match you faster.</p>") +
     "<p>Need to change anything? Reply to this email.</p>";
@@ -230,7 +230,7 @@ function sendParentConsent(parentEmail, parentName, helperName, token){
   MailApp.sendEmail({ to: parentEmail, subject: "Approve " + firstName(helperName) + " as a GameDay Helper (2 taps)",
     htmlBody: brandWrap(parentName,
       "<p><strong>" + esc(helperName) + "</strong> just signed up to earn money keeping score and running GameChanger at Tampa Bay youth baseball and softball games. Because they are under 18, we need your OK before they work a game.</p>" +
-      "<p><strong>How it works:</strong> a coach requests a scorekeeper, we match your kid to a game in a league they chose, the coach pays them directly through Venmo, Cash App, PayPal or Zelle after the game (typically $30 or more for a two hour game). No cash. You and your kid decide which games to take. A real person makes every match and you can reach us any time.</p>" +
+      "<p><strong>How it works:</strong> a coach requests a scorekeeper, we match your kid to a game in a league they chose, the coach pays them directly through Venmo, Cash App, PayPal or Zelle after the game. Two hour offers start at $35, set by the coach. No cash. You and your kid decide which games to take. A real person makes every match and you can reach us any time.</p>" +
       "<p style='text-align:center;margin:24px 0;'><a href='" + link + "' style='background:#1747C8;color:#fff;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:10px;display:inline-block;'>Yes, I approve</a></p>" +
       "<p style='font-size:13px;color:#666;'>If you did not expect this email, ignore it and nothing happens. Questions: reply to this email or write <a href='mailto:" + OWNER_EMAIL + "'>" + OWNER_EMAIL + "</a>. Our <a href='" + SITE_BASE_URL + "/terms.html'>terms</a> are short and in plain English.</p>") });
 }
@@ -474,9 +474,9 @@ function helperWelcomeBody(name, id, isMinor, founder){
   const f = founder ? "<p style='background:#EEF3FF;border:1.5px solid #1747C8;border-radius:10px;padding:12px;'><strong>&#9733; Founding Helper #" + founder + ".</strong> Only 50 exist. It is on your profile for good.</p>" : "";
   const next = isMinor
     ? "<p><strong>One step left:</strong> we just emailed your parent or guardian a one tap approval. Nudge them. The second they approve, you are active.</p>"
-    : "<p><strong>You are active.</strong> Nothing to do now. When a coach in one of your leagues needs a scorekeeper, you get an email with the date, field, and pay. Say yes to the ones you want, skip the rest.</p>";
+    : "<p><strong>You are active.</strong> Nothing to do now. Once matching opens and a coach in one of your leagues needs a scorekeeper, you get an email with the date, field, and pay. Say yes to the ones you want, skip the rest.</p>";
   return f + next +
-    "<p><strong>How pay works:</strong> the coach pays you straight to your app after the game, typically $30 or more for a two hour game. GameDay Helpers takes none of it. No cash, ever.</p>" +
+    "<p><strong>How pay works:</strong> the coach pays you straight to your app after the game. Two hour offers start at $35, set by the coach, and GameDay Helpers takes none of it. No cash, ever.</p>" +
     "<p><strong>Three things that get you rebooked:</strong> show up 15 minutes early, phone charged, and text the coach the day before to confirm.</p>" +
     profileLine(id) +
     "<p>Know another kid or parent who can run GameChanger? Forward this. Founding spots are going.</p>";
@@ -487,7 +487,7 @@ function coachWelcomeBody(name, founder){
     "<p><strong>Got a game coming up? Request a helper now:</strong></p>" +
     "<p style='text-align:center;margin:20px 0;'><a href='" + SITE_BASE_URL + "/request-game.html' style='background:#1747C8;color:#fff;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:10px;display:inline-block;'>Request a scorekeeper</a></p>" +
     "<p>Takes 60 seconds: date, what you need, your offer. " + OWNER_NAME + " personally matches you with a helper from your league and emails you their name, phone, and payment app. You text them, they show up, you pay them after the game, app to app.</p>" +
-    "<p><strong>What it costs you:</strong> just the helper's pay, typically $30 or more for a two hour game. Nothing to GameDay Helpers during the Tampa beta.</p>" +
+    "<p><strong>What it costs you:</strong> just the helper's pay, which you set when you request. Two hour offers start at $35. No matching fee to GameDay Helpers during the Tampa beta.</p>" +
     "<p>Tip: request as early as you can. Two days notice gives us the best shot at finding you a helper. Two hours is a coin flip.</p>";
 }
 function profileLine(id){ return "<p style='font-size:13px;color:#666;'>Your live profile (coaches see this, never your age, phone, or payment handle): <a href='" + profileUrl(id) + "'>" + profileUrl(id) + "</a></p>"; }
