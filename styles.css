@@ -212,6 +212,12 @@ input[type=checkbox], input[type=radio] { accent-color: var(--action); }
 /* Remove obscured controls from keyboard navigation while a takeover is shown. */
 body:has(> .takeover.show) > :not(.takeover) { display: none; }
 
+/* Hero photo */
+.hero-photo { display: block; margin-top: 2rem; }
+.hero-photo img { display: block; width: 100%; height: auto; border-radius: var(--radius-card); aspect-ratio: 2 / 1; object-fit: cover; }
+@media (max-width: 639px) { .hero-photo img { aspect-ratio: 1 / 1; } }
+@media (min-width: 900px) { .hero-home { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); column-gap: 3rem; align-items: center; } .hero-photo { margin-top: 0; } .hero-photo img { aspect-ratio: 4 / 5; } }
+
 /* FAQ accordions: native details/summary, keyboard accessible by default. */
 .faq { margin-top: 1.5rem; max-width: 760px; }
 .faq details { border-top: 1px solid var(--border); }

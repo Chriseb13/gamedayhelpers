@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v12 - pricing and status copy in emails (Sept 30, 2026)
+ *  v13 - cancellation policy in match emails (Sept 30, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -307,6 +307,7 @@ function sendMatchEmails(rowNum){
     tr("Pays via", h[H.PAYAPPS] + (h[H.PAYHANDLE] ? " (" + h[H.PAYHANDLE] + ")" : "")) + tr("Skill", h[H.SKILL]) + "</table>" +
     details +
     "<p><strong>Do this now:</strong> text " + esc(firstName(h[H.NAME])) + " to confirm and share the GameChanger team invite. After the game, pay " + offer + " straight to their app. No cash.</p>" +
+"<p><strong>Cancellations:</strong> text " + esc(firstName(h[H.NAME])) + " at least two hours before their arrival time and you owe nothing. Later than that, including a rainout, pay them $15 that day. If the game started, pay for time worked at your rates, $15 minimum.</p>" +
     "<p>You will get a one tap review link a few hours after first pitch. Problem before the game? Reply here" + (OWNER_CELL ? " or text " + OWNER_NAME + " at " + OWNER_CELL : "") + ".</p>" +
     profileLine(h[H.ID]),
     "MATCHED: " + firstName(h[H.NAME]) + " is scoring your game " + dt);
@@ -317,6 +318,7 @@ function sendMatchEmails(rowNum){
     "<table style='border-collapse:collapse;font-size:14px;'>" + tr("Coach", coachName) + tr("Phone", coachPhone) + tr("Pays via", coachPay) + "</table>" +
     details +
     "<p><strong>Do this now:</strong> text Coach " + esc(firstName(coachName)) + " to confirm. Ask for the GameChanger invite. Show up 15 minutes early, phone charged.</p>" +
+"<p><strong>Cancellations:</strong> if the coach cancels less than two hours before your arrival time, including a rainout, they owe you $15 that day. Reply here if that does not land.</p>" +
     "<p>After the game the coach pays " + offer + " to your app. If it has not landed by the next morning, reply to this email and we handle it.</p>",
     "YOU'RE IN: " + dt + " with Coach " + firstName(coachName));
 
