@@ -8,19 +8,20 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="description" content="GameDay Helpers helper profile layout preview.">
+<meta name="description" content="A GameDay Helpers scorekeeper profile: sports, leagues, games scored, and coach reviews.">
 <link rel="canonical" href="https://gamedayhelpers.com/profile.html">
-<meta name="robots" content="noindex, nofollow"><meta property="og:type" content="website">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:type" content="profile">
 <meta property="og:site_name" content="GameDay Helpers">
 <meta property="og:title" content="Helper Profile | GameDay Helpers">
-<meta property="og:description" content="GameDay Helpers helper profile layout preview.">
+<meta property="og:description" content="A GameDay Helpers scorekeeper profile: sports, leagues, games scored, and coach reviews.">
 <meta property="og:url" content="https://gamedayhelpers.com/profile.html">
 <meta property="og:image" content="https://gamedayhelpers.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Helper Profile | GameDay Helpers">
-<meta name="twitter:description" content="GameDay Helpers helper profile layout preview.">
+<meta name="twitter:description" content="A GameDay Helpers scorekeeper profile: sports, leagues, games scored, and coach reviews.">
 <meta name="twitter:image" content="https://gamedayhelpers.com/og.png">
 <meta name="theme-color" content="#102A43">
 <link rel="stylesheet" href="styles.css">
@@ -28,7 +29,7 @@
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 
-<div class="banner">Tampa Bay &middot; Fall ball 2026</div>
+<div class="banner">You coach. We score.</div>
 
 <header>
   <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
@@ -47,85 +48,49 @@
 <main id="main">
 <section>
   <div class="wrap">
-    <h1 class="mb-5">Helper profile preview</h1>
+    <div class="eyebrow">Helper profile</div>
 
-    <p class="preview-tag">Profile layout preview &middot; no live helper record</p>
+    <div id="loading" class="profile" role="status" aria-live="polite">
+      <div class="phead"><div class="pname">Loading profile</div><span class="pskill">One second</span></div>
+      <div class="pbody"><div class="rev-empty">Pulling this helper's record.</div></div>
+    </div>
 
-    <!-- FRESH PROFILE -->
-    <div class="profile">
+    <div id="missing" class="success" style="display:none" role="status">
+      <h2>Profile <span class="o">not found.</span></h2>
+      <p>This link is missing its helper id or the profile no longer exists. If you got here from an email, use the link in that email. Questions: <a href="mailto:info@gamedayhelpers.com" class="text-link">info@gamedayhelpers.com</a></p>
+    </div>
+
+    <div id="profile" class="profile" style="display:none">
       <div class="phead">
-        <div class="pname">Helper profile</div>
-        <span class="pskill">Skill level not loaded</span>
+        <div class="pname" id="p_name"></div>
+        <span class="pskill" id="p_skill"></span>
+        <span class="pskill" id="p_founder" style="display:none;margin-left:.5rem;background:var(--accent);color:var(--dark);border-color:var(--accent)"></span>
       </div>
       <div class="pbody">
-
-        <div class="psection">
-          <div class="plabel">Sports scored</div>
-          <div class="tags"><span class="tag">No sports loaded</span></div>
-        </div>
-
-        <div class="psection">
-          <div class="plabel">Leagues served</div>
-          <div class="tags"><span class="tag">No leagues loaded</span></div>
-        </div>
-
+        <div class="psection"><div class="plabel">Sports scored</div><div class="tags" id="p_sports"></div></div>
+        <div class="psection"><div class="plabel">Leagues served</div><div class="tags" id="p_leagues"></div></div>
+        <div class="psection" id="p_pay_section" style="display:none"><div class="plabel">Accepts</div><div class="tags" id="p_pay"></div></div>
         <div class="psection">
           <div class="plabel">Games scored</div>
           <div class="gstats">
-            <div class="gstat"><div class="num">N/A</div><div class="lab">with GameDay Helpers<br>not loaded</div></div>
-            <div class="gstat"><div class="num">N/A</div><div class="lab">before joining</div></div>
+            <div class="gstat"><div class="num" id="p_gdh">0</div><div class="lab">with GameDay Helpers<br>(and counting)</div></div>
+            <div class="gstat"><div class="num" id="p_prior">0</div><div class="lab">before joining</div></div>
           </div>
         </div>
-
         <div class="psection mb-0">
-          <div class="plabel">Reviews</div>
-          <div class="rev-empty">No live reviews are displayed in this layout preview.</div>
+          <div class="plabel" id="p_revlabel">Reviews</div>
+          <div id="p_reviews"></div>
         </div>
-
       </div>
     </div>
 
-    <p class="preview-tag mt-7">Profile layout preview &middot; experience and reviews</p>
-
-    <!-- POPULATED PROFILE -->
-    <div class="profile">
-      <div class="phead">
-        <div class="pname">Helper profile</div>
-        <span class="pskill">Skill level not loaded</span>
-      </div>
-      <div class="pbody">
-
-        <div class="psection">
-          <div class="plabel">Sports scored</div>
-          <div class="tags"><span class="tag">No sports loaded</span></div>
-        </div>
-
-        <div class="psection">
-          <div class="plabel">Leagues served</div>
-          <div class="tags"><span class="tag">No leagues loaded</span></div>
-        </div>
-
-        <div class="psection">
-          <div class="plabel">Games scored</div>
-          <div class="gstats">
-            <div class="gstat"><div class="num">N/A</div><div class="lab">with GameDay Helpers<br>not loaded</div></div>
-            <div class="gstat"><div class="num">N/A</div><div class="lab">before joining</div></div>
-          </div>
-        </div>
-
-        <div class="psection mb-0">
-          <div class="plabel">Reviews</div>
-          <div class="rev-empty">No live reviews are displayed in this layout preview. Real feedback belongs here after a completed game.</div>
-        </div>
-
-      </div>
+    <p class="note mt-6">Coaches see this page. A helper's age, phone, email, and payment handle are never shown here. Contact details are shared only after a match.</p>
+    <div class="cta mt-5">
+      <a class="btn btn-orange" href="request-game.html"><span>Request a helper</span></a>
+      <a class="btn btn-dark" href="helper.html"><span>Become a helper</span></a>
     </div>
-
-    <p class="note mt-6">This page is a profile layout preview. It does not show a live helper record, game counts, or reviews. Helper age is not displayed.</p>
-
   </div>
 </section>
-
 </main>
 
 <footer>
@@ -141,5 +106,58 @@
   Serving Tampa Bay. <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
 </footer>
 
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQnRjGHrkyzhreSnNxQy1ReXPac4VNLT-Wkz6qggE0OOsY-3v5zjdUclYkfkD6cncs/exec";
+  const id = new URLSearchParams(location.search).get('p') || '';
+
+  function show(which){ ['loading','missing','profile'].forEach(k => document.getElementById(k).style.display = k === which ? '' : 'none'); }
+  function tags(el, csv){
+    el.textContent = '';
+    String(csv || '').split(',').map(s => s.trim()).filter(Boolean).forEach(t => { const s = document.createElement('span'); s.className = 'tag'; s.textContent = t; el.appendChild(s); });
+    if (!el.children.length) { const s = document.createElement('span'); s.className = 'tag'; s.textContent = 'Not listed'; el.appendChild(s); }
+  }
+  function stars(n){ return '★'.repeat(Math.max(0, Math.min(5, n))); }
+
+  function render(d){
+    document.getElementById('p_name').textContent = d.name || 'Helper';
+    document.getElementById('p_skill').textContent = d.skill || 'Skill not listed';
+    document.title = (d.name ? d.name + ' | ' : '') + 'Helper Profile | GameDay Helpers';
+    if (d.founder) { const f = document.getElementById('p_founder'); f.textContent = '★ Founding Helper #' + d.founder; f.style.display = ''; }
+    tags(document.getElementById('p_sports'), d.sports);
+    tags(document.getElementById('p_leagues'), d.leagues);
+    if (d.payApps) { tags(document.getElementById('p_pay'), d.payApps); document.getElementById('p_pay_section').style.display = ''; }
+    document.getElementById('p_gdh').textContent = d.gdhGames || 0;
+    document.getElementById('p_prior').textContent = d.priorGames || 0;
+
+    const box = document.getElementById('p_reviews'); box.textContent = '';
+    if (d.count && d.reviews && d.reviews.length) {
+      document.getElementById('p_revlabel').textContent = 'Reviews · ★ ' + d.avg + ' (' + d.count + ')';
+      d.reviews.forEach(r => {
+        const card = document.createElement('div'); card.className = 'rev';
+        const top = document.createElement('div'); top.className = 'rtop';
+        const s = document.createElement('div'); s.className = 'stars'; s.textContent = stars(r.stars);
+        const w = document.createElement('div'); w.className = 'rdate'; w.textContent = r.when || '';
+        top.appendChild(s); top.appendChild(w); card.appendChild(top);
+        if (r.comment) { const t = document.createElement('div'); t.className = 'rtext'; t.textContent = r.comment; card.appendChild(t); }
+        box.appendChild(card);
+      });
+    } else {
+      const e = document.createElement('div'); e.className = 'rev-empty';
+      e.textContent = 'No reviews yet. Be the first coach to work with ' + ((d.name || 'this helper').split(' ')[0]) + '.';
+      box.appendChild(e);
+    }
+    show('profile');
+  }
+
+  (async () => {
+    if (!id) { show('missing'); return; }
+    try {
+      const res = await fetch(SCRIPT_URL + '?p=' + encodeURIComponent(id) + '&format=json', { redirect: 'follow' });
+      const d = await res.json();
+      if (d.result !== 'success') { show('missing'); return; }
+      render(d);
+    } catch (e) { show('missing'); }
+  })();
+</script>
 </body>
 </html>

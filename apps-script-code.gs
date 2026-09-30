@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v10 - ship audit (Sept 30, 2026)
+ *  v11 - profile page on the site (Sept 30, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -79,6 +79,7 @@ function doGet(e) {
   const p = (e && e.parameter) || {};
   if (p.consent) return HtmlService.createHtmlOutput(handleConsent(p.consent))
       .setTitle("Parent approval | GameDay Helpers").addMetaTag("viewport","width=device-width, initial-scale=1.0");
+  if (p.p && p.format === "json") return json(profileData(p.p));
   if (p.p) return HtmlService.createHtmlOutput(renderProfile(p.p))
       .setTitle("Helper Profile | GameDay Helpers").addMetaTag("viewport","width=device-width, initial-scale=1.0");
   return HtmlService.createHtmlOutput("<p style='font-family:sans-serif'>GameDay Helpers.</p>");
@@ -385,6 +386,27 @@ function createReviewTrigger() {
 /* ==========================================================
  *  LIVE PROFILE PAGE  (never shows age, phone, email, or pay handle)
  * ========================================================== */
+// Public JSON for profile.html. Same fields the HTML profile shows, nothing private.
+function profileData(helperId) {
+  const h = tab("Helpers", HELPER_COLS);
+  const hr = findRowByValue(h, H.ID, helperId);
+  if (!hr) return { result: "notfound" };
+  const p = hr.row;
+  const rev = tab("Reviews", REVIEW_COLS).getDataRange().getValues();
+  const reviews = [];
+  for (let i = 1; i < rev.length; i++) {
+    if (rev[i][2] == helperId && rev[i][3] === "helper") {
+      reviews.unshift({ stars: Number(rev[i][5]) || 0,
+        when: rev[i][0] instanceof Date ? Utilities.formatDate(rev[i][0], Session.getScriptTimeZone(), "MMM yyyy") : "",
+        comment: String(rev[i][6] || "") });
+    }
+  }
+  return { result: "success", name: String(p[H.NAME]), skill: String(p[H.SKILL]), founder: p[H.FOUNDER] || "",
+    sports: String(p[H.SPORTS] || ""), leagues: String(p[H.LEAGUES] || ""), payApps: String(p[H.PAYAPPS] || ""),
+    gdhGames: Number(p[H.GDH]) || 0, priorGames: Number(p[H.PRIOR]) || 0,
+    avg: p[H.AVG] === "" ? null : Number(p[H.AVG]), count: Number(p[H.COUNT]) || 0, reviews: reviews };
+}
+
 function renderProfile(helperId) {
   const h = tab("Helpers", HELPER_COLS);
   const hr = findRowByValue(h, H.ID, helperId);
@@ -538,7 +560,7 @@ function makeHelperId(name){
   const base = String(name||"helper").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"").slice(0,18) || "helper";
   return base + "-" + Math.random().toString(36).slice(2,6);
 }
-function profileUrl(id){ return ScriptApp.getService().getUrl() + "?p=" + encodeURIComponent(id); }
+function profileUrl(id){ return SITE_BASE_URL + "/profile.html?p=" + encodeURIComponent(id); }
 function reviewUrl(gameId, revId, revName, revRole, reviewerRole){
   return SITE_BASE_URL + "/review.html?g=" + encodeURIComponent(gameId) + "&rev=" + encodeURIComponent(revId) +
     "&revname=" + encodeURIComponent(revName||"") + "&role=" + revRole + "&by=" + reviewerRole;
