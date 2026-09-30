@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /review.html
 Disallow: /profile.html
+Disallow: /match.html
 
 Sitemap: https://gamedayhelpers.com/sitemap.xml

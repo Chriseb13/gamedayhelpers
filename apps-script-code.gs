@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v13 - cancellation policy in match emails (Sept 30, 2026)
+ *  v14 - match board endpoints (Oct 1, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -25,6 +25,7 @@ const REVIEW_DELAY_HOURS = 3;
 const FOUNDER_LIMIT      = 50;
 const OWNER_NAME         = "Chris";
 const OWNER_CELL         = "";   // optional, shown in match emails so both sides can text you
+const ADMIN_KEY          = "";   // set in the editor only. Unlocks match.html. Empty = match board disabled.
 
 /* ---------------- COLUMN MAPS (1-indexed) ---------------- */
 const HELPER_COLS = ["Submitted","HelperID","Name","Age (private)","Email","Phone",
@@ -65,6 +66,9 @@ function doPost(e) {
     else if (type === "LEAGUE")      out = handleLeague(data);
     else if (type === "REVIEW")      out = handleReview(data);
     else if (type === "HELPER")      out = handleHelper(data);
+    else if (type === "MATCH")       out = adminMatch(data);
+    else if (type === "APPROVE")     out = adminApprove(data);
+    else if (type === "UNFILL")      out = adminUnfill(data);
     else                             out = { result: "error", message: "Unknown type" };
     return json(out);
   } catch (err) {
@@ -80,6 +84,7 @@ function doGet(e) {
   if (p.consent) return HtmlService.createHtmlOutput(handleConsent(p.consent))
       .setTitle("Parent approval | GameDay Helpers").addMetaTag("viewport","width=device-width, initial-scale=1.0");
   if (p.p && p.format === "json") return json(profileData(p.p));
+  if (p.op === "board") return json(adminBoard(p.key));
   if (p.p) return HtmlService.createHtmlOutput(renderProfile(p.p))
       .setTitle("Helper Profile | GameDay Helpers").addMetaTag("viewport","width=device-width, initial-scale=1.0");
   return HtmlService.createHtmlOutput("<p style='font-family:sans-serif'>GameDay Helpers.</p>");
@@ -327,6 +332,70 @@ function sendMatchEmails(rowNum){
   g.getRange(rowNum, G.HNAME + 1).setValue(h[H.NAME]);
   g.getRange(rowNum, G.HEMAIL + 1).setValue(h[H.EMAIL]);
   return "Match emails sent to " + coachName + " and " + h[H.NAME] + ".";
+}
+
+/* ==========================================================
+ *  MATCH BOARD (match.html). Every call needs ADMIN_KEY.
+ * ========================================================== */
+function adminOk(key){ return ADMIN_KEY && key && String(key) === ADMIN_KEY; }
+function adminBoard(key){
+  if (!adminOk(key)) return { result: "error", message: "Bad key" };
+  const tz = Session.getScriptTimeZone();
+  const gRows = tab("Games", GAME_COLS).getDataRange().getValues();
+  const games = [];
+  for (let i = 1; i < gRows.length; i++) {
+    const r = gRows[i]; if (!r[G.ID]) continue;
+    const dt = r[G.DT] instanceof Date ? r[G.DT] : new Date(r[G.DT]);
+    games.push({ row: i + 1, id: r[G.ID], when: isNaN(dt.getTime()) ? String(r[G.DT]) : dt.toISOString(),
+      whenText: isNaN(dt.getTime()) ? String(r[G.DT]) : Utilities.formatDate(dt, tz, "EEE MMM d, h:mm a"),
+      field: r[G.FIELD], coach: r[G.CNAME], coachEmail: r[G.CEMAIL], coachPhone: r[G.CPHONE], league: r[G.LEAGUE], team: r[G.TEAM],
+      needs: r[G.NEEDS], offer: r[G.OFFER], length: r[G.LEN], status: r[G.STATUS] || "OPEN", helperId: r[G.HID], helperName: r[G.HNAME] });
+  }
+  const hRows = tab("Helpers", HELPER_COLS).getDataRange().getValues();
+  const helpers = [];
+  for (let i = 1; i < hRows.length; i++) {
+    const h = hRows[i]; if (!h[H.ID]) continue;
+    helpers.push({ row: i + 1, id: h[H.ID], name: h[H.NAME], leagues: String(h[H.LEAGUES] || ""), sports: String(h[H.SPORTS] || ""),
+      roles: String(h[H.ROLES] || ""), skill: h[H.SKILL], prior: Number(h[H.PRIOR]) || 0, gdh: Number(h[H.GDH]) || 0,
+      avg: h[H.AVG] === "" ? null : Number(h[H.AVG]), count: Number(h[H.COUNT]) || 0, avail: String(h[H.AVAIL] || ""),
+      approved: h[H.APPROVED] === "YES", minor: h[H.MINOR] === "YES", consent: h[H.CONSENT], founder: h[H.FOUNDER] || "",
+      notes: String(h[H.NOTES] || "").slice(0, 200) });
+  }
+  return { result: "success", games: games, helpers: helpers, generated: new Date().toISOString() };
+}
+function adminMatch(d){
+  if (!adminOk(d.key)) return { result: "error", message: "Bad key" };
+  const g = tab("Games", GAME_COLS);
+  const gr = findRowByValue(g, G.ID, clean(d.gameId, 40));
+  if (!gr) return { result: "error", message: "Game not found" };
+  if (gr.row[G.STATUS] === "MATCHED" || gr.row[G.STATUS] === "DONE") return { result: "error", message: "Game already " + gr.row[G.STATUS] };
+  g.getRange(gr.index, G.HID + 1).setValue(clean(d.helperId, 120));
+  const msg = sendMatchEmails(gr.index);
+  const ok = /^Match emails sent/.test(msg);
+  if (!ok) g.getRange(gr.index, G.HID + 1).setValue("");
+  return { result: ok ? "success" : "error", message: msg };
+}
+function adminApprove(d){
+  if (!adminOk(d.key)) return { result: "error", message: "Bad key" };
+  const h = tab("Helpers", HELPER_COLS);
+  const hr = findRowByValue(h, H.ID, clean(d.helperId, 120));
+  if (!hr) return { result: "error", message: "Helper not found" };
+  h.getRange(hr.index, H.APPROVED + 1).setValue(d.approved === false ? "NO" : "YES");
+  return { result: "success", message: (d.approved === false ? "Unapproved " : "Approved ") + hr.row[H.NAME] };
+}
+function adminUnfill(d){
+  if (!adminOk(d.key)) return { result: "error", message: "Bad key" };
+  const g = tab("Games", GAME_COLS);
+  const gr = findRowByValue(g, G.ID, clean(d.gameId, 40));
+  if (!gr) return { result: "error", message: "Game not found" };
+  if (gr.row[G.STATUS] !== "OPEN") return { result: "error", message: "Only OPEN games can be marked unfilled" };
+  g.getRange(gr.index, G.STATUS + 1).setValue("UNFILLED");
+  const when = gr.row[G.DT] instanceof Date ? Utilities.formatDate(gr.row[G.DT], Session.getScriptTimeZone(), "EEE MMM d, h:mm a") : String(gr.row[G.DT]);
+  confirmEmail(gr.row[G.CEMAIL], gr.row[G.CNAME] || "Coach",
+    "<p>We could not find an available helper for your game on <strong>" + esc(when) + "</strong>. Sorry about that.</p>" +
+    "<p>More notice helps a lot. Request your next game as early as you can and we will do our best.</p>",
+    "No helper available: " + when);
+  return { result: "success", message: "Marked unfilled and emailed " + gr.row[G.CEMAIL] };
 }
 
 /* ==========================================================
