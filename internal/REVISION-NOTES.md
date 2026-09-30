@@ -36,12 +36,12 @@ Unchanged. Same POST keys: helper (`payApps`, `payHandle` now single app), coach
 3. One TEST_ helper submit from a phone, then GDH > Delete TEST_ rows.
 
 ## Unresolved business decisions
-1. Travel teams and tournaments: eligible or not? Not stated on the site. Coach form allows "Other" league.
+1. Travel teams: RESOLVED, eligible. Added to homepage scope line, FAQ, and coach page.
 2. Rain out or cancellation: any pay owed to a helper who showed up? No policy exists, so no FAQ entry.
 3. Response time commitment for league inquiries: none promised.
 4. Hero photo: none exists. Best shot: a teen on a dugout bench scoring on a phone, chain link and field behind, no readable names on screen, 3:2 landscape, plus a portrait of Chris for the founder section.
 5. `Approved?` enforcement in `sendMatchEmails` (site now says Chris reviews every profile before a first match; the code does not block an unreviewed adult).
-6. Whether "Chris reviews every helper profile by hand" is the commitment you want printed.
+6. RESOLVED: review claim printed without a name.
 
 ## Published live?
 No. Everything is on branch `site-revision`. Main and the live site are unchanged.
