@@ -8,15 +8,16 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="description" content="Get paid to run GameChanger and keep score at youth games in Tampa Bay. Apply to be a GameDay Helper. Launching summer 2026.">
+<meta name="description" content="Join GameDay Helpers free and get paid to keep score at Tampa Bay games. Helpers keep 100% of their game pay.">
 <link rel="stylesheet" href="styles.css">
 </head>
-<body style="position:relative;">
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
 
-<div class="takeover" id="takeover">
-  <div class="check">&#10003;</div>
+<div class="takeover" id="takeover" role="region" aria-label="Confirmation" aria-live="polite">
+  <div class="check" aria-hidden="true">OK</div>
   <h1>You're on<span class="o">the team.</span></h1>
-  <p id="takeoverMsg">Welcome aboard. We'll reach out as games in your leagues come up.</p>
+  <p id="takeoverMsg">Check your email for next steps. When a game in your leagues is available, we will contact you with the details.</p>
   <div class="inbox">Check your inbox for a confirmation email</div>
   <div class="sub">You coach. We score.</div>
   <div class="actions">
@@ -25,42 +26,44 @@
   </div>
 </div>
 
-<div class="banner">Founding members signing up now &middot; Service begins Summer/Fall 2026</div>
+<div class="banner">Tampa Bay &middot; Fall ball 2026</div>
 
 <header>
   <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
-  <button class="menu-btn" onclick="document.getElementById('nav').classList.toggle('open')" aria-label="Menu">
+  <button class="menu-btn" onclick="document.getElementById('nav').classList.toggle('open')" aria-label="Toggle navigation menu" aria-controls="nav">
     <span></span><span></span><span></span>
   </button>
-  <nav id="nav">
+  <nav id="nav" aria-label="Main navigation">
     <a href="index.html">Home</a>
     <a href="coaches.html">For Coaches</a>
-    <a href="helper.html" class="active">For Helpers</a>
+    <a href="helper.html" class="active" aria-current="page">For Helpers</a>
     <a href="news.html">News</a>
     <a href="mailto:info@gamedayhelpers.com">Contact</a>
   </nav>
 </header>
 
+<main id="main">
 <section class="hero hero-helper">
   <div class="wrap-h">
   <div class="eyebrow">For Helpers</div>
   <h1>Get Paid to Run<span class="o">Game Day.</span></h1>
-  <p class="lead">You know the game. You know the app. Somewhere down the street tonight, a coach needs exactly that, and they'll pay you for it. Score on your own schedule, keep every dollar.</p>
+  <p class="lead">You know the game. You know the app. Get paid to keep score for local coaches. Choose games that fit your schedule and keep 100% of the pay.</p>
+  <div class="price">$30+ per game<small>Typical helper pay for a two-hour game. You keep 100%.</small></div>
   <div class="cta">
-    <a class="btn btn-orange" href="#apply"><span>CREATE MY PROFILE</span></a>
+    <a class="btn btn-orange" href="#apply"><span>Create my profile</span></a>
   </div>
-  <p class="note">We are building the network now. Set up your profile to be first in line when games start this summer.</p>
+  <p class="note">Helpers join free. Ages 14 and up. Under 18 needs parent or guardian approval before the first game.</p>
   </div>
 </section>
 
-<section style="background:var(--soft);border-top:1px solid #eef0f3;border-bottom:1px solid #eef0f3;">
+<section class="section-muted">
   <div class="wrap">
     <div class="eyebrow">Why you'll love it</div>
     <h2>You already know how. <span class="o">Now get paid.</span></h2>
     <div class="steps">
       <div class="step"><div class="n">01</div><div><div class="st">YOU KNOW THE APP</div><div class="sd">You can run GameChanger in your sleep and keep a clean book. That skill is worth money. We connect you to coaches who need exactly that.</div></div></div>
-      <div class="step"><div class="n">02</div><div><div class="st">YOUR GAME, YOUR CALL</div><div class="sd">Pick your leagues. Pick your nights. Say yes when it works, skip when it doesn't. No boss, no shifts, no one telling you when to show up.</div></div></div>
-      <div class="step"><div class="n">03</div><div><div class="st">YOUR LEAGUES, YOUR PEOPLE</div><div class="sd">These are the fields you already know, in the community you're already part of. Familiar faces, a few innings, cash in hand.</div></div></div>
+      <div class="step"><div class="n">02</div><div><div class="st">YOUR GAME, YOUR CALL</div><div class="sd">Pick your leagues. Pick your nights. Choose the games that fit your schedule. Once you accept, arrive at the agreed time.</div></div></div>
+      <div class="step"><div class="n">03</div><div><div class="st">YOUR LEAGUES, YOUR PEOPLE</div><div class="sd">Familiar fields, a few innings, and payment sent directly to you after the game.</div></div></div>
     </div>
   </div>
 </section>
@@ -69,13 +72,13 @@
   <div class="wrap">
     <div class="eyebrow">The opportunity</div>
     <h2>Real money, <span class="o">on your time.</span></h2>
-    <p class="lead" style="margin-bottom:20px;">Some nights you score one game and grab dinner on the way home. Some weeks you run a whole slate and it actually adds up. A typical game is about two hours and pays $30 or more, set by the coach, paid straight to you, that day. You work when it suits you, around your job, your classes, your kids. The games are already happening down the street. You just start getting paid to be there.</p>
+    <p class="lead mb-5">Some nights you score one game and grab dinner on the way home. Some weeks you run a whole slate and it actually adds up. A typical game is about two hours and pays $30 or more, set by the coach, paid straight to you, that day. You work when it suits you, around your job, your classes, your kids. The games are already happening down the street. You just start getting paid to be there.</p>
     <div class="statband">
-      <div class="stat"><div class="snum">9,000+</div><div class="slab">youth baseball &amp; softball games a year across Tampa, real, steady demand for helpers</div></div>
-      <div class="stat"><div class="snum">$30+</div><div class="slab">a typical two-hour game, and you keep every dollar, we never take a cut</div></div>
+      <div class="stat"><div class="snum">9,000+</div><div class="slab">youth baseball &amp; softball games a year across Tampa Bay</div></div>
+      <div class="stat"><div class="snum">$30+</div><div class="slab">a typical two-hour game, and you keep 100% of it</div></div>
       <div class="stat"><div class="snum">You<br>pick</div><div class="slab">the games and the leagues you'll travel to, no boss, no set schedule</div></div>
     </div>
-    <p class="note" style="margin-top:18px;">We're prelaunch and building the Tampa network now. Get your profile in early to be first in line when games open this summer.</p>
+    <p class="note mt-5">Create your profile free for fall ball. Coaches pay you directly after the game and you keep 100% of it. Matches depend on which leagues you pick and when games come up.</p>
   </div>
 </section>
 
@@ -84,38 +87,41 @@
     <div class="eyebrow">Create your profile</div>
     <h2>Build your <span class="o">helper profile.</span></h2>
 
-    <p class="lead" style="margin:14px 0 22px;">Takes two minutes. This becomes your profile, so coaches can see your skill, your sports, and how many games you've scored. No commitment.</p>
+    <p class="lead intro-copy">Tell us your experience, the leagues you can work, and how you want to get paid. Helpers must be 14 or older. Under 18 requires parent or guardian approval before the first game.</p>
 
     <div class="founding">
-      <div class="fbadge">&#9733; FOUNDING HELPER</div>
-      <div class="ftext"><strong>Only the first 50 helpers get it.</strong> Sign up during the founding window and your profile carries a permanent Founding Helper badge, proof you were here first. Once 50 are claimed, it's closed for good.</div>
+      <div class="fbadge">FOUNDING HELPER</div>
+      <div class="ftext"><strong>First 50 helpers get Founding Helper #1 through #50 on their profile. For good.</strong> Score your first game and the hat is yours too.</div>
     </div>
 
     <div class="form-card" id="helperCard">
+      <p class="hint mb-5">Fields marked * are required.</p>
+      <h3 class="form-heading">About you</h3>
       <div class="field">
-        <label>Full name <span class="req">*</span></label>
-        <input type="text" id="h_name" required>
+        <label for="h_name">Full name <span class="req">*</span></label>
+        <input type="text" id="h_name" autocomplete="name" required>
       </div>
       <div class="field">
-        <label>Age <span class="req">*</span></label>
-        <input type="number" id="h_age" min="13" max="99" required>
+        <label for="h_age">Age <span class="req">*</span></label>
+        <input type="number" id="h_age" min="14" max="99" required>
         <div class="hint">Must be 14 or older. Under 18 needs a parent's OK before your first game. Your age stays private and never shows on your profile.</div>
       </div>
       <div class="field">
-        <label>Email <span class="req">*</span></label>
-        <input type="email" id="h_email" required>
+        <label for="h_email">Email <span class="req">*</span></label>
+        <input type="email" id="h_email" autocomplete="email" required>
         <div class="hint">We'll send a confirmation here.</div>
       </div>
       <div class="field">
-        <label>Cell phone <span class="req">*</span></label>
-        <input type="tel" id="h_phone" required>
+        <label for="h_phone">Cell phone <span class="req">*</span></label>
+        <input type="tel" id="h_phone" autocomplete="tel" required>
         <div class="hint">How coaches reach you to lock in a game.</div>
       </div>
 
+      <h3 class="form-heading">Your leagues and experience</h3>
       <div class="field">
-        <label>Which little leagues can you work? <span class="req">*</span></label>
-        <div class="hint" style="margin-bottom:8px;">Pick every league you would drive to. These are the Tampa District 6 leagues.</div>
-        <div class="chips" id="h_leagues">
+        <div class="field-label">Which little leagues can you work? <span class="req">*</span></div>
+        <div class="hint mb-2">Pick every league you would drive to. These are the Tampa District 6 leagues.</div>
+        <div class="chips" id="h_leagues" role="group" aria-label="Which little leagues can you work?">
           <span class="chip"><input type="checkbox" id="l1" value="Bayshore"><label for="l1">Bayshore</label></span>
           <span class="chip"><input type="checkbox" id="l2" value="Interbay"><label for="l2">Interbay</label></span>
           <span class="chip"><input type="checkbox" id="l3" value="Keystone"><label for="l3">Keystone</label></span>
@@ -128,16 +134,16 @@
       </div>
 
       <div class="field">
-        <label>Which sports can you help with? <span class="req">*</span></label>
-        <div class="chips" id="h_sports">
+        <div class="field-label">Which sports can you help with? <span class="req">*</span></div>
+        <div class="chips" id="h_sports" role="group" aria-label="Which sports can you help with?">
           <span class="chip"><input type="checkbox" id="s1" value="Baseball"><label for="s1">Baseball</label></span>
           <span class="chip"><input type="checkbox" id="s2" value="Softball"><label for="s2">Softball</label></span>
         </div>
       </div>
 
       <div class="field">
-        <label>What can you do? <span class="req">*</span></label>
-        <div class="chips" id="h_roles">
+        <div class="field-label">What can you do? <span class="req">*</span></div>
+        <div class="chips" id="h_roles" role="group" aria-label="What can you do?">
           <span class="chip"><input type="checkbox" id="r1" value="Keep score"><label for="r1">Keep score</label></span>
           <span class="chip"><input type="checkbox" id="r2" value="Run GameChanger"><label for="r2">Run GameChanger</label></span>
           <span class="chip"><input type="checkbox" id="r3" value="Work scoreboard"><label for="r3">Work scoreboard</label></span>
@@ -146,7 +152,7 @@
       </div>
 
       <div class="field">
-        <label>Your scorekeeping skill level <span class="req">*</span></label>
+        <label for="h_skill">Your scorekeeping skill level <span class="req">*</span></label>
         <select id="h_skill" required>
           <option value="">Select</option>
           <option>Comfortable (I can run a game)</option>
@@ -157,14 +163,14 @@
       </div>
 
       <div class="field">
-        <label>Games scored before GameDay Helpers</label>
+        <label for="h_prior">Games scored before GameDay Helpers</label>
         <input type="number" id="h_prior" min="0" max="9999" value="0">
         <div class="hint">Your own count from past seasons. Your GameDay Helpers total starts at 0 and climbs automatically every game you score.</div>
       </div>
 
       <div class="field">
-        <label>When are you usually free?</label>
-        <div class="chips" id="h_avail">
+        <div class="field-label">When are you usually free?</div>
+        <div class="chips" id="h_avail" role="group" aria-label="When are you usually free?">
           <span class="chip"><input type="checkbox" id="a1" value="Weekday evenings"><label for="a1">Weekday evenings</label></span>
           <span class="chip"><input type="checkbox" id="a2" value="Saturdays"><label for="a2">Saturdays</label></span>
           <span class="chip"><input type="checkbox" id="a3" value="Sundays"><label for="a3">Sundays</label></span>
@@ -172,75 +178,80 @@
       </div>
 
       <div class="field">
-        <label>Anything else? <span class="hint" style="display:inline;font-weight:400;">(optional)</span></label>
+        <label for="h_notes">Anything else? <span class="hint hint-inline">(optional)</span></label>
         <textarea id="h_notes" placeholder="Coaching experience, your own kids in the league, etc."></textarea>
       </div>
 
-      <div id="parentBlock" style="display:none;background:#fff4ec;border:1.5px solid var(--orange);border-radius:12px;padding:18px;margin-bottom:18px;">
-        <div class="plabel" style="color:var(--orange-dark);">Because you're under 18</div>
-        <p class="hint" style="margin:0 0 14px;">A parent or guardian has to approve before you can work any games. We'll email them to confirm.</p>
-        <div class="field" style="margin-bottom:14px;">
-          <label>Parent / guardian name <span class="req">*</span></label>
+      <div id="parentBlock">
+        <div class="plabel">Because you're under 18</div>
+        <p class="hint mb-4">A parent or guardian has to approve before you can work any games. We'll email them to confirm.</p>
+        <div class="field mb-4">
+          <label for="h_parent_name">Parent / guardian name <span class="req">*</span></label>
           <input type="text" id="h_parent_name">
         </div>
-        <div class="field" style="margin-bottom:0;">
-          <label>Parent / guardian email <span class="req">*</span></label>
+        <div class="field mb-0">
+          <label for="h_parent_email">Parent / guardian email <span class="req">*</span></label>
           <input type="email" id="h_parent_email">
           <div class="hint">We email them a consent link. You're not active until they approve.</div>
         </div>
       </div>
 
+      <h3 class="form-heading">Payment preferences</h3>
       <div class="field">
-        <label>How do you want to get paid? <span class="req">*</span></label>
-        <div class="hint" style="margin-bottom:8px;">No cash. Pick the apps you accept. Your handle stays private and is only shared with a coach once you're matched to their game.</div>
-        <div class="chips" id="h_payapps">
+        <div class="field-label">How do you want to get paid? <span class="req">*</span></div>
+        <div class="hint mb-2">No cash. Pick the apps you accept. Your handle stays private and is only shared with a coach once you're matched to their game.</div>
+        <div class="chips" id="h_payapps" role="group" aria-label="How do you want to get paid?">
           <span class="chip"><input type="checkbox" id="pa1" value="Venmo"><label for="pa1">Venmo</label></span>
           <span class="chip"><input type="checkbox" id="pa2" value="Cash App"><label for="pa2">Cash App</label></span>
           <span class="chip"><input type="checkbox" id="pa3" value="PayPal"><label for="pa3">PayPal</label></span>
           <span class="chip"><input type="checkbox" id="pa4" value="Zelle"><label for="pa4">Zelle</label></span>
         </div>
-        <input type="text" id="h_payhandle" style="margin-top:12px;" placeholder="Your handle / username (e.g. @yourname)">
+        <label for="h_payhandle" class="mt-4">Payment handle <span class="req">*</span></label>
+        <input type="text" id="h_payhandle" placeholder="Your handle / username (e.g. @yourname)" class="mt-3">
         <div class="hint">Private. We only pass this to a coach after you've accepted their game.</div>
       </div>
 
-      <div class="field" style="background:var(--soft);border:1px solid #eef0f3;border-radius:12px;padding:16px;">
-        <label style="margin-bottom:12px;">Before you sign up <span class="req">*</span></label>
-        <label style="font-weight:500;font-size:14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;">
-          <input type="checkbox" id="ck_phone" style="width:auto;margin-top:3px;flex-shrink:0;">
+      <div class="field consent-block">
+        <div class="field-label mb-3">Before you sign up <span class="req">*</span></div>
+        <label class="consent-check">
+          <input type="checkbox" id="ck_phone">
           <span>I have a working smartphone and can run the GameChanger app at games.</span>
         </label>
-        <label style="font-weight:500;font-size:14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;">
-          <input type="checkbox" id="ck_truth" style="width:auto;margin-top:3px;flex-shrink:0;">
+        <label class="consent-check">
+          <input type="checkbox" id="ck_truth">
           <span>Everything I entered, including my experience, is truthful and accurate.</span>
         </label>
-        <label style="font-weight:500;font-size:14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:0;">
-          <input type="checkbox" id="ck_terms" style="width:auto;margin-top:3px;flex-shrink:0;">
-          <span>I agree to the <a href="terms.html" target="_blank" style="color:var(--orange-dark);font-weight:700;">Terms &amp; Conditions</a>.</span>
+        <label class="consent-check">
+          <input type="checkbox" id="ck_terms">
+          <span>I agree to the <a href="terms.html" target="_blank" rel="noopener" class="text-link">Terms &amp; Conditions</a>.</span>
         </label>
       </div>
 
       <button class="submit" id="h_submit" onclick="submitHelper()">Create my profile</button>
-      <div class="err" id="h_err"></div>
-      <p class="note" style="margin-top:14px;">We never share your info outside GameDay Helpers.</p>
+      <div class="err" id="h_err" role="alert" aria-live="assertive"></div>
+      <p class="note mt-4">Your payment handle is shared with a coach after you accept their game. Your age does not appear on your profile.</p>
     </div>
 
-    <div class="success" id="helperSuccess">
+    <div class="success" id="helperSuccess" role="status" aria-live="polite">
       <h2>You're on the <span class="o">list.</span></h2>
       <p id="successMsg">Check your email for a confirmation. We will reach out as games in your leagues come up. Thanks for stepping up.</p>
     </div>
   </div>
 </section>
 
+</main>
+
 <footer>
   <img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers">
-  <div class="flinks">
+  <div class="flinks" aria-label="Footer links">
     <a href="index.html">Home</a>
     <a href="coaches.html">For Coaches</a>
     <a href="news.html">News</a>
     <a href="mailto:info@gamedayhelpers.com">Contact</a>
+    <a href="terms.html">Terms &amp; privacy</a>
   </div>
   <div class="small">You coach. We score. &nbsp;&middot;&nbsp; Tampa Bay, FL &nbsp;&middot;&nbsp; &copy; 2026 GameDay Helpers<br>
-  Currently in beta. <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
+  Serving Tampa Bay. <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
 </footer>
 
 <script>

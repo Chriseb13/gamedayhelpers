@@ -12,15 +12,16 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
-<div class="banner">Launching in Tampa Bay &middot; Summer 2026</div>
+<div class="banner">Tampa Bay &middot; Fall ball 2026</div>
 
 <header>
   <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
-  <button class="menu-btn" onclick="document.getElementById('nav').classList.toggle('open')" aria-label="Menu">
+  <button class="menu-btn" onclick="document.getElementById('nav').classList.toggle('open')" aria-label="Toggle navigation menu" aria-controls="nav">
     <span></span><span></span><span></span>
   </button>
-  <nav id="nav">
+  <nav id="nav" aria-label="Main navigation">
     <a href="index.html">Home</a>
     <a href="coaches.html">For Coaches</a>
     <a href="helper.html">For Helpers</a>
@@ -29,103 +30,101 @@
   </nav>
 </header>
 
+<main id="main">
 <section>
   <div class="wrap">
+    <h1 class="mb-5">Helper profile preview</h1>
 
-    <p class="preview-tag">Preview &middot; brand-new helper (the default everyone starts at)</p>
+    <p class="preview-tag">Profile layout preview &middot; no live helper record</p>
 
     <!-- FRESH PROFILE -->
     <div class="profile">
       <div class="phead">
-        <div class="pname">Marcus R.</div>
-        <span class="pskill">Experienced</span>
+        <div class="pname">Helper profile</div>
+        <span class="pskill">Skill level not loaded</span>
       </div>
       <div class="pbody">
 
         <div class="psection">
           <div class="plabel">Sports scored</div>
-          <div class="tags"><span class="tag">Baseball</span><span class="tag">Softball</span></div>
+          <div class="tags"><span class="tag">No sports loaded</span></div>
         </div>
 
         <div class="psection">
           <div class="plabel">Leagues served</div>
-          <div class="tags"><span class="tag">Bayshore</span><span class="tag">Palma Ceia</span><span class="tag">Tampa Bay</span></div>
+          <div class="tags"><span class="tag">No leagues loaded</span></div>
         </div>
 
         <div class="psection">
           <div class="plabel">Games scored</div>
           <div class="gstats">
-            <div class="gstat"><div class="num">0</div><div class="lab">with GameDay Helpers<br>(and counting)</div></div>
-            <div class="gstat"><div class="num">120</div><div class="lab">before joining</div></div>
+            <div class="gstat"><div class="num">N/A</div><div class="lab">with GameDay Helpers<br>not loaded</div></div>
+            <div class="gstat"><div class="num">N/A</div><div class="lab">before joining</div></div>
           </div>
         </div>
 
-        <div class="psection" style="margin-bottom:0;">
+        <div class="psection mb-0">
           <div class="plabel">Reviews</div>
-          <div class="rev-empty">No reviews yet. Be the first coach to work with Marcus.</div>
+          <div class="rev-empty">No live reviews are displayed in this layout preview.</div>
         </div>
 
       </div>
     </div>
 
-    <p class="preview-tag" style="margin-top:40px;">Preview &middot; same profile after a few games</p>
+    <p class="preview-tag mt-7">Profile layout preview &middot; experience and reviews</p>
 
     <!-- POPULATED PROFILE -->
     <div class="profile">
       <div class="phead">
-        <div class="pname">Marcus R.</div>
-        <span class="pskill">Experienced</span>
+        <div class="pname">Helper profile</div>
+        <span class="pskill">Skill level not loaded</span>
       </div>
       <div class="pbody">
 
         <div class="psection">
           <div class="plabel">Sports scored</div>
-          <div class="tags"><span class="tag">Baseball</span><span class="tag">Softball</span></div>
+          <div class="tags"><span class="tag">No sports loaded</span></div>
         </div>
 
         <div class="psection">
           <div class="plabel">Leagues served</div>
-          <div class="tags"><span class="tag">Bayshore</span><span class="tag">Palma Ceia</span><span class="tag">Tampa Bay</span></div>
+          <div class="tags"><span class="tag">No leagues loaded</span></div>
         </div>
 
         <div class="psection">
           <div class="plabel">Games scored</div>
           <div class="gstats">
-            <div class="gstat"><div class="num">14</div><div class="lab">with GameDay Helpers<br>(and counting)</div></div>
-            <div class="gstat"><div class="num">120</div><div class="lab">before joining</div></div>
+            <div class="gstat"><div class="num">N/A</div><div class="lab">with GameDay Helpers<br>not loaded</div></div>
+            <div class="gstat"><div class="num">N/A</div><div class="lab">before joining</div></div>
           </div>
         </div>
 
-        <div class="psection" style="margin-bottom:0;">
-          <div class="plabel">Reviews &middot; <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> 4.9 (12)</div>
-          <div class="rev">
-            <div class="rtop"><div class="rby">Coach Daniel</div><div class="rdate">May 2026</div></div>
-            <div class="rtext">Showed up early, knew GameChanger cold, kept a clean book all game. Booking him again.</div>
-          </div>
-          <div class="rev">
-            <div class="rtop"><div class="rby">Coach Lisa</div><div class="rdate">May 2026</div></div>
-            <div class="rtext">Reliable and easy to work with. The parents loved having the livestream running.</div>
-          </div>
+        <div class="psection mb-0">
+          <div class="plabel">Reviews</div>
+          <div class="rev-empty">No live reviews are displayed in this layout preview. Real feedback belongs here after a completed game.</div>
         </div>
 
       </div>
     </div>
 
-    <p class="note" style="margin-top:30px;">These are layout previews. Live profiles pull each helper's real skill, sports, leagues, game count, and reviews from the database. Age is never shown.</p>
+    <p class="note mt-6">This page is a profile layout preview. It does not show a live helper record, game counts, or reviews. Helper age is not displayed.</p>
 
   </div>
 </section>
 
+</main>
+
 <footer>
   <img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers">
-  <div class="flinks">
+  <div class="flinks" aria-label="Footer links">
     <a href="index.html">Home</a>
     <a href="coaches.html">For Coaches</a>
     <a href="helper.html">For Helpers</a>
     <a href="mailto:info@gamedayhelpers.com">Contact</a>
+    <a href="terms.html">Terms &amp; privacy</a>
   </div>
   <div class="small">You coach. We score. &nbsp;&middot;&nbsp; Tampa Bay, FL &nbsp;&middot;&nbsp; &copy; 2026 GameDay Helpers<br>
-  Currently in beta. <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
+  Serving Tampa Bay. <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
 </footer>
 
 </body>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GameDay Helpers | Operations Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cobalt:#1747C8; --navy:#102A43; --lime:#D7F75B; --light:#F7F9FC;
+  --ink:#172B4D; --muted:#4B5B70; --line:#7C8A9C; --white:#fff;
+  --ok:#166534; --warn:#B42318;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Inter,sans-serif;background:var(--light);color:var(--ink);line-height:1.5;padding:24px 16px 80px;}
+.wrap{max-width:1080px;margin:0 auto;}
+h1{font-family:'Barlow Condensed',sans-serif;font-size:44px;line-height:1.05;color:var(--navy);}
+h2{font-family:'Barlow Condensed',sans-serif;font-size:32px;line-height:1.1;color:var(--navy);margin-bottom:4px;}
+h3{font-size:18px;font-weight:700;margin-bottom:8px;}
+.sub{color:var(--muted);font-size:15px;}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--cobalt);margin-bottom:6px;}
+section{margin-top:40px;}
+.card{background:var(--white);border:1px solid #e3e8ef;border-radius:16px;padding:20px;}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+.key{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;background:var(--white);border:1px solid #e3e8ef;border-radius:999px;padding:6px 13px;}
+.dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
+.d-auto{background:var(--cobalt);} .d-you{background:var(--lime);border:1px solid #9fbb2e;}
+.d-user{background:var(--navy);} .d-data{background:var(--line);}
+
+/* flow rail */
+.rail{display:flex;flex-direction:column;gap:0;margin-top:18px;}
+.step{display:grid;grid-template-columns:56px 1fr;gap:16px;}
+.gut{display:flex;flex-direction:column;align-items:center;}
+.num{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+     font-family:'Barlow Condensed',sans-serif;font-size:22px;color:#fff;background:var(--navy);flex:0 0 auto;}
+.num.auto{background:var(--cobalt);} .num.you{background:var(--lime);color:var(--navy);} .num.user{background:var(--navy);}
+.line{width:2px;flex:1;background:#d7deea;margin:6px 0;}
+.body{padding-bottom:22px;}
+.body h3{margin-bottom:4px;}
+.who{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.body p{font-size:14px;color:var(--ink);}
+.meta{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;}
+.tag{font-size:12px;font-weight:600;background:#eef2f9;border:1px solid #dde4ef;border-radius:8px;padding:5px 10px;color:var(--ink);}
+.tag.mail{background:#EEF3FF;border-color:#c9d8ff;color:var(--cobalt);}
+.tag.sheet{background:#f2f6ec;border-color:#d9e5c4;color:#3f5220;}
+.tag.flag{background:#fdf0ef;border-color:#f3cfcc;color:var(--warn);}
+
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--white);}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid #e7ecf3;vertical-align:top;}
+th{background:var(--navy);color:#fff;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:700;}
+tr:last-child td{border-bottom:none;}
+.tbl{border:1px solid #e3e8ef;border-radius:14px;overflow:hidden;}
+code{background:#eef2f9;border-radius:5px;padding:1px 6px;font-size:13px;}
+.grid2{display:grid;gap:16px;grid-template-columns:1fr;}
+@media(min-width:800px){.grid2{grid-template-columns:1fr 1fr;} h1{font-size:60px;}}
+.priv{background:var(--navy);color:#fff;border-radius:16px;padding:20px;}
+.priv h3{color:var(--lime);}
+.priv p,.priv li{color:#C7D3DF;font-size:14px;}
+.priv ul{margin:8px 0 0 18px;}
+.note{background:#FFFBEB;border:1px solid #f2e2b5;border-radius:12px;padding:14px;font-size:14px;margin-top:14px;}
+.big{font-family:'Barlow Condensed',sans-serif;font-size:40px;color:var(--cobalt);line-height:1;}
+.statrow{display:grid;gap:12px;grid-template-columns:repeat(2,1fr);}
+@media(min-width:700px){.statrow{grid-template-columns:repeat(4,1fr);}}
+.stat{background:var(--white);border:1px solid #e3e8ef;border-radius:14px;padding:16px;}
+.stat .lab{font-size:12px;color:var(--muted);font-weight:600;margin-top:4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">GameDay Helpers</div>
+  <h1>How the whole business runs.</h1>
+  <p class="sub">Every touchpoint, every email, every place a name is stored. Tampa Bay beta, fall ball 2026.</p>
+
+  <div class="legend">
+    <span class="key"><span class="dot d-user"></span>Coach or helper does it</span>
+    <span class="key"><span class="dot d-auto"></span>Software does it automatically</span>
+    <span class="key"><span class="dot d-you"></span>You do it by hand</span>
+    <span class="key"><span class="dot d-data"></span>Data lands somewhere</span>
+  </div>
+
+  <section>
+    <h2>The whole thing in four sentences</h2>
+    <div class="card">
+      <p style="font-size:15px;">A teen who already knows GameChanger builds a free profile and picks the leagues they will drive to. A coach who needs a scorekeeper joins free, then requests a helper for a specific game. <strong>You look at both lists and pick the match.</strong> The software emails both sides each other's name, phone, and payment app, they text each other, the helper shows up, the coach pays them directly, and three hours after first pitch both get a review link.</p>
+      <div class="note"><strong>The only manual step in the entire business is step 3: you choosing who to match.</strong> Everything before and after is automatic. That is the job you are protecting until you have enough volume to automate it.</div>
+    </div>
+  </section>
+
+  <!-- HELPER JOURNEY -->
+  <section>
+    <div class="eyebrow">Journey A</div>
+    <h2>The helper: 16 year old who knows the app</h2>
+    <p class="sub">Goal: get a paid game in their league without their parent worrying.</p>
+
+    <div class="rail">
+      <div class="step"><div class="gut"><div class="num user">1</div><div class="line"></div></div>
+        <div class="body">
+          <div class="who">Helper &middot; on their phone</div>
+          <h3>Fills out the helper form</h3>
+          <p>Name, age, email, cell, which Tampa District 6 leagues they will drive to, sports, what they can do (score, GameChanger, scoreboard, livestream), skill level, games scored before, availability, and how they take money (Venmo, Cash App, PayPal, Zelle) with their handle. If under 18, parent name and email are required.</p>
+          <div class="meta"><span class="tag sheet">Writes to Helpers tab</span><span class="tag">Gets a HelperID like <code>ava-adult-k3p1</code></span><span class="tag">Gets Founding Helper # if under 50</span></div>
+        </div></div>
+
+      <div class="step"><div class="gut"><div class="num auto">2</div><div class="line"></div></div>
+        <div class="body">
+          <div class="who">Automatic &middot; instant</div>
+          <h3>Welcome email lands</h3>
+          <p>Founding number, what happens next, how pay works ($30+ typical, app to app, GDH takes none), the three things that get them rebooked (early, charged, text the coach), and a link to their live public profile page.</p>
+          <div class="meta"><span class="tag mail">Subject: You're on the team</span><span class="tag mail">Or: One step left, parent approval</span></div>
+        </div></div>
+
+      <div class="step"><div class="gut"><div class="num auto">3</div><div class="line"></div></div>
+        <div class="body">
+          <div class="who">Automatic &middot; only if under 18</div>
+          <h3>Parent gets a two tap approval</h3>
+          <p>Separate email to the parent explaining what their kid signed up for, what they will be paid, that the parent and kid pick which games to take, and one big button. Tapping it flips ConsentStatus to APPROVED and burns the link so it cannot be reused.</p>
+          <div class="meta"><span class="tag mail">Subject: Approve NAME as a GameDay Helper (2 taps)</span><span class="tag flag">Unapproved minors cannot be matched. The system blocks it.</span></div>
+        </div></div>
+
+      <div class="step"><div class="gut"><div class="num auto">4</div><div class="line"></div></div>
+        <div class="body">
+          <div class="who">Automatic &middot; when parent taps</div>
+          <h3>Three emails fire</h3>
+          <p>Helper: you're approved, you're active. Parent: confirmation, and we will not email you again. You: consent approved, this helper is live.</p>
+          <div class="meta"><span class="tag mail">3 emails</span><span class="tag sheet">ConsentStatus = APPROVED</span></div>
+        </div></div>
+
+      <div class="step"><div class="gut"><div class="num you">5</div><div class="line"></div></div>
+        <div class="body">
+          <div class="who">You &middot; when a game comes in</div>
+          <h3>They get matched to a game</h3>
+          <p>You pick them. They get an email with the coach's name, phone, payment app, the date, field, league, team, what is needed, and the dollar amount. Their instruction: text the coach now, ask for the GameChanger invite, show up 15 minutes early with a charged phone.</p>
+          <div class="meta"><span class="tag mail">Subject: YOU'RE IN: DATE with Coach NAME</span></div>
+        </div></div>
+
+      <div class="step"><div class="gut"><div class="num user">6</div><div class="line"></div></div>
+        <div class="body">
+          <div class="who">Helper and coach &middot; off platform</div>
+          <h3>They text each other and work the game</h3>
+          <p>You are out of it. Coach pays the helper directly after the game, app to app, no cash.</p>
+          <div class="meta"><span class="tag flag">GDH never touches the money. This is deliberate.</span></div>
+        </div></div>
+
+      <div class="step"><div class="gut"><div class="num auto">7</div></div>
+        <div class="body">
+          <div class="who">Automatic &middot; 3 hours after first pitch</div>
+          <h3>Review link, game count goes up</h3>
+          <p>Both sides get a one tap star link. The helper's GDHGames count increments and their star average recalculates on their public profile. Their safety net line: if the money has not landed by the next morning, reply to this email and we handle it.</p>
+          <div class="meta"><span class="tag mail">Subject: How was NAME? (20 seconds)</span><span class="tag sheet">Reviews tab + Helpers rating recalc</span></div>
+        </div></div>
+    </div>
+  </section>
+
+  <!-- COACH JOURNEY -->
+  <section>
+    <div class="eyebrow">Journey B</div>
+    <h2>The coach: 45 year old with nobody to run GameChanger</h2>
+    <p class="sub">Goal: stop begging the bleachers every Saturday.</p>
+
+    <div class="rail">
+      <div class="step"><div class="gut"><div class="num user">1</div><div class="line"></div></div>
+        <div class="body">
+          <div class="who">Coach &middot; 60 seconds</div>
+          <h3>Joins free</h3>
+          <p>Name, email, cell, team, leagues, how they pay. No card, no contract. Gets a Founding Coach number if under 50.</p>
+          <div class="meta"><span class="tag sheet">Writes to Coaches tab</span></div>
+        </div></div>
+
+      <div class="step"><div class="gut"><div class="num auto">2</div><div class="line"></div></div>
+        <div class="body">
+          <div class="who">Automatic &middot; instant</div>
+          <h3>Welcome email with one button</h3>
+          <p>Founding number, then a big button straight to the request form. Explains: a real person matches you, you get the helper's name and phone, you pay them after the game, nothing goes to GDH during the beta. Ends with the line that drives behavior: two days notice fills every time, two hours is a coin flip.</p>
+          <div class="meta"><span class="tag mail">Subject: You're in. Here's how to get a scorekeeper</span></div>
+        </div></div>
+
+      <div class="step"><div class="gut"><div class="num user">3</div><div class="line"></div></div>
+        <div class="body">
+          <div class="who">Coach &middot; per game</div>
+          <h3>Requests a helper</h3>
+          <p>Email, date and time, what they need, their offer (first hour $20/25/30, additional $15/20/25, length 1 to 3 hours, defaults to 2 hr = $35), and the field. The backend looks up their email and pulls in their name, team, league, and phone automatically.</p>
+          <div class="meta"><span class="tag sheet">Writes to Games tab, Status = OPEN</span><span class="tag">Gets a GameID like <code>G260920-4XQ2</code></span></div>
+        </div></div>
+
+      <div class="step"><div class="gut"><div class="num auto">4</div><div class="line"></div></div>
+        <div class="body">
+          <div class="who">Automatic &middot; instant</div>
+          <h3>Receipt email back to the coach</h3>
+          <p>Restates the game, field, needs, and offer so there is no confusion later. Tells them a real person is matching now and one email is coming. If their email was not found in Coaches, it nudges them to create a profile.</p>
+          <div class="meta"><span class="tag mail">Subject: Helper request received: DATE</span></div>
+        </div></div>
+
+      <div class="step"><div class="gut"><div class="num you">5</div><div class="line"></div></div>
+        <div class="body">
+          <div class="who">You &middot; the only manual step</div>
+          <h3>You make the match</h3>
+          <p>You get an alert email the second the request lands. Open the Games tab, find an approved helper who serves that league, type their HelperID into column G, click the row, then <strong>GDH menu &rarr; Send match emails</strong>.</p>
+          <div class="meta"><span class="tag">Under 2 minutes per game</span><span class="tag flag">Blocked if the helper is an unapproved minor</span></div>
+        </div></div>
+
+      <div class="step"><div class="gut"><div class="num auto">6</div><div class="line"></div></div>
+        <div class="body">
+          <div class="who">Automatic &middot; both sides at once</div>
+          <h3>Contact info is released</h3>
+          <p>Coach gets the helper's name, phone, payment app and handle, skill level, and profile link. Helper gets the coach's name, phone, and payment app. Status flips to MATCHED.</p>
+          <div class="meta"><span class="tag mail">MATCHED: NAME is scoring your game</span><span class="tag sheet">Games row updated</span></div>
+        </div></div>
+
+      <div class="step"><div class="gut"><div class="num auto">7</div></div>
+        <div class="body">
+          <div class="who">Automatic &middot; 3 hours after first pitch</div>
+          <h3>Review request, status closes</h3>
+          <p>Coach rates the helper. That rating shows on the helper's public profile, which is what makes the good ones easy to rebook and the flaky ones obvious.</p>
+          <div class="meta"><span class="tag sheet">Status = DONE</span></div>
+        </div></div>
+    </div>
+  </section>
+
+  <!-- DATA -->
+  <section>
+    <div class="eyebrow">Where everything lives</div>
+    <h2>One Google Sheet. Five tabs.</h2>
+    <p class="sub">There is no database, no CRM, no third party storing your people. If the Sheet is open, you can see the whole business.</p>
+
+    <div class="tbl" style="margin-top:16px;">
+      <table>
+        <tr><th style="width:130px;">Tab</th><th>What is in it</th><th style="width:150px;">Who writes to it</th></tr>
+        <tr><td><strong>Helpers</strong></td><td>Submitted, HelperID, Name, Age <em>(private)</em>, Email, Phone, Leagues, Sports, Roles, Skill, PriorGames, GDHGames, AvgRating, ReviewCount, Availability, Notes, Approved?, PayApps, PayHandle <em>(private)</em>, Minor?, ParentName, ParentEmail, ConsentStatus, ConsentToken, Founder#, AgreedTerms</td><td>Helper signup form + consent link + review rollup</td></tr>
+        <tr><td><strong>Coaches</strong></td><td>Submitted, Name, Email, Phone, Team, Leagues, Notes, Contacted?, PayApps, PayHandle <em>(private)</em>, Founder#</td><td>Coach signup form</td></tr>
+        <tr><td><strong>Games</strong></td><td>GameID, DateTime, Sport, Field, CoachName, CoachEmail, HelperID, HelperName, HelperEmail, ReviewSent, Needs, League, Team, CoachPhone, FirstRate, AddlRate, Length, Offer, Status, MatchSent</td><td>Request form, then <strong>you</strong> (column G), then the match and review automations</td></tr>
+        <tr><td><strong>Leagues</strong></td><td>Submitted, Name, Org, Email, Phone, Notes, Contacted?</td><td>League and tournament inquiry form</td></tr>
+        <tr><td><strong>Reviews</strong></td><td>Submitted, GameID, RevieweeID, RevieweeRole, ReviewerRole, Stars, Comment</td><td>Review page, feeds back into the helper's rating</td></tr>
+      </table>
+    </div>
+
+    <div class="grid2" style="margin-top:16px;">
+      <div class="priv">
+        <h3>What is never public</h3>
+        <p>A helper's public profile page shows their name, skill, leagues, sports, games scored, founding number, star rating, and review text. That is it.</p>
+        <ul>
+          <li>Age is stored but never displayed</li>
+          <li>Phone is only released at match time</li>
+          <li>Email is never displayed</li>
+          <li>Payment handle is only released at match time</li>
+          <li>Parent name and email are never displayed</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>What you get emailed</h3>
+        <p style="font-size:14px;">You are copied on everything that matters, so the Sheet is a record and your inbox is the alarm.</p>
+        <div class="meta" style="margin-top:12px;">
+          <span class="tag mail">GDH HELPER: name (leagues)</span>
+          <span class="tag mail">GDH COACH: name (leagues)</span>
+          <span class="tag mail">GDH GAME REQUEST: coach (league)</span>
+          <span class="tag mail">GDH CONSENT APPROVED: helper</span>
+          <span class="tag mail">GDH LEAGUE: director (org)</span>
+          <span class="tag flag">GDH backend error (with the payload)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMAILS -->
+  <section>
+    <div class="eyebrow">Every touchpoint</div>
+    <h2>Nine emails. That is the entire follow-up machine.</h2>
+    <div class="tbl" style="margin-top:16px;">
+      <table>
+        <tr><th style="width:200px;">Trigger</th><th style="width:150px;">Goes to</th><th>What it does for the business</th></tr>
+        <tr><td>Helper signs up</td><td>Helper</td><td>Confirms it worked, sets the rebooking behaviors, hands them a profile link to share</td></tr>
+        <tr><td>Helper is under 18</td><td>Parent</td><td>Turns the biggest objection in the business into a single tap</td></tr>
+        <tr><td>Parent approves</td><td>Helper, Parent, You</td><td>Closes the loop for all three parties</td></tr>
+        <tr><td>Coach signs up</td><td>Coach</td><td>Moves them from signup to their first actual request, which is the real conversion</td></tr>
+        <tr><td>Coach requests a game</td><td>Coach</td><td>Buys you time to match by hand without them wondering if it sent</td></tr>
+        <tr><td>You send the match</td><td>Coach</td><td>Releases helper name, phone, pay app. Tells them to text now</td></tr>
+        <tr><td>You send the match</td><td>Helper</td><td>Releases coach name, phone, pay app. Sets expectations for showing up</td></tr>
+        <tr><td>3 hrs after first pitch</td><td>Coach</td><td>Builds the rating that makes the next match easier to make</td></tr>
+        <tr><td>3 hrs after first pitch</td><td>Helper</td><td>Rates the coach, so bad payers surface early</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- YOUR JOB -->
+  <section>
+    <div class="eyebrow">Your actual workload</div>
+    <h2>What you do every week</h2>
+    <div class="statrow" style="margin-top:16px;">
+      <div class="stat"><div class="big">1</div><div class="lab">manual step in the whole business: picking the match</div></div>
+      <div class="stat"><div class="big">&lt;2</div><div class="lab">minutes per game to match and send</div></div>
+      <div class="stat"><div class="big">9</div><div class="lab">emails, all automatic, zero written by you</div></div>
+      <div class="stat"><div class="big">5</div><div class="lab">Sheet tabs holding 100% of the business</div></div>
+    </div>
+    <div class="note">
+      <strong>Where it breaks as you grow.</strong> Matching by hand is the bottleneck and also the quality. At 5 games a week it is nothing. At 50 it is a part time job. The trigger to automate matching is when you are matching more than roughly 20 games a week, not before. Until then the hand match is what makes coaches trust a brand new service.
+    </div>
+    <div class="note" style="background:#fdf0ef;border-color:#f3cfcc;">
+      <strong>Two things still open before you scale.</strong> First, the Florida attorney on minors, parental consent, and contractor status. Second, no coach has been asked to pay anything yet, so willingness to pay is still a guess. Twenty completed matches answers the second one.
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
