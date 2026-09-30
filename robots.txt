@@ -3,5 +3,6 @@ Allow: /
 Disallow: /review.html
 Disallow: /profile.html
 Disallow: /match.html
+Disallow: /me.html
 
 Sitemap: https://gamedayhelpers.com/sitemap.xml

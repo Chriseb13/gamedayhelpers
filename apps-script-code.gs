@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v15 - dashboard data, Requested column on Games (Oct 1, 2026)
+ *  v16 - status pages, AccessToken columns (Oct 1, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -32,9 +32,9 @@ const HELPER_COLS = ["Submitted","HelperID","Name","Age (private)","Email","Phon
   "Leagues","Sports","Roles","Skill","PriorGames","GDHGames","AvgRating","ReviewCount",
   "Availability","Notes","Approved?",
   "PayApps","PayHandle (private)","Minor?","ParentName","ParentEmail","ConsentStatus","ConsentToken",
-  "Founder#","AgreedTerms"];
+  "Founder#","AgreedTerms","AccessToken"];
 const COACH_COLS  = ["Submitted","Name","Email","Phone","Team","Leagues","Notes","Contacted?",
-  "PayApps","PayHandle (private)","Founder#"];
+  "PayApps","PayHandle (private)","Founder#","AccessToken"];
 const GAME_COLS   = ["GameID","DateTime","Sport","Field","CoachName","CoachEmail",
   "HelperID","HelperName","HelperEmail","ReviewSent",
   "Needs","League","Team","CoachPhone","FirstRate","AddlRate","Length","Offer","Status","MatchSent","Requested"];
@@ -44,8 +44,8 @@ const REVIEW_COLS = ["Submitted","GameID","RevieweeID","RevieweeRole","ReviewerR
 // Helper column indexes (0-based) used in lookups
 const H = {ID:1,NAME:2,AGE:3,EMAIL:4,PHONE:5,LEAGUES:6,SPORTS:7,ROLES:8,SKILL:9,PRIOR:10,GDH:11,
   AVG:12,COUNT:13,AVAIL:14,NOTES:15,APPROVED:16,PAYAPPS:17,PAYHANDLE:18,MINOR:19,PNAME:20,PEMAIL:21,
-  CONSENT:22,TOKEN:23,FOUNDER:24};
-const C = {SUB:0,NAME:1,EMAIL:2,PHONE:3,TEAM:4,LEAGUES:5,NOTES:6,CONTACTED:7,PAYAPPS:8,PAYHANDLE:9,FOUNDER:10};
+  CONSENT:22,TOKEN:23,FOUNDER:24,ACCESS:26};
+const C = {SUB:0,NAME:1,EMAIL:2,PHONE:3,TEAM:4,LEAGUES:5,NOTES:6,CONTACTED:7,PAYAPPS:8,PAYHANDLE:9,FOUNDER:10,ACCESS:11};
 const G = {ID:0,DT:1,SPORT:2,FIELD:3,CNAME:4,CEMAIL:5,HID:6,HNAME:7,HEMAIL:8,REVSENT:9,
   NEEDS:10,LEAGUE:11,TEAM:12,CPHONE:13,FIRST:14,ADDL:15,LEN:16,OFFER:17,STATUS:18,MATCHSENT:19,REQ:20};
 
@@ -66,6 +66,7 @@ function doPost(e) {
     else if (type === "LEAGUE")      out = handleLeague(data);
     else if (type === "REVIEW")      out = handleReview(data);
     else if (type === "HELPER")      out = handleHelper(data);
+    else if (type === "LOGIN")       out = handleLogin(data);
     else if (type === "MATCH")       out = adminMatch(data);
     else if (type === "APPROVE")     out = adminApprove(data);
     else if (type === "UNFILL")      out = adminUnfill(data);
@@ -85,6 +86,7 @@ function doGet(e) {
       .setTitle("Parent approval | GameDay Helpers").addMetaTag("viewport","width=device-width, initial-scale=1.0");
   if (p.p && p.format === "json") return json(profileData(p.p));
   if (p.op === "board") return json(adminBoard(p.key));
+  if (p.me) return json(statusData(p.me));
   if (p.p) return HtmlService.createHtmlOutput(renderProfile(p.p))
       .setTitle("Helper Profile | GameDay Helpers").addMetaTag("viewport","width=device-width, initial-scale=1.0");
   return HtmlService.createHtmlOutput("<p style='font-family:sans-serif'>GameDay Helpers.</p>");
@@ -130,9 +132,9 @@ function handleHelper(d) {
     clean(d.leagues), clean(d.sports), clean(d.roles), clean(d.skill, 60), num(d.priorGames), 0, "", 0,
     clean(d.availability), clean(d.notes, 1000), "NO",
     clean(d.payApps), clean(d.payHandle, 80), isMinor ? "YES" : "NO", parentName, parentEmail,
-    isMinor ? "PENDING" : "N/A", token, founder || "", "YES"]);
+    isMinor ? "PENDING" : "N/A", token, founder || "", "YES", Utilities.getUuid()]);
 
-  confirmEmail(email, name, helperWelcomeBody(name, id, isMinor, founder), isMinor ? "One step left: parent approval" : "You're on the team");
+  confirmEmail(email, name, helperWelcomeBody(name, id, isMinor, founder) + statusLine(email), isMinor ? "One step left: parent approval" : "You're on the team");
   if (isMinor) sendParentConsent(parentEmail, parentName, name, token);
 
   alertOwner("HELPER", name, clean(d.leagues),
@@ -161,9 +163,9 @@ function handleCoach(d) {
   }
   const founder = nextFounderNumber(sheet, 10);
   sheet.appendRow([new Date(), name, email, phone, clean(d.team, 80), clean(d.leagues), clean(d.notes, 1000), "NO",
-    clean(d.payApps), clean(d.payHandle, 80), founder || ""]);
+    clean(d.payApps), clean(d.payHandle, 80), founder || "", Utilities.getUuid()]);
 
-  confirmEmail(email, name, coachWelcomeBody(name, founder), "You're in. Here's how to get a scorekeeper");
+  confirmEmail(email, name, coachWelcomeBody(name, founder) + statusLine(email), "You're in. Here's how to get a scorekeeper");
   alertOwner("COACH", name, clean(d.leagues),
     "Email: " + email + "\nPhone: " + phone + "\nTeam: " + clean(d.team) +
     "\nLeagues: " + clean(d.leagues) + "\nPay apps: " + clean(d.payApps) + "\nNotes: " + clean(d.notes) +
@@ -200,7 +202,7 @@ function handleGameRequest(d) {
     "<p><strong>What happens next:</strong> " + OWNER_NAME + " looks for an available helper from your league. A helper is not confirmed yet. If one accepts, you will get one email with your helper's name, phone, and payment app. Then you two text each other and lock it in.</p>" +
     "<p>Pay your helper directly after the game, app to app. No cash.</p>" +
     (c ? "" : "<p style='color:#b45309;'><strong>Heads up:</strong> we could not find a coach profile under this email. Take 60 seconds and <a href='" + SITE_BASE_URL + "/coaches.html'>create one</a> so we can match you faster.</p>") +
-    "<p>Need to change anything? Reply to this email.</p>";
+    "<p>Need to change anything? Reply to this email.</p>" + statusLine(email);
   confirmEmail(email, coachName || "Coach", body, "Helper request received: " + when);
 
   alertOwner("GAME REQUEST", coachName || email, league || "unknown league",
@@ -314,7 +316,7 @@ function sendMatchEmails(rowNum){
     "<p><strong>Do this now:</strong> text " + esc(firstName(h[H.NAME])) + " to confirm and share the GameChanger team invite. After the game, pay " + offer + " straight to their app. No cash.</p>" +
 "<p><strong>Cancellations:</strong> text " + esc(firstName(h[H.NAME])) + " at least two hours before their arrival time and you owe nothing. Later than that, including a rainout, pay them $15 that day. If the game started, pay for time worked at your rates, $15 minimum.</p>" +
     "<p>You will get a one tap review link a few hours after first pitch. Problem before the game? Reply here" + (OWNER_CELL ? " or text " + OWNER_NAME + " at " + OWNER_CELL : "") + ".</p>" +
-    profileLine(h[H.ID]),
+    profileLine(h[H.ID]) + statusLine(row[G.CEMAIL]),
     "MATCHED: " + firstName(h[H.NAME]) + " is scoring your game " + dt);
 
   // Helper email: coach's name, phone, pay app
@@ -324,7 +326,7 @@ function sendMatchEmails(rowNum){
     details +
     "<p><strong>Do this now:</strong> text Coach " + esc(firstName(coachName)) + " to confirm. Ask for the GameChanger invite. Show up 15 minutes early, phone charged.</p>" +
 "<p><strong>Cancellations:</strong> if the coach cancels less than two hours before your arrival time, including a rainout, they owe you $15 that day. Reply here if that does not land.</p>" +
-    "<p>After the game the coach pays " + offer + " to your app. If it has not landed by the next morning, reply to this email and we handle it.</p>",
+    "<p>After the game the coach pays " + offer + " to your app. If it has not landed by the next morning, reply to this email and we handle it.</p>" + statusLine(h[H.EMAIL]),
     "YOU'RE IN: " + dt + " with Coach " + firstName(coachName));
 
   g.getRange(rowNum, G.STATUS + 1).setValue("MATCHED");
@@ -332,6 +334,61 @@ function sendMatchEmails(rowNum){
   g.getRange(rowNum, G.HNAME + 1).setValue(h[H.NAME]);
   g.getRange(rowNum, G.HEMAIL + 1).setValue(h[H.EMAIL]);
   return "Match emails sent to " + coachName + " and " + h[H.NAME] + ".";
+}
+
+/* ==========================================================
+ *  STATUS PAGES (me.html). One private token per person, sent by email only.
+ * ========================================================== */
+function statusLine(email){ return "<p style='font-size:13px;color:#666;'>See your games and status any time: <a href='" + SITE_BASE_URL + "/me.html'>gamedayhelpers.com/me.html</a> (enter " + esc(email) + " and we email you a private link).</p>"; }
+function ensureToken(sheet, rowIndex, col, current){
+  if (current) return String(current);
+  const t = Utilities.getUuid(); sheet.getRange(rowIndex, col + 1).setValue(t); return t;
+}
+function handleLogin(d){
+  const email = clean(d.email, 120).toLowerCase();
+  need(validEmail(email), "Invalid email");
+  const hs = tab("Helpers", HELPER_COLS), cs = tab("Coaches", COACH_COLS);
+  const hr = findRowByEmail(hs, H.EMAIL, email), cr = findRowByEmail(cs, C.EMAIL, email);
+  const links = [];
+  if (hr) links.push({ role: "helper", name: hr.row[H.NAME], token: ensureToken(hs, hr.index, H.ACCESS, hr.row[H.ACCESS]) });
+  if (cr) links.push({ role: "coach", name: cr.row[C.NAME], token: ensureToken(cs, cr.index, C.ACCESS, cr.row[C.ACCESS]) });
+  if (links.length) {
+    const body = links.map(l => "<p style='text-align:center;margin:18px 0;'><a href='" + SITE_BASE_URL + "/me.html?t=" + encodeURIComponent(l.token) + "' style='background:#1747C8;color:#fff;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:10px;display:inline-block;'>Open my " + l.role + " status</a></p>").join("") +
+      "<p style='font-size:13px;color:#666;'>This link is private to you. Do not forward it. If you did not request it, ignore this email.</p>";
+    confirmEmail(email, links[0].name, "<p>Here is your private GameDay Helpers link.</p>" + body, "Your GameDay Helpers status link");
+  }
+  // Always the same answer, so nobody can probe which emails are registered.
+  return { result: "success" };
+}
+function statusData(token){
+  token = clean(token, 60); if (!token) return { result: "notfound" };
+  const hs = tab("Helpers", HELPER_COLS), cs = tab("Coaches", COACH_COLS), gs = tab("Games", GAME_COLS);
+  const hr = findRowByValue(hs, H.ACCESS, token), cr = findRowByValue(cs, C.ACCESS, token);
+  if (!hr && !cr) return { result: "notfound" };
+  const tz = Session.getScriptTimeZone();
+  const gRows = gs.getDataRange().getValues();
+  const fmt = v => v instanceof Date ? Utilities.formatDate(v, tz, "EEE MMM d, h:mm a") : String(v || "");
+  const out = { result: "success" };
+  if (hr) {
+    const h = hr.row;
+    out.helper = { name: h[H.NAME], id: h[H.ID], profileUrl: profileUrl(h[H.ID]), skill: h[H.SKILL], leagues: h[H.LEAGUES], roles: h[H.ROLES], avail: h[H.AVAIL],
+      approved: h[H.APPROVED] === "YES", minor: h[H.MINOR] === "YES", consent: h[H.CONSENT], founder: h[H.FOUNDER] || "", gdh: Number(h[H.GDH]) || 0, avg: h[H.AVG] === "" ? null : Number(h[H.AVG]), count: Number(h[H.COUNT]) || 0, games: [] };
+    for (let i = 1; i < gRows.length; i++) { const r = gRows[i]; if (String(r[G.HID]) !== String(h[H.ID])) continue;
+      const matched = r[G.STATUS] === "MATCHED" || r[G.STATUS] === "DONE";
+      const cr2 = findRowByEmail(cs, C.EMAIL, String(r[G.CEMAIL]).toLowerCase());
+      out.helper.games.push({ id: r[G.ID], when: fmt(r[G.DT]), whenIso: r[G.DT] instanceof Date ? r[G.DT].toISOString() : "", field: r[G.FIELD], league: r[G.LEAGUE], team: r[G.TEAM], needs: r[G.NEEDS], offer: r[G.OFFER], status: r[G.STATUS],
+        coach: matched ? { name: r[G.CNAME] || (cr2 ? cr2.row[C.NAME] : ""), phone: r[G.CPHONE] || (cr2 ? cr2.row[C.PHONE] : ""), payApps: cr2 ? cr2.row[C.PAYAPPS] : "" } : null }); }
+  }
+  if (cr) {
+    const c = cr.row;
+    out.coach = { name: c[C.NAME], team: c[C.TEAM], leagues: c[C.LEAGUES], founder: c[C.FOUNDER] || "", email: c[C.EMAIL], games: [] };
+    for (let i = 1; i < gRows.length; i++) { const r = gRows[i]; if (String(r[G.CEMAIL]).toLowerCase() !== String(c[C.EMAIL]).toLowerCase()) continue;
+      const matched = r[G.STATUS] === "MATCHED" || r[G.STATUS] === "DONE";
+      let helper = null;
+      if (matched && r[G.HID]) { const h2 = findRowByValue(hs, H.ID, r[G.HID]); if (h2) helper = { name: h2.row[H.NAME], phone: h2.row[H.PHONE], payApps: h2.row[H.PAYAPPS], payHandle: h2.row[H.PAYHANDLE], profileUrl: profileUrl(h2.row[H.ID]) }; }
+      out.coach.games.push({ id: r[G.ID], when: fmt(r[G.DT]), whenIso: r[G.DT] instanceof Date ? r[G.DT].toISOString() : "", field: r[G.FIELD], needs: r[G.NEEDS], offer: r[G.OFFER], status: r[G.STATUS], helper: helper }); }
+  }
+  return out;
 }
 
 /* ==========================================================
