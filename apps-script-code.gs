@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v14 - match board endpoints (Oct 1, 2026)
+ *  v15 - Founding 50 launch: badge email, share link, beta timeline, signup source
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -32,7 +32,7 @@ const HELPER_COLS = ["Submitted","HelperID","Name","Age (private)","Email","Phon
   "Leagues","Sports","Roles","Skill","PriorGames","GDHGames","AvgRating","ReviewCount",
   "Availability","Notes","Approved?",
   "PayApps","PayHandle (private)","Minor?","ParentName","ParentEmail","ConsentStatus","ConsentToken",
-  "Founder#","AgreedTerms"];
+  "Founder#","AgreedTerms","Source"];
 const COACH_COLS  = ["Submitted","Name","Email","Phone","Team","Leagues","Notes","Contacted?",
   "PayApps","PayHandle (private)","Founder#"];
 const GAME_COLS   = ["GameID","DateTime","Sport","Field","CoachName","CoachEmail",
@@ -114,8 +114,8 @@ function handleHelper(d) {
   if (existing) {
     // Duplicate: do not create a second profile. Re-send their info.
     const row = existing.row;
-    confirmEmail(email, name, helperWelcomeBody(row[H.NAME], row[H.ID], row[H.MINOR] === "YES"), "You're already on the team");
-    return { result: "success", helperId: row[H.ID], duplicate: true };
+    confirmEmail(email, name, helperWelcomeBody(row[H.NAME], row[H.ID], row[H.MINOR] === "YES", row[H.FOUNDER]), "You're already on the team");
+    return { result: "success", helperId: row[H.ID], founder: row[H.FOUNDER] || 0, duplicate: true };
   }
 
   const isMinor = age < 18;
@@ -130,9 +130,10 @@ function handleHelper(d) {
     clean(d.leagues), clean(d.sports), clean(d.roles), clean(d.skill, 60), num(d.priorGames), 0, "", 0,
     clean(d.availability), clean(d.notes, 1000), "NO",
     clean(d.payApps), clean(d.payHandle, 80), isMinor ? "YES" : "NO", parentName, parentEmail,
-    isMinor ? "PENDING" : "N/A", token, founder || "", "YES"]);
+    isMinor ? "PENDING" : "N/A", token, founder || "", "YES", clean(d.source, 40)]);
 
-  confirmEmail(email, name, helperWelcomeBody(name, id, isMinor, founder), isMinor ? "One step left: parent approval" : "You're on the team");
+  confirmEmail(email, name, helperWelcomeBody(name, id, isMinor, founder),
+    founder ? "You're Founding Helper #" + founder + " of 50" : (isMinor ? "One step left: parent approval" : "You're on the team"));
   if (isMinor) sendParentConsent(parentEmail, parentName, name, token);
 
   alertOwner("HELPER", name, clean(d.leagues),
@@ -140,9 +141,9 @@ function handleHelper(d) {
     "\nLeagues: " + clean(d.leagues) + "\nSports: " + clean(d.sports) + "\nRoles: " + clean(d.roles) +
     "\nSkill: " + clean(d.skill) + "\nPrior games: " + num(d.priorGames) +
     "\nPay apps: " + clean(d.payApps) + "\nAvailability: " + clean(d.availability) + "\nNotes: " + clean(d.notes) +
-    (founder ? "\nFounding Helper #" + founder : "") + "\nProfile: " + profileUrl(id));
+    (founder ? "\nFounding Helper #" + founder : "") + "\nSource: " + (clean(d.source, 40) || "direct") + "\nProfile: " + profileUrl(id));
 
-  return { result: "success", helperId: id, profileUrl: profileUrl(id) };
+  return { result: "success", helperId: id, founder: founder || 0, profileUrl: profileUrl(id) };
 }
 
 /* ==========================================================
@@ -502,7 +503,7 @@ function renderProfile(helperId) {
 
   const body =
     "<div class='phead'><div class='pname'>" + esc(name) + "</div><span class='pskill'>" + esc(skill) + "</span>" +
-    (founder ? "<span class='pskill' style='background:#fff;color:#172B4D;margin-left:8px;'>&#9733; Founding Helper #" + esc(founder) + "</span>" : "") + "</div>" +
+    (founder ? "<span class='pskill' style='background:#102A43;color:#D7F75B;border:2px solid #D7F75B;margin-left:8px;box-shadow:0 0 0 3px rgba(215,247,91,.25);'>&#9733; Founding 50 &middot; #" + esc(founder) + "</span>" : "") + "</div>" +
     "<div class='pbody'>" +
       section("Sports scored", tags(sports)) +
       section("Leagues served", tags(leagues)) +
@@ -541,16 +542,36 @@ function profileShell(body){
 /* ==========================================================
  *  EMAIL COPY
  * ========================================================== */
+const HELPER_SHARE_URL = SITE_BASE_URL + "/helper.html?ref=share";
+const BETA_TIMELINE = "Beta games: late fall to early winter 2026. Full launch: 2027.";
+
+function founderBadgeEmail(n){
+  return "<table role='presentation' cellpadding='0' cellspacing='0' align='center' style='margin:6px auto 18px;border-collapse:separate;'><tr><td style='background:#102A43;border:3px solid #D7F75B;border-radius:18px;padding:18px 34px;text-align:center;'>" +
+    "<div style='color:#D7F75B;font-size:12px;font-weight:bold;letter-spacing:3px;'>&#9733; FOUNDING 50 &#9733;</div>" +
+    "<div style='color:#ffffff;font-family:Impact,Arial Narrow,Arial,sans-serif;font-size:56px;line-height:1;margin:6px 0 4px;'>#" + esc(n) + "</div>" +
+    "<div style='display:inline-block;background:#1747C8;color:#fff;font-size:11px;font-weight:bold;letter-spacing:2px;padding:5px 12px;border-radius:999px;'>GAMEDAY HELPERS &middot; TAMPA BAY</div>" +
+    "</td></tr></table>";
+}
+function shareButtonEmail(){
+  const subj = "I just joined GameDay Helpers";
+  const body = "Hey! I just signed up as a Founding Helper with GameDay Helpers. Local youth baseball and softball coaches pay helpers to keep score and run GameChanger at games, usually $35+ for a two hour game. Only 50 founding spots. Grab one here: " + HELPER_SHARE_URL;
+  const href = "mailto:?subject=" + encodeURIComponent(subj) + "&body=" + encodeURIComponent(body);
+  return "<p style='text-align:center;margin:20px 0 6px;'><a href='" + href + "' style='background:#D7F75B;color:#102A43;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:10px;display:inline-block;'>Invite a friend to the Founding 50</a></p>" +
+    "<p style='text-align:center;font-size:13px;color:#666;margin-top:0;'>Or send them this link: <a href='" + HELPER_SHARE_URL + "'>" + HELPER_SHARE_URL + "</a></p>";
+}
 function helperWelcomeBody(name, id, isMinor, founder){
-  const f = founder ? "<p style='background:#EEF3FF;border:1.5px solid #1747C8;border-radius:10px;padding:12px;'><strong>&#9733; Founding Helper #" + founder + ".</strong> Only 50 exist. It is on your profile for good.</p>" : "";
-  const next = isMinor
-    ? "<p><strong>One step left:</strong> we just emailed your parent or guardian a one tap approval. Nudge them. The second they approve, you are active.</p>"
-    : "<p><strong>You are active.</strong> Nothing to do now. Once matching opens and a coach in one of your leagues needs a scorekeeper, you get an email with the date, field, and pay. Say yes to the ones you want, skip the rest.</p>";
-  return f + next +
-    "<p><strong>How pay works:</strong> the coach pays you straight to your app after the game. Two hour offers start at $35, set by the coach, and GameDay Helpers takes none of it. No cash, ever.</p>" +
-    "<p><strong>Three things that get you rebooked:</strong> show up 15 minutes early, phone charged, and text the coach the day before to confirm.</p>" +
-    profileLine(id) +
-    "<p>Know another kid or parent who can run GameChanger? Forward this. Founding spots are going.</p>";
+  const f = founder
+    ? founderBadgeEmail(founder) +
+      "<p><strong>You are one of the Founding 50.</strong> Your number is locked to your profile for good.</p>" +
+      "<p><strong>What happens next:</strong> once we reach 50 helpers, we start connecting you with coaches who need you at games. Not before. Every share gets us there faster.</p>"
+    : "<p><strong>You are on the team.</strong> We will email you when coaches in your leagues need a helper.</p>";
+  const timeline = "<p style='background:#F7F9FC;border-left:4px solid #1747C8;padding:10px 12px;'><strong>Timeline:</strong> " + BETA_TIMELINE + "</p>";
+  const minor = isMinor
+    ? "<p><strong>One step left:</strong> we just emailed your parent or guardian a one tap approval. Nudge them. The second they approve, you are active.</p>" : "";
+  return f + minor + timeline +
+    "<p><strong>How pay works:</strong> the coach pays you straight to your app after the game. Two hour offers start at $35, set by the coach. No cash, ever.</p>" +
+    shareButtonEmail() +
+    profileLine(id);
 }
 function coachWelcomeBody(name, founder){
   const f = founder ? "<p style='background:#EEF3FF;border:1.5px solid #1747C8;border-radius:10px;padding:12px;'><strong>&#9733; Founding Coach #" + founder + ".</strong> One of the first 50 in Tampa Bay. Free for you for the whole beta.</p>" : "";
@@ -598,6 +619,8 @@ function tab(name, headers){
   let s = ss.getSheetByName(name);
   if (!s) s = ss.insertSheet(name);
   if (s.getLastRow() === 0) s.appendRow(headers);
+  else if (s.getLastColumn() < headers.length)
+    s.getRange(1, s.getLastColumn() + 1, 1, headers.length - s.getLastColumn()).setValues([headers.slice(s.getLastColumn())]);
   return s;
 }
 function findRowByValue(sheet, colIdx, value){
