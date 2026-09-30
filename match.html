@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Match Board | GameDay Helpers</title>
+<meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#102A43">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .board { max-width: 1080px; margin: 0 auto; padding: 0 1.25rem; }
+  .bar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin: 1.5rem 0; }
+  .bar input { flex: 1 1 220px; min-height: 48px; }
+  .bar .btn { min-height: 48px; padding-inline: 1rem; }
+  .kpis { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .75rem; margin-bottom: 1.5rem; }
+  .kpi { padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+  .kpi .num { font-family: var(--display); font-size: 2rem; color: var(--action); line-height: 1; }
+  .kpi .lab { font-size: .875rem; color: var(--muted); margin-top: .25rem; }
+  .game { border: 1px solid var(--border); border-radius: var(--radius-card); margin-bottom: 1.25rem; overflow: hidden; }
+  .ghead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1rem; padding: 1rem 1.25rem; background: var(--dark); color: var(--white); }
+  .ghead .when { font-family: var(--display); font-size: 1.5rem; line-height: 1.1; }
+  .ghead .meta { font-size: .875rem; color: var(--inverse-muted); }
+  .ghead .offer { font-family: var(--display); font-size: 1.5rem; color: var(--accent); }
+  .gbody { padding: 1rem 1.25rem; }
+  .gbody .needs { font-size: .9375rem; margin-bottom: .75rem; }
+  .cand { display: grid; grid-template-columns: 1fr auto; gap: .5rem 1rem; align-items: center; padding: .75rem 0; border-top: 1px solid var(--border); }
+  .cand .nm { font-weight: 700; color: var(--dark); }
+  .cand .why { display: flex; flex-wrap: wrap; gap: .375rem; margin-top: .375rem; }
+  .pill { font-size: .75rem; font-weight: 700; padding: .25rem .5rem; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+  .pill.good { background: #e8f3ea; border-color: #9fcaa8; color: var(--success); }
+  .pill.bad { background: #fdecea; border-color: #f0b3ac; color: var(--error); }
+  .pill.warn { background: #fff6dc; border-color: #ecd48a; color: #7a5200; }
+  .cand .act { display: flex; gap: .5rem; }
+  .cand .btn { min-height: 44px; padding-inline: .875rem; font-size: .9375rem; }
+  .empty { padding: 1rem; color: var(--muted); font-size: .9375rem; }
+  .status { margin-top: 1rem; padding: .75rem 1rem; border-radius: var(--radius); background: var(--surface); border-left: 4px solid var(--action); font-size: .9375rem; }
+  .status.err { border-left-color: var(--error); color: var(--error); }
+  details.helpers { margin-top: 2rem; }
+  details.helpers summary { cursor: pointer; font-weight: 700; color: var(--dark); min-height: 44px; display: flex; align-items: center; }
+  table { width: 100%; border-collapse: collapse; font-size: .875rem; margin-top: .75rem; }
+  th, td { text-align: left; padding: .5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .muted { color: var(--muted); }
+  @media (min-width: 640px) { .kpis { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+</style>
+</head>
+<body>
+<div class="banner">Match board &middot; private</div>
+<header>
+  <a href="index.html" aria-label="GameDay Helpers home"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
+</header>
+
+<main id="main">
+<section>
+  <div class="board">
+    <div class="eyebrow">Operator</div>
+    <h1>Match <span class="o">board.</span></h1>
+
+    <div class="bar">
+      <label for="key" class="sr-only">Admin key</label>
+      <input type="password" id="key" placeholder="Admin key" autocomplete="current-password">
+      <button class="btn btn-orange" id="load" type="button"><span>Load board</span></button>
+      <button class="btn btn-dark" id="refresh" type="button" style="display:none"><span>Refresh</span></button>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite">Enter the admin key to load open games and helpers.</div>
+
+    <div id="app" style="display:none">
+      <div class="kpis">
+        <div class="kpi"><div class="num" id="k_open">0</div><div class="lab">open games</div></div>
+        <div class="kpi"><div class="num" id="k_matched">0</div><div class="lab">matched</div></div>
+        <div class="kpi"><div class="num" id="k_helpers">0</div><div class="lab">helpers ready</div></div>
+        <div class="kpi"><div class="num" id="k_pending">0</div><div class="lab">need review or consent</div></div>
+      </div>
+
+      <h2 class="mb-4">Open <span class="o">games.</span></h2>
+      <div id="games"></div>
+
+      <details class="helpers">
+        <summary>All helpers</summary>
+        <div id="helperTable"></div>
+      </details>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQnRjGHrkyzhreSnNxQy1ReXPac4VNLT-Wkz6qggE0OOsY-3v5zjdUclYkfkD6cncs/exec";
+  const $ = id => document.getElementById(id);
+  let DATA = null;
+  const keyBox = $('key');
+  try { keyBox.value = localStorage.getItem('gdh_key') || ''; } catch (e) {}
+
+  function setStatus(msg, err){ const s = $('status'); s.textContent = msg; s.classList.toggle('err', !!err); }
+  function esc(s){ return String(s == null ? '' : s); }
+  function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function pill(text, kind){ return el('span', 'pill' + (kind ? ' ' + kind : ''), text); }
+  function csv(s){ return String(s || '').split(',').map(x => x.trim().toLowerCase()).filter(Boolean); }
+
+  async function load(){
+    const key = keyBox.value.trim();
+    if (!key) { setStatus('Enter the admin key.', true); return; }
+    setStatus('Loading...');
+    try {
+      const res = await fetch(SCRIPT_URL + '?op=board&key=' + encodeURIComponent(key), { redirect: 'follow' });
+      const d = await res.json();
+      if (d.result !== 'success') { setStatus(d.message || 'Could not load.', true); return; }
+      DATA = d; try { localStorage.setItem('gdh_key', key); } catch (e) {}
+      render(); $('app').style.display = ''; $('refresh').style.display = '';
+      setStatus('Loaded ' + new Date(d.generated).toLocaleTimeString() + '. ' + d.games.length + ' games, ' + d.helpers.length + ' helpers.');
+    } catch (e) { setStatus('Could not reach the backend. Is ADMIN_KEY set and the deployment on a new version?', true); }
+  }
+
+  async function post(payload){
+    payload.key = keyBox.value.trim();
+    const res = await fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+    return res.json();
+  }
+
+  function dayBucket(iso){
+    const d = new Date(iso); if (isNaN(d)) return null;
+    const dow = d.getDay(); if (dow === 6) return 'saturdays'; if (dow === 0) return 'sundays'; return 'weekday evenings';
+  }
+
+  function eligible(h){
+    if (h.minor && h.consent !== 'APPROVED') return { ok: false, why: 'Minor, no parent consent yet' };
+    if (!h.approved) return { ok: false, why: 'Not reviewed yet' };
+    return { ok: true };
+  }
+
+  function rank(game){
+    const gl = String(game.league || '').toLowerCase();
+    const needs = csv(game.needs);
+    const bucket = dayBucket(game.when);
+    return DATA.helpers.map(h => {
+      const e = eligible(h);
+      const leagues = csv(h.leagues), roles = csv(h.roles), avail = csv(h.avail);
+      const leagueOk = gl ? leagues.some(l => gl.includes(l) || l.includes(gl)) : null;
+      const roleHits = needs.filter(n => roles.includes(n));
+      const roleOk = needs.length ? roleHits.length === needs.length : null;
+      const availOk = bucket ? (avail.length ? avail.includes(bucket) : null) : null;
+      let score = 0;
+      if (e.ok) score += 1000;
+      if (leagueOk) score += 300; else if (leagueOk === false) score -= 300;
+      if (roleOk) score += 200; else if (roleOk === false) score += roleHits.length * 40 - 100;
+      if (availOk) score += 100; else if (availOk === false) score -= 50;
+      score += (h.avg || 0) * 20 + Math.min(h.gdh, 10) * 5 + Math.min(h.prior, 50) * 0.5;
+      return { h, e, leagueOk, roleOk, roleHits, availOk, score };
+    }).sort((a, b) => b.score - a.score);
+  }
+
+  function render(){
+    const open = DATA.games.filter(g => g.status === 'OPEN').sort((a, b) => new Date(a.when) - new Date(b.when));
+    const matched = DATA.games.filter(g => g.status === 'MATCHED').length;
+    const ready = DATA.helpers.filter(h => eligible(h).ok).length;
+    $('k_open').textContent = open.length; $('k_matched').textContent = matched;
+    $('k_helpers').textContent = ready; $('k_pending').textContent = DATA.helpers.length - ready;
+
+    const box = $('games'); box.textContent = '';
+    if (!open.length) box.appendChild(el('div', 'empty', 'No open games. When a coach requests one, it shows up here.'));
+    open.forEach(g => {
+      const card = el('div', 'game');
+      const head = el('div', 'ghead');
+      const left = el('div');
+      left.appendChild(el('div', 'when', g.whenText));
+      left.appendChild(el('div', 'meta', [g.league || 'League unknown', g.team, g.field || 'No field given'].filter(Boolean).join(' · ')));
+      left.appendChild(el('div', 'meta', 'Coach ' + (g.coach || 'not registered') + ' · ' + g.coachEmail + (g.coachPhone ? ' · ' + g.coachPhone : '')));
+      head.appendChild(left);
+      const right = el('div'); right.appendChild(el('div', 'offer', '$' + g.offer)); right.appendChild(el('div', 'meta', g.length + ' hr · ' + g.id)); head.appendChild(right);
+      card.appendChild(head);
+      const body = el('div', 'gbody');
+      body.appendChild(el('div', 'needs', 'Needs: ' + (g.needs || 'not specified')));
+      const ranked = rank(g).slice(0, 8);
+      if (!ranked.length) body.appendChild(el('div', 'empty', 'No helpers yet.'));
+      ranked.forEach(r => {
+        const row = el('div', 'cand');
+        const info = el('div');
+        info.appendChild(el('div', 'nm', r.h.name + (r.h.founder ? ' · Founding #' + r.h.founder : '')));
+        const why = el('div', 'why');
+        why.appendChild(pill(r.e.ok ? 'Ready' : r.e.why, r.e.ok ? 'good' : 'bad'));
+        if (r.leagueOk === true) why.appendChild(pill('Serves ' + g.league, 'good')); else if (r.leagueOk === false) why.appendChild(pill('Not in ' + g.league, 'bad'));
+        if (r.roleOk === true) why.appendChild(pill('Does all ' + csv(g.needs).length + ' tasks', 'good')); else if (r.roleOk === false) why.appendChild(pill(r.roleHits.length + '/' + csv(g.needs).length + ' tasks', 'warn'));
+        if (r.availOk === true) why.appendChild(pill('Free ' + dayBucket(g.when), 'good')); else if (r.availOk === false) why.appendChild(pill('Usually not free ' + dayBucket(g.when), 'warn'));
+        why.appendChild(pill(r.h.skill || 'Skill not set'));
+        why.appendChild(pill(r.h.avg ? '★ ' + r.h.avg + ' (' + r.h.count + ')' : 'No ratings'));
+        why.appendChild(pill(r.h.gdh + ' GDH games · ' + r.h.prior + ' before'));
+        info.appendChild(why);
+        row.appendChild(info);
+        const act = el('div', 'act');
+        if (r.e.ok) {
+          const b = el('button', 'btn btn-orange', 'Send match'); b.type = 'button';
+          b.onclick = () => doMatch(g, r.h, b);
+          act.appendChild(b);
+        } else if (!r.h.approved && !(r.h.minor && r.h.consent !== 'APPROVED')) {
+          const b = el('button', 'btn btn-dark', 'Approve'); b.type = 'button';
+          b.onclick = () => doApprove(r.h, b);
+          act.appendChild(b);
+        }
+        row.appendChild(act);
+        body.appendChild(row);
+      });
+      const un = el('button', 'btn btn-dark mt-4', 'No helper available, notify coach'); un.type = 'button'; un.style.minHeight = '44px';
+      un.onclick = () => doUnfill(g, un);
+      body.appendChild(un);
+      card.appendChild(body);
+      box.appendChild(card);
+    });
+
+    const t = $('helperTable'); t.textContent = '';
+    const table = el('table');
+    const thead = el('thead'); const tr = el('tr');
+    ['Name', 'Status', 'Leagues', 'Does', 'Free', 'Skill', 'Rating', 'Games', ''].forEach(h => tr.appendChild(el('th', null, h)));
+    thead.appendChild(tr); table.appendChild(thead);
+    const tb = el('tbody');
+    DATA.helpers.forEach(h => {
+      const e = eligible(h); const r = el('tr');
+      r.appendChild(el('td', null, h.name + (h.founder ? ' #' + h.founder : '')));
+      const st = el('td'); st.appendChild(pill(e.ok ? 'Ready' : e.why, e.ok ? 'good' : 'bad')); r.appendChild(st);
+      r.appendChild(el('td', null, h.leagues)); r.appendChild(el('td', null, h.roles)); r.appendChild(el('td', null, h.avail || 'not set'));
+      r.appendChild(el('td', null, h.skill)); r.appendChild(el('td', null, h.avg ? h.avg + ' (' + h.count + ')' : 'none'));
+      r.appendChild(el('td', null, h.gdh + ' / ' + h.prior));
+      const a = el('td');
+      const b = el('button', 'btn btn-dark', h.approved ? 'Unapprove' : 'Approve'); b.type = 'button'; b.style.minHeight = '44px';
+      b.onclick = () => doApprove(h, b, h.approved);
+      a.appendChild(b); r.appendChild(a);
+      tb.appendChild(r);
+    });
+    table.appendChild(tb); t.appendChild(table);
+  }
+
+  async function doMatch(g, h, btn){
+    if (!confirm('Send match emails: ' + h.name + ' to ' + (g.coach || g.coachEmail) + ' for ' + g.whenText + '?')) return;
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try { const r = await post({ type: 'MATCH', gameId: g.id, helperId: h.id }); setStatus(r.message, r.result !== 'success'); if (r.result === 'success') await load(); else { btn.disabled = false; btn.textContent = 'Send match'; } }
+    catch (e) { setStatus('Request failed. Check the Executions log.', true); btn.disabled = false; btn.textContent = 'Send match'; }
+  }
+  async function doApprove(h, btn, unapprove){
+    btn.disabled = true;
+    try { const r = await post({ type: 'APPROVE', helperId: h.id, approved: !unapprove }); setStatus(r.message, r.result !== 'success'); await load(); }
+    catch (e) { setStatus('Request failed.', true); btn.disabled = false; }
+  }
+  async function doUnfill(g, btn){
+    if (!confirm('Mark ' + g.id + ' unfilled and email the coach?')) return;
+    btn.disabled = true;
+    try { const r = await post({ type: 'UNFILL', gameId: g.id }); setStatus(r.message, r.result !== 'success'); await load(); }
+    catch (e) { setStatus('Request failed.', true); btn.disabled = false; }
+  }
+
+  $('load').addEventListener('click', load);
+  $('refresh').addEventListener('click', load);
+  keyBox.addEventListener('keydown', e => { if (e.key === 'Enter') load(); });
+  if (keyBox.value) load();
+</script>
+</body>
+</html>

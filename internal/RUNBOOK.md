@@ -5,7 +5,17 @@ verified against `apps-script-code.gs` in code. It was not exercised against the
 
 ---
 
-## 1. Match a game (under 2 minutes)
+## 0. The match board (fastest way)
+
+gamedayhelpers.com/match.html. Enter the admin key (set as `ADMIN_KEY` in the Apps Script editor, never in the repo). The board lists every OPEN game with helpers ranked for it: eligible first (reviewed, and parent-approved if under 18), then league match, then tasks, then day availability, then rating and games scored. Green badges are reasons to pick, red are blockers, yellow are cautions.
+
+- **Send match**: writes the HelperID to the Games row and sends both match emails. Same code as the GDH menu.
+- **Approve**: flips `Approved?` to YES after you have looked at the profile. Unapprove is in the All helpers table.
+- **No helper available, notify coach**: marks the game UNFILLED and emails the coach.
+
+The Sheet method below still works and is the fallback.
+
+## 1. Match a game in the Sheet (under 2 minutes)
 
 Trigger: an email with subject `GDH GAME REQUEST: <coach> (<league>)`. It contains the GameID, when, field, needs, offer, and coach contact.
 
