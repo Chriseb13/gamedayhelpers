@@ -5,9 +5,9 @@ verified against `apps-script-code.gs` in code. It was not exercised against the
 
 ---
 
-## 0. The match board (fastest way)
+## 0. The dashboard (fastest way)
 
-gamedayhelpers.com/match.html. Enter the admin key (set as `ADMIN_KEY` in the Apps Script editor, never in the repo). The board lists every OPEN game with helpers ranked for it: eligible first (reviewed, and parent-approved if under 18), then league match, then tasks, then day availability, then rating and games scored. Green badges are reasons to pick, red are blockers, yellow are cautions.
+gamedayhelpers.com/match.html. Open requests sit at the top, longest waiting first, with waiting time and time to game. Below that: tap any number tile (helpers, coaches, requests, average offer, average hourly pay, time to match, ratings, league inquiries, minors) to see the rows behind it. Then 8-week trends for helper signups, coach signups, and game requests. Enter the admin key (set as `ADMIN_KEY` in the Apps Script editor, never in the repo). The board lists every OPEN game with helpers ranked for it: eligible first (reviewed, and parent-approved if under 18), then league match, then tasks, then day availability, then rating and games scored. Green badges are reasons to pick, red are blockers, yellow are cautions.
 
 - **Send match**: writes the HelperID to the Games row and sends both match emails. Same code as the GDH menu.
 - **Approve**: flips `Approved?` to YES after you have looked at the profile. Unapprove is in the All helpers table.

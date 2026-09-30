@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Match Board | GameDay Helpers</title>
+<title>Dashboard | GameDay Helpers</title>
 <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -44,11 +44,29 @@
   th, td { text-align: left; padding: .5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
   th { color: var(--muted); font-weight: 600; }
   .muted { color: var(--muted); }
-  @media (min-width: 640px) { .kpis { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+  .kpi { cursor: pointer; text-align: left; font: inherit; width: 100%; }
+  .kpi:hover, .kpi[aria-pressed="true"] { border-color: var(--action); background: #eef3ff; }
+  .kpi .sub { font-size: .75rem; color: var(--muted); margin-top: .25rem; }
+  .wait { font-weight: 700; }
+  .wait.hot { color: #ffd166; }
+  .drill { margin: 0 0 1.5rem; padding: 1rem 1.25rem; border: 1px solid var(--action); border-radius: var(--radius-card); background: var(--white); }
+  .drill h3 { display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-size: 1.125rem; }
+  .drill .close { min-height: 44px; padding-inline: .875rem; }
+  .trends { display: grid; gap: 1rem; margin: 1.5rem 0; }
+  .trend { padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--white); }
+  .trend .t { font-weight: 700; color: var(--dark); font-size: .9375rem; }
+  .trend .s { font-size: .8125rem; color: var(--muted); margin-bottom: .5rem; }
+  .trend svg { width: 100%; height: 96px; display: block; }
+  .trend rect { fill: var(--action); }
+  .trend rect:hover { fill: var(--action-hover); }
+  .trend text { font-size: 11px; fill: var(--muted); }
+  .trend text.v { fill: var(--text); font-weight: 600; }
+  .sec { margin-top: 2rem; }
+  @media (min-width: 640px) { .kpis { grid-template-columns: repeat(4, minmax(0,1fr)); } .trends { grid-template-columns: repeat(3, minmax(0,1fr)); } }
 </style>
 </head>
 <body>
-<div class="banner">Match board &middot; private</div>
+<div class="banner">Dashboard &middot; private</div>
 <header>
   <a href="index.html" aria-label="GameDay Helpers home"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
 </header>
@@ -57,7 +75,7 @@
 <section>
   <div class="board">
     <div class="eyebrow">Operator</div>
-    <h1>Match <span class="o">board.</span></h1>
+    <h1>Dash<span class="o">board.</span></h1>
 
     <div class="bar">
       <label for="key" class="sr-only">Admin key</label>
@@ -65,18 +83,25 @@
       <button class="btn btn-orange" id="load" type="button"><span>Load board</span></button>
       <button class="btn btn-dark" id="refresh" type="button" style="display:none"><span>Refresh</span></button>
     </div>
-    <div class="status" id="status" role="status" aria-live="polite">Enter the admin key to load open games and helpers.</div>
+    <div class="status" id="status" role="status" aria-live="polite">Enter the admin key to load the board.</div>
 
     <div id="app" style="display:none">
-      <div class="kpis">
-        <div class="kpi"><div class="num" id="k_open">0</div><div class="lab">open games</div></div>
-        <div class="kpi"><div class="num" id="k_matched">0</div><div class="lab">matched</div></div>
-        <div class="kpi"><div class="num" id="k_helpers">0</div><div class="lab">helpers ready</div></div>
-        <div class="kpi"><div class="num" id="k_pending">0</div><div class="lab">need review or consent</div></div>
+      <h2 class="mb-4">Open <span class="o">requests.</span></h2>
+      <div id="games"></div>
+
+      <div class="sec">
+        <div class="eyebrow">Numbers</div>
+        <h2 class="mb-4">Where <span class="o">we stand.</span></h2>
+        <p class="hint mb-4">Tap a tile to see the rows behind it.</p>
+        <div class="kpis" id="kpis"></div>
+        <div id="drill"></div>
       </div>
 
-      <h2 class="mb-4">Open <span class="o">games.</span></h2>
-      <div id="games"></div>
+      <div class="sec">
+        <div class="eyebrow">Trends</div>
+        <h2 class="mb-4">Last <span class="o">8 weeks.</span></h2>
+        <div class="trends" id="trends"></div>
+      </div>
 
       <details class="helpers">
         <summary>All helpers</summary>
@@ -156,11 +181,13 @@
     const open = DATA.games.filter(g => g.status === 'OPEN').sort((a, b) => new Date(a.when) - new Date(b.when));
     const matched = DATA.games.filter(g => g.status === 'MATCHED').length;
     const ready = DATA.helpers.filter(h => eligible(h).ok).length;
-    $('k_open').textContent = open.length; $('k_matched').textContent = matched;
-    $('k_helpers').textContent = ready; $('k_pending').textContent = DATA.helpers.length - ready;
+    renderKpis(open, matched, ready);
+    renderTrends();
 
+    // Open requests first, longest waiting at the top
+    open.sort((a, b) => new Date(a.requested || 0) - new Date(b.requested || 0));
     const box = $('games'); box.textContent = '';
-    if (!open.length) box.appendChild(el('div', 'empty', 'No open games. When a coach requests one, it shows up here.'));
+    if (!open.length) box.appendChild(el('div', 'empty', 'No open requests. When a coach requests a game, it shows up here.'));
     open.forEach(g => {
       const card = el('div', 'game');
       const head = el('div', 'ghead');
@@ -169,7 +196,9 @@
       left.appendChild(el('div', 'meta', [g.league || 'League unknown', g.team, g.field || 'No field given'].filter(Boolean).join(' · ')));
       left.appendChild(el('div', 'meta', 'Coach ' + (g.coach || 'not registered') + ' · ' + g.coachEmail + (g.coachPhone ? ' · ' + g.coachPhone : '')));
       head.appendChild(left);
-      const right = el('div'); right.appendChild(el('div', 'offer', '$' + g.offer)); right.appendChild(el('div', 'meta', g.length + ' hr · ' + g.id)); head.appendChild(right);
+      const right = el('div'); right.appendChild(el('div', 'offer', '$' + g.offer)); right.appendChild(el('div', 'meta', g.length + ' hr · ' + g.id));
+      const w = waiting(g.requested); const wl = el('div', 'meta wait' + (w.hours >= 24 ? ' hot' : ''), 'Waiting ' + w.text + (hoursUntil(g.when) < 48 ? ' · game in ' + fmtHours(hoursUntil(g.when)) : ''));
+      right.appendChild(wl); head.appendChild(right);
       card.appendChild(head);
       const body = el('div', 'gbody');
       body.appendChild(el('div', 'needs', 'Needs: ' + (g.needs || 'not specified')));
@@ -229,6 +258,103 @@
       tb.appendChild(r);
     });
     table.appendChild(tb); t.appendChild(table);
+  }
+
+  /* ---------- time helpers ---------- */
+  function hoursSince(iso){ const d = new Date(iso); return isNaN(d) ? null : (Date.now() - d.getTime()) / 36e5; }
+  function hoursUntil(iso){ const d = new Date(iso); return isNaN(d) ? Infinity : (d.getTime() - Date.now()) / 36e5; }
+  function fmtHours(h){ if (h == null || !isFinite(h)) return 'unknown'; if (h < 1) return Math.max(1, Math.round(h * 60)) + ' min'; if (h < 48) return Math.round(h) + ' hr'; return Math.round(h / 24) + ' days'; }
+  function waiting(iso){ const h = hoursSince(iso); return { hours: h == null ? 0 : h, text: h == null ? 'unknown' : fmtHours(h) }; }
+  function weekKey(iso){ const d = new Date(iso); if (isNaN(d)) return null; const m = new Date(d); m.setHours(0,0,0,0); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return m; }
+
+  /* ---------- KPIs with drill-down ---------- */
+  function money(n){ return '$' + (Math.round(n * 100) / 100).toFixed(2); }
+  function stats(){
+    const g = DATA.games, done = g.filter(x => x.status === 'DONE' || x.status === 'MATCHED');
+    const priced = g.filter(x => Number(x.offer) > 0 && Number(x.length) > 0);
+    const avgOffer = priced.length ? priced.reduce((a, x) => a + Number(x.offer), 0) / priced.length : null;
+    const avgHourly = priced.length ? priced.reduce((a, x) => a + Number(x.offer) / Number(x.length), 0) / priced.length : null;
+    const open = g.filter(x => x.status === 'OPEN');
+    const waitHrs = open.map(x => hoursSince(x.requested)).filter(x => x != null);
+    const avgWait = waitHrs.length ? waitHrs.reduce((a, b) => a + b, 0) / waitHrs.length : null;
+    const fillTimes = g.filter(x => x.matchSent && x.requested).map(x => (new Date(x.matchSent) - new Date(x.requested)) / 36e5);
+    const avgFill = fillTimes.length ? fillTimes.reduce((a, b) => a + b, 0) / fillTimes.length : null;
+    const hr = DATA.reviews.filter(r => r.revieweeRole === 'helper'), cr = DATA.reviews.filter(r => r.revieweeRole === 'coach');
+    const avg = arr => arr.length ? (arr.reduce((a, r) => a + r.stars, 0) / arr.length).toFixed(1) : null;
+    return { open, done, priced, avgOffer, avgHourly, avgWait, avgFill, hr, cr, avgH: avg(hr), avgC: avg(cr) };
+  }
+  let DRILL = null;
+  function renderKpis(open, matched, ready){
+    const st = stats();
+    const tiles = [
+      { k: 'open', num: open.length, lab: 'open requests', sub: st.avgWait != null ? 'avg waiting ' + fmtHours(st.avgWait) : 'nothing waiting', rows: () => gameRows(open) },
+      { k: 'helpers', num: DATA.helpers.length, lab: 'helpers', sub: ready + ' ready, ' + (DATA.helpers.length - ready) + ' pending', rows: () => helperRows(DATA.helpers) },
+      { k: 'coaches', num: DATA.coaches.length, lab: 'coaches', sub: DATA.coaches.filter(c => c.founder).length + ' founding', rows: () => coachRows(DATA.coaches) },
+      { k: 'requests', num: DATA.games.length, lab: 'game requests, all time', sub: matched + ' matched, ' + DATA.games.filter(x => x.status === 'DONE').length + ' done, ' + DATA.games.filter(x => x.status === 'UNFILLED').length + ' unfilled', rows: () => gameRows(DATA.games) },
+      { k: 'offer', num: st.avgOffer != null ? money(st.avgOffer) : '\u2014', lab: 'avg offer per game', sub: st.priced.length + ' priced requests', rows: () => gameRows(st.priced) },
+      { k: 'hourly', num: st.avgHourly != null ? money(st.avgHourly) : '\u2014', lab: 'avg hourly pay', sub: 'offer divided by expected length', rows: () => gameRows(st.priced) },
+      { k: 'fill', num: st.avgFill != null ? fmtHours(st.avgFill) : '\u2014', lab: 'avg time to match', sub: 'request to match email', rows: () => gameRows(DATA.games.filter(x => x.matchSent)) },
+      { k: 'stars', num: st.avgH != null ? '\u2605 ' + st.avgH : '\u2014', lab: 'helper rating', sub: st.hr.length + ' helper reviews, ' + st.cr.length + ' coach reviews' + (st.avgC ? ', coaches \u2605 ' + st.avgC : ''), rows: () => reviewRows(DATA.reviews) },
+      { k: 'leagues', num: DATA.leagues.length, lab: 'league inquiries', sub: DATA.leagues.filter(l => l.contacted === 'YES').length + ' contacted', rows: () => leagueRows(DATA.leagues) },
+      { k: 'minors', num: DATA.helpers.filter(h => h.minor).length, lab: 'helpers under 18', sub: DATA.helpers.filter(h => h.minor && h.consent !== 'APPROVED').length + ' waiting on a parent', rows: () => helperRows(DATA.helpers.filter(h => h.minor)) },
+    ];
+    const box = $('kpis'); box.textContent = '';
+    tiles.forEach(t => {
+      const b = el('button', 'kpi'); b.type = 'button'; b.setAttribute('aria-pressed', DRILL === t.k ? 'true' : 'false');
+      b.appendChild(el('div', 'num', String(t.num))); b.appendChild(el('div', 'lab', t.lab)); b.appendChild(el('div', 'sub', t.sub));
+      b.onclick = () => { DRILL = DRILL === t.k ? null : t.k; renderKpis(open, matched, ready); showDrill(DRILL ? t : null); };
+      box.appendChild(b);
+    });
+    if (DRILL) { const t = tiles.find(x => x.k === DRILL); if (t) showDrill(t); }
+  }
+  function showDrill(t){
+    const d = $('drill'); d.textContent = ''; if (!t) return;
+    const wrap = el('div', 'drill');
+    const h = el('h3', null, t.lab + ' (' + t.num + ')');
+    const c = el('button', 'btn btn-dark close', 'Close'); c.type = 'button'; c.onclick = () => { DRILL = null; d.textContent = ''; document.querySelectorAll('.kpi').forEach(k => k.setAttribute('aria-pressed', 'false')); };
+    h.appendChild(c); wrap.appendChild(h);
+    const { cols, rows } = t.rows();
+    if (!rows.length) { wrap.appendChild(el('div', 'empty', 'Nothing here yet.')); d.appendChild(wrap); return; }
+    const table = el('table'); const th = el('thead'); const tr = el('tr'); cols.forEach(x => tr.appendChild(el('th', null, x))); th.appendChild(tr); table.appendChild(th);
+    const tb = el('tbody'); rows.forEach(r => { const row = el('tr'); r.forEach(v => row.appendChild(el('td', null, v == null ? '' : String(v)))); tb.appendChild(row); }); table.appendChild(tb);
+    wrap.appendChild(table); d.appendChild(wrap); wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  const fmtDate = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); };
+  function gameRows(list){ return { cols: ['Game', 'Status', 'League', 'Coach', 'Needs', 'Offer', 'Hourly', 'Requested', 'Helper'], rows: list.map(g => [g.whenText, g.status, g.league || '', g.coach || g.coachEmail, g.needs, '$' + g.offer, Number(g.length) ? money(Number(g.offer) / Number(g.length)) : '', fmtDate(g.requested), g.helperName || '']) }; }
+  function helperRows(list){ return { cols: ['Name', 'Joined', 'Status', 'Leagues', 'Does', 'Skill', 'Rating', 'Games'], rows: list.map(h => [h.name + (h.founder ? ' #' + h.founder : ''), fmtDate(h.submitted), eligible(h).ok ? 'Ready' : eligible(h).why, h.leagues, h.roles, h.skill, h.avg ? h.avg + ' (' + h.count + ')' : '', h.gdh + ' / ' + h.prior]) }; }
+  function coachRows(list){ return { cols: ['Name', 'Joined', 'Team', 'Leagues', 'Email', 'Phone', 'Requests'], rows: list.map(c => [c.name + (c.founder ? ' #' + c.founder : ''), fmtDate(c.submitted), c.team, c.leagues, c.email, c.phone, DATA.games.filter(g => g.coachEmail === c.email).length]) }; }
+  function leagueRows(list){ return { cols: ['Date', 'Name', 'Org', 'Email', 'Contacted'], rows: list.map(l => [fmtDate(l.submitted), l.name, l.org, l.email, l.contacted]) }; }
+  function reviewRows(list){ return { cols: ['Date', 'Game', 'About', 'Role', 'Stars', 'Comment'], rows: list.map(r => [fmtDate(r.submitted), r.gameId, r.revieweeId, r.revieweeRole, '\u2605'.repeat(r.stars), r.comment]) }; }
+
+  /* ---------- trends: one series per chart, weekly counts, last 8 weeks ---------- */
+  function weekly(items, key){
+    const now = weekKey(new Date().toISOString()); const weeks = [];
+    for (let i = 7; i >= 0; i--) { const d = new Date(now); d.setDate(d.getDate() - i * 7); weeks.push({ start: d, n: 0 }); }
+    items.forEach(it => { const k = weekKey(it[key]); if (!k) return; const w = weeks.find(w => w.start.getTime() === k.getTime()); if (w) w.n++; });
+    return weeks;
+  }
+  function chart(title, sub, weeks){
+    const box = el('div', 'trend'); box.appendChild(el('div', 't', title)); box.appendChild(el('div', 's', sub));
+    const W = 320, H = 96, pad = 4, gap = 2, bw = (W - pad * 2) / weeks.length - gap, max = Math.max(1, ...weeks.map(w => w.n));
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', title + ': ' + weeks.map(w => fmtDate(w.start) + ' ' + w.n).join(', '));
+    weeks.forEach((w, i) => {
+      const h = Math.round((H - 28) * w.n / max), x = pad + i * (bw + gap), y = H - 16 - h;
+      const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect'); r.setAttribute('x', x); r.setAttribute('y', y); r.setAttribute('width', bw); r.setAttribute('height', Math.max(h, w.n ? 4 : 1)); r.setAttribute('rx', 3);
+      if (!w.n) r.setAttribute('opacity', '.25');
+      const tt = document.createElementNS('http://www.w3.org/2000/svg', 'title'); tt.textContent = 'Week of ' + fmtDate(w.start) + ': ' + w.n; r.appendChild(tt); svg.appendChild(r);
+      if (i === weeks.length - 1 || w.n === max) { const t = document.createElementNS('http://www.w3.org/2000/svg', 'text'); t.setAttribute('x', x + bw / 2); t.setAttribute('y', y - 3); t.setAttribute('text-anchor', 'middle'); t.setAttribute('class', 'v'); t.textContent = w.n; svg.appendChild(t); }
+      if (i === 0 || i === weeks.length - 1) { const t = document.createElementNS('http://www.w3.org/2000/svg', 'text'); t.setAttribute('x', x + bw / 2); t.setAttribute('y', H - 3); t.setAttribute('text-anchor', 'middle'); t.textContent = fmtDate(w.start); svg.appendChild(t); }
+    });
+    box.appendChild(svg); return box;
+  }
+  function renderTrends(){
+    const t = $('trends'); t.textContent = '';
+    const h = weekly(DATA.helpers, 'submitted'), c = weekly(DATA.coaches, 'submitted'), g = weekly(DATA.games, 'requested');
+    const sum = w => w.reduce((a, x) => a + x.n, 0);
+    t.appendChild(chart('Helper signups', sum(h) + ' in 8 weeks', h));
+    t.appendChild(chart('Coach signups', sum(c) + ' in 8 weeks', c));
+    t.appendChild(chart('Game requests', sum(g) + ' in 8 weeks', g));
   }
 
   async function doMatch(g, h, btn){
