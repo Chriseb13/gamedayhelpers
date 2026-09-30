@@ -15,6 +15,10 @@ gamedayhelpers.com/match.html. Open requests sit at the top, longest waiting fir
 
 The Sheet method below still works and is the fallback.
 
+## 0b. Status pages (me.html)
+
+Anyone registered can go to gamedayhelpers.com/me.html, enter their email, and get a private link by email. The page shows their profile status, every game they are on, and the other side's name, phone, and payment app once matched. Links are in every welcome, receipt, and match email too. A lost link: send them to me.html again, the same link is re-sent. To revoke someone's link, clear their AccessToken cell (last column on Helpers or Coaches).
+
 ## 1. Match a game in the Sheet (under 2 minutes)
 
 Trigger: an email with subject `GDH GAME REQUEST: <coach> (<league>)`. It contains the GameID, when, field, needs, offer, and coach contact.
