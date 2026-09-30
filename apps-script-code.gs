@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v9 - matches the live site forms (Sept 2026)
+ *  v10 - ship audit (Sept 30, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -55,7 +55,9 @@ function doPost(e) {
   const lock = LockService.getScriptLock();
   try {
     lock.waitLock(20000);
-    const data = JSON.parse(e.postData.contents || "{}");
+    let data;
+    try { data = JSON.parse((e && e.postData && e.postData.contents) || "{}"); }
+    catch (parseErr) { need(false, "Bad JSON"); }   // bot garbage: reject quietly, no owner email
     const type = String(data.type || "HELPER").toUpperCase();
     let out;
     if (type === "COACH")            out = handleCoach(data);
@@ -212,8 +214,8 @@ function handleLeague(d) {
   need(validEmail(email), "Invalid email");
   tab("Leagues", LEAGUE_COLS).appendRow([new Date(), name, org, email, phone, clean(d.notes, 1000), "NO"]);
   confirmEmail(email, name,
-    "<p>Thanks for reaching out about <strong>" + esc(org) + "</strong>. " + OWNER_NAME + " will reach out within one business day to talk through covering your fields.</p>" +
-    "<p>Quick preview of how it works for leagues: your coaches request helpers, we match them, coaches pay helpers directly. Leagues that add GameDay Helpers to registration earn a share of every team fee. We can walk through the numbers on a quick call.</p>",
+    "<p>Thanks for reaching out about <strong>" + esc(org) + "</strong>. " + OWNER_NAME + " will reach out soon to talk through covering your fields.</p>" +
+    "<p>Quick preview of how it works for leagues: your coaches request helpers, a real person matches them, and coaches pay helpers directly. GameDay Helpers is free for coaches and helpers during the Tampa beta. We can walk through it on a quick call.</p>",
     "Got your league inquiry");
   alertOwner("LEAGUE", name, org, "Email: " + email + "\nPhone: " + phone + "\nNotes: " + clean(d.notes));
   return { result: "success" };
@@ -241,7 +243,7 @@ function handleConsent(token){
       if (rows[i][H.CONSENT] !== "APPROVED") {
         sheet.getRange(i + 1, H.CONSENT + 1).setValue("APPROVED");
         sheet.getRange(i + 1, H.CONSENT + 2).setValue("");  // burn the token
-        confirmEmail(email, name, "<p>Your parent or guardian just approved you. You are active. Keep your phone close: when a coach in your league needs a scorekeeper, you will get a text or email with the game details. Say yes to the ones you want.</p>" + profileLine(rows[i][H.ID]), "You're approved. You're active.");
+        confirmEmail(email, name, "<p>Your parent or guardian just approved you. You are active. Keep your phone close: when a coach in your league needs a scorekeeper, you will get an email with the game details. Say yes to the ones you want.</p>" + profileLine(rows[i][H.ID]), "You're approved. You're active.");
         confirmEmail(pemail, pname, "<p>Thanks. " + esc(firstName(name)) + " is now active on GameDay Helpers. You will not get another email from us unless you write to us. Questions any time: " + OWNER_EMAIL + "</p>", "Approved: " + firstName(name) + " is active");
         alertOwner("CONSENT APPROVED", name, rows[i][H.LEAGUES], "Parent " + pname + " (" + pemail + ") approved. Helper is active.");
       }
@@ -450,7 +452,7 @@ function helperWelcomeBody(name, id, isMinor, founder){
   const f = founder ? "<p style='background:#EEF3FF;border:1.5px solid #1747C8;border-radius:10px;padding:12px;'><strong>&#9733; Founding Helper #" + founder + ".</strong> Only 50 exist. It is on your profile for good.</p>" : "";
   const next = isMinor
     ? "<p><strong>One step left:</strong> we just emailed your parent or guardian a one tap approval. Nudge them. The second they approve, you are active.</p>"
-    : "<p><strong>You are active.</strong> Nothing to do now. When a coach in one of your leagues needs a scorekeeper, you get a text or email with the date, field, and pay. Say yes to the ones you want, skip the rest.</p>";
+    : "<p><strong>You are active.</strong> Nothing to do now. When a coach in one of your leagues needs a scorekeeper, you get an email with the date, field, and pay. Say yes to the ones you want, skip the rest.</p>";
   return f + next +
     "<p><strong>How pay works:</strong> the coach pays you straight to your app after the game, typically $30 or more for a two hour game. GameDay Helpers takes none of it. No cash, ever.</p>" +
     "<p><strong>Three things that get you rebooked:</strong> show up 15 minutes early, phone charged, and text the coach the day before to confirm.</p>" +
@@ -464,7 +466,7 @@ function coachWelcomeBody(name, founder){
     "<p style='text-align:center;margin:20px 0;'><a href='" + SITE_BASE_URL + "/request-game.html' style='background:#1747C8;color:#fff;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:10px;display:inline-block;'>Request a scorekeeper</a></p>" +
     "<p>Takes 60 seconds: date, what you need, your offer. " + OWNER_NAME + " personally matches you with a helper from your league and emails you their name, phone, and payment app. You text them, they show up, you pay them after the game, app to app.</p>" +
     "<p><strong>What it costs you:</strong> just the helper's pay, typically $30 or more for a two hour game. Nothing to GameDay Helpers during the Tampa beta.</p>" +
-    "<p>Tip: request as early as you can. Two days notice fills every time. Two hours is a coin flip.</p>";
+    "<p>Tip: request as early as you can. Two days notice gives us the best shot at finding you a helper. Two hours is a coin flip.</p>";
 }
 function profileLine(id){ return "<p style='font-size:13px;color:#666;'>Your live profile (coaches see this, never your age, phone, or payment handle): <a href='" + profileUrl(id) + "'>" + profileUrl(id) + "</a></p>"; }
 function tr(k,v){ return "<tr><td style='padding:4px 12px 4px 0;color:#666;font-weight:bold;white-space:nowrap;'>" + esc(k) + "</td><td style='padding:4px 0;'>" + esc(v == null ? "" : v) + "</td></tr>"; }

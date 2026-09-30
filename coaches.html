@@ -8,7 +8,21 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="description" content="Find local scorekeepers who know GameChanger. Free for coaches during the Tampa Bay beta. Pay your helper directly after the game.">
+<meta name="description" content="Find a local scorekeeper who knows GameChanger. Free for coaches during the Tampa Bay beta. You pay your helper directly after the game.">
+<link rel="canonical" href="https://gamedayhelpers.com/coaches.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GameDay Helpers">
+<meta property="og:title" content="For Coaches | GameDay Helpers">
+<meta property="og:description" content="Find a local scorekeeper who knows GameChanger. Free for coaches during the Tampa Bay beta. You pay your helper directly after the game.">
+<meta property="og:url" content="https://gamedayhelpers.com/coaches.html">
+<meta property="og:image" content="https://gamedayhelpers.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="For Coaches | GameDay Helpers">
+<meta name="twitter:description" content="Find a local scorekeeper who knows GameChanger. Free for coaches during the Tampa Bay beta. You pay your helper directly after the game.">
+<meta name="twitter:image" content="https://gamedayhelpers.com/og.png">
+<meta name="theme-color" content="#102A43">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -21,9 +35,8 @@
   <div class="inbox">Next: request a helper for your next game</div>
   <div class="sub">You coach. We score.</div>
   <div class="actions">
-    <a class="tbtn tbtn-orange" href="mailto:info@gamedayhelpers.com?subject=Annual%20team%20access">Arrange annual access</a>
-    <a class="tbtn tbtn-ghost" href="request-game.html">Already active? Request a helper</a>
-    <a class="tbtn tbtn-orange" href="index.html">Back to Home</a>
+    <a class="tbtn tbtn-orange" href="request-game.html">Got a game? Request a helper</a>
+    <a class="tbtn tbtn-ghost" href="index.html">Back to Home</a>
     <button class="tbtn tbtn-ghost" onclick="document.getElementById('takeover').classList.remove('show')">Done</button>
   </div>
 </div>
@@ -140,7 +153,7 @@
         <textarea id="c_notes" placeholder="Sport, age group, how many games a season, etc."></textarea>
       </div>
       <button class="submit" id="c_submit" onclick="submitCoach()">Join free</button>
-      <p class="hint mt-4">This form does not collect payment. Contact <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a> to arrange annual access.</p>
+      <p class="hint mt-4">This form does not collect payment. Coaches pay nothing to GameDay Helpers during the Tampa beta.</p>
       <div class="err" id="c_err" role="alert" aria-live="assertive"></div>
     </div>
 
@@ -193,7 +206,7 @@
       document.getElementById('coachCard').style.display='none';
       document.getElementById('takeover').classList.add('show');
       window.scrollTo({top:0,behavior:'smooth'});
-    }catch(e){btn.disabled=false;btn.textContent='Keep me posted';showErr('c_err','Something went wrong. Please try again.');}
+    }catch(e){btn.disabled=false;btn.textContent='Join free';showErr('c_err','Something went wrong. Please try again.');}
   }
 </script>
 </body>
