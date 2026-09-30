@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v14 - match board endpoints (Oct 1, 2026)
+ *  v15 - dashboard data, Requested column on Games (Oct 1, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -37,7 +37,7 @@ const COACH_COLS  = ["Submitted","Name","Email","Phone","Team","Leagues","Notes"
   "PayApps","PayHandle (private)","Founder#"];
 const GAME_COLS   = ["GameID","DateTime","Sport","Field","CoachName","CoachEmail",
   "HelperID","HelperName","HelperEmail","ReviewSent",
-  "Needs","League","Team","CoachPhone","FirstRate","AddlRate","Length","Offer","Status","MatchSent"];
+  "Needs","League","Team","CoachPhone","FirstRate","AddlRate","Length","Offer","Status","MatchSent","Requested"];
 const LEAGUE_COLS = ["Submitted","Name","Org","Email","Phone","Notes","Contacted?"];
 const REVIEW_COLS = ["Submitted","GameID","RevieweeID","RevieweeRole","ReviewerRole","Stars","Comment"];
 
@@ -45,9 +45,9 @@ const REVIEW_COLS = ["Submitted","GameID","RevieweeID","RevieweeRole","ReviewerR
 const H = {ID:1,NAME:2,AGE:3,EMAIL:4,PHONE:5,LEAGUES:6,SPORTS:7,ROLES:8,SKILL:9,PRIOR:10,GDH:11,
   AVG:12,COUNT:13,AVAIL:14,NOTES:15,APPROVED:16,PAYAPPS:17,PAYHANDLE:18,MINOR:19,PNAME:20,PEMAIL:21,
   CONSENT:22,TOKEN:23,FOUNDER:24};
-const C = {NAME:1,EMAIL:2,PHONE:3,TEAM:4,LEAGUES:5,NOTES:6,PAYAPPS:8,PAYHANDLE:9};
+const C = {SUB:0,NAME:1,EMAIL:2,PHONE:3,TEAM:4,LEAGUES:5,NOTES:6,CONTACTED:7,PAYAPPS:8,PAYHANDLE:9,FOUNDER:10};
 const G = {ID:0,DT:1,SPORT:2,FIELD:3,CNAME:4,CEMAIL:5,HID:6,HNAME:7,HEMAIL:8,REVSENT:9,
-  NEEDS:10,LEAGUE:11,TEAM:12,CPHONE:13,FIRST:14,ADDL:15,LEN:16,OFFER:17,STATUS:18,MATCHSENT:19};
+  NEEDS:10,LEAGUE:11,TEAM:12,CPHONE:13,FIRST:14,ADDL:15,LEN:16,OFFER:17,STATUS:18,MATCHSENT:19,REQ:20};
 
 /* ==========================================================
  *  ROUTER
@@ -188,7 +188,7 @@ function handleGameRequest(d) {
   const dt = new Date(clean(d.datetime));
   games.appendRow([gameId, isNaN(dt.getTime()) ? clean(d.datetime) : dt, "", clean(d.field, 120), coachName, email,
     "", "", "", "",
-    clean(d.notes), league, team, cphone, num(d.firstRate), num(d.addlRate), clean(d.length, 5), clean(d.offer, 10), "OPEN", ""]);
+    clean(d.notes), league, team, cphone, num(d.firstRate), num(d.addlRate), clean(d.length, 5), clean(d.offer, 10), "OPEN", "", new Date()]);
 
   const when = isNaN(dt.getTime()) ? clean(d.datetime) : Utilities.formatDate(dt, Session.getScriptTimeZone(), "EEE MMM d, h:mm a");
   const body =
@@ -346,7 +346,10 @@ function adminBoard(key){
   for (let i = 1; i < gRows.length; i++) {
     const r = gRows[i]; if (!r[G.ID]) continue;
     const dt = r[G.DT] instanceof Date ? r[G.DT] : new Date(r[G.DT]);
+    const req = r[G.REQ] instanceof Date ? r[G.REQ] : null;
     games.push({ row: i + 1, id: r[G.ID], when: isNaN(dt.getTime()) ? String(r[G.DT]) : dt.toISOString(),
+      requested: req ? req.toISOString() : idDate(r[G.ID]), matchSent: r[G.MATCHSENT] instanceof Date ? r[G.MATCHSENT].toISOString() : "",
+      firstRate: Number(r[G.FIRST]) || 0, addlRate: Number(r[G.ADDL]) || 0,
       whenText: isNaN(dt.getTime()) ? String(r[G.DT]) : Utilities.formatDate(dt, tz, "EEE MMM d, h:mm a"),
       field: r[G.FIELD], coach: r[G.CNAME], coachEmail: r[G.CEMAIL], coachPhone: r[G.CPHONE], league: r[G.LEAGUE], team: r[G.TEAM],
       needs: r[G.NEEDS], offer: r[G.OFFER], length: r[G.LEN], status: r[G.STATUS] || "OPEN", helperId: r[G.HID], helperName: r[G.HNAME] });
@@ -355,14 +358,29 @@ function adminBoard(key){
   const helpers = [];
   for (let i = 1; i < hRows.length; i++) {
     const h = hRows[i]; if (!h[H.ID]) continue;
-    helpers.push({ row: i + 1, id: h[H.ID], name: h[H.NAME], leagues: String(h[H.LEAGUES] || ""), sports: String(h[H.SPORTS] || ""),
+    helpers.push({ row: i + 1, id: h[H.ID], name: h[H.NAME], submitted: h[0] instanceof Date ? h[0].toISOString() : "", leagues: String(h[H.LEAGUES] || ""), sports: String(h[H.SPORTS] || ""),
       roles: String(h[H.ROLES] || ""), skill: h[H.SKILL], prior: Number(h[H.PRIOR]) || 0, gdh: Number(h[H.GDH]) || 0,
       avg: h[H.AVG] === "" ? null : Number(h[H.AVG]), count: Number(h[H.COUNT]) || 0, avail: String(h[H.AVAIL] || ""),
       approved: h[H.APPROVED] === "YES", minor: h[H.MINOR] === "YES", consent: h[H.CONSENT], founder: h[H.FOUNDER] || "",
       notes: String(h[H.NOTES] || "").slice(0, 200) });
   }
-  return { result: "success", games: games, helpers: helpers, generated: new Date().toISOString() };
+  const cRows = tab("Coaches", COACH_COLS).getDataRange().getValues();
+  const coaches = [];
+  for (let i = 1; i < cRows.length; i++) {
+    const c = cRows[i]; if (!c[C.EMAIL]) continue;
+    coaches.push({ row: i + 1, name: c[C.NAME], email: String(c[C.EMAIL]).toLowerCase(), phone: c[C.PHONE], team: c[C.TEAM], leagues: String(c[C.LEAGUES] || ""),
+      submitted: c[C.SUB] instanceof Date ? c[C.SUB].toISOString() : "", contacted: c[C.CONTACTED], founder: c[C.FOUNDER] || "", payApps: c[C.PAYAPPS] });
+  }
+  const lRows = tab("Leagues", LEAGUE_COLS).getDataRange().getValues();
+  const leagues = [];
+  for (let i = 1; i < lRows.length; i++) { const l = lRows[i]; if (!l[2]) continue; leagues.push({ submitted: l[0] instanceof Date ? l[0].toISOString() : "", name: l[1], org: l[2], email: l[3], contacted: l[6] }); }
+  const rRows = tab("Reviews", REVIEW_COLS).getDataRange().getValues();
+  const reviews = [];
+  for (let i = 1; i < rRows.length; i++) { const r = rRows[i]; if (!r[1]) continue; reviews.push({ submitted: r[0] instanceof Date ? r[0].toISOString() : "", gameId: r[1], revieweeId: r[2], revieweeRole: r[3], stars: Number(r[5]) || 0, comment: String(r[6] || "").slice(0, 200) }); }
+  return { result: "success", games: games, helpers: helpers, coaches: coaches, leagues: leagues, reviews: reviews, generated: new Date().toISOString() };
 }
+// Games created before the Requested column existed: date from the GameID (GyyMMdd-XXXX), day precision.
+function idDate(id){ const m = /^G(\d{2})(\d{2})(\d{2})-/.exec(String(id || "")); return m ? new Date(2000 + Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12).toISOString() : ""; }
 function adminMatch(d){
   if (!adminOk(d.key)) return { result: "error", message: "Bad key" };
   const g = tab("Games", GAME_COLS);
@@ -598,6 +616,11 @@ function tab(name, headers){
   let s = ss.getSheetByName(name);
   if (!s) s = ss.insertSheet(name);
   if (s.getLastRow() === 0) s.appendRow(headers);
+  else if (s.getLastColumn() < headers.length) {
+    // New columns were added at the end. Write only the missing headers; existing data is untouched.
+    const have = s.getLastColumn();
+    s.getRange(1, have + 1, 1, headers.length - have).setValues([headers.slice(have)]);
+  }
   return s;
 }
 function findRowByValue(sheet, colIdx, value){
