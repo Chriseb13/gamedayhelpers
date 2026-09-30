@@ -8,15 +8,25 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="Leave a quick review after your GameDay Helpers game.">
+<link rel="canonical" href="https://gamedayhelpers.com/review.html">
+<meta name="robots" content="noindex, nofollow"><meta property="og:type" content="website">
+<meta property="og:site_name" content="GameDay Helpers">
+<meta property="og:title" content="Leave a Review | GameDay Helpers">
+<meta property="og:description" content="Leave a quick review after your GameDay Helpers game.">
+<meta property="og:url" content="https://gamedayhelpers.com/review.html">
+<meta property="og:image" content="https://gamedayhelpers.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Leave a Review | GameDay Helpers">
+<meta name="twitter:description" content="Leave a quick review after your GameDay Helpers game.">
+<meta name="twitter:image" content="https://gamedayhelpers.com/og.png">
+<meta name="theme-color" content="#102A43">
 <link rel="stylesheet" href="styles.css">
-<style>
-  .starpick{display:flex;gap:10px;justify-content:center;margin:8px 0 4px;}
-  .starpick button{background:none;border:none;font-size:42px;line-height:1;cursor:pointer;color:#d8dde4;transition:color .1s;padding:0;}
-  .starpick button.on{color:var(--orange);}
-  .rlabel{text-align:center;font-weight:700;color:var(--gray);font-size:14px;min-height:20px;margin-bottom:14px;}
-</style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
 <div class="banner">You coach. We score.</div>
 
@@ -24,36 +34,39 @@
   <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
 </header>
 
+<main id="main">
 <section>
   <div class="wrap">
     <div class="form-card" id="reviewCard">
-      <h2 style="text-align:center;">Rate <span class="o" id="who">your helper</span></h2>
-      <p class="lead" style="text-align:center;font-size:16px;margin:10px 0 22px;">How did the game go? This takes 20 seconds.</p>
+      <h1 class="text-center">Rate <span class="o" id="who">your helper</span></h1>
+      <p class="lead text-center intro-copy">How did the game go? Choose a rating and add a comment if you like.</p>
 
-      <div class="starpick" id="stars">
-        <button data-v="1">&#9733;</button>
-        <button data-v="2">&#9733;</button>
-        <button data-v="3">&#9733;</button>
-        <button data-v="4">&#9733;</button>
-        <button data-v="5">&#9733;</button>
+      <div class="starpick" id="stars" role="group" aria-label="Choose a rating out of five">
+        <button data-v="1" type="button" aria-label="1 out of 5: Poor">&#9733;</button>
+        <button data-v="2" type="button" aria-label="2 out of 5: Fair">&#9733;</button>
+        <button data-v="3" type="button" aria-label="3 out of 5: Good">&#9733;</button>
+        <button data-v="4" type="button" aria-label="4 out of 5: Great">&#9733;</button>
+        <button data-v="5" type="button" aria-label="5 out of 5: Excellent">&#9733;</button>
       </div>
-      <div class="rlabel" id="rlabel"></div>
+      <div class="rlabel" id="rlabel" role="status" aria-live="polite" aria-atomic="true"></div>
 
       <div class="field">
-        <label>Anything to add? <span class="hint" style="display:inline;font-weight:400;">(optional)</span></label>
+        <label for="comment">Anything to add? <span class="hint hint-inline">(optional)</span></label>
         <textarea id="comment" placeholder="On time, knew the app, easy to work with..."></textarea>
       </div>
 
       <button class="submit" id="rsubmit" onclick="submitReview()">Submit review</button>
-      <div class="err" id="rerr"></div>
+      <div class="err" id="rerr" role="alert" aria-live="assertive"></div>
     </div>
 
-    <div class="success" id="reviewSuccess">
+    <div class="success" id="reviewSuccess" role="status" aria-live="polite">
       <h2>Thank you.</h2>
       <p>Your review is in. It helps the whole GameDay Helpers community find reliable people.</p>
     </div>
   </div>
 </section>
+
+</main>
 
 <footer>
   <img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers">

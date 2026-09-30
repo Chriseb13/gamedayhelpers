@@ -1,0 +1,3 @@
+exclude:
+  - internal
+  - README.md

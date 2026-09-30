@@ -8,14 +8,30 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="Coaches: request a scorekeeper for one game. Set your offer, tell us what you need, and a real person matches you with a local helper.">
+<link rel="canonical" href="https://gamedayhelpers.com/request-game.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GameDay Helpers">
+<meta property="og:title" content="Request a Helper | GameDay Helpers">
+<meta property="og:description" content="Coaches: request a scorekeeper for one game. Set your offer, tell us what you need, and a real person matches you with a local helper.">
+<meta property="og:url" content="https://gamedayhelpers.com/request-game.html">
+<meta property="og:image" content="https://gamedayhelpers.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Request a Helper | GameDay Helpers">
+<meta name="twitter:description" content="Coaches: request a scorekeeper for one game. Set your offer, tell us what you need, and a real person matches you with a local helper.">
+<meta name="twitter:image" content="https://gamedayhelpers.com/og.png">
+<meta name="theme-color" content="#102A43">
 <link rel="stylesheet" href="styles.css">
 </head>
-<body style="position:relative;">
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
 
-<div class="takeover" id="takeover">
-  <div class="check">&#10003;</div>
+<div class="takeover" id="takeover" role="region" aria-label="Confirmation" aria-live="polite">
+  <div class="check" aria-hidden="true">OK</div>
   <h1>Request<span class="o">in.</span></h1>
-  <p>We're lining up a vetted helper from your league and will confirm with you shortly.</p>
+  <p>Check your email for next steps. A match depends on helper availability. Contact details are shared when a match is arranged.</p>
   <div class="inbox">Check your inbox for a confirmation email</div>
   <div class="sub">You coach. We score.</div>
   <div class="actions">
@@ -24,14 +40,14 @@
   </div>
 </div>
 
-<div class="banner">Founding members signing up now &middot; Service begins Summer/Fall 2026</div>
+<div class="banner">Tampa Bay &middot; Fall ball 2026</div>
 
 <header>
   <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
-  <button class="menu-btn" onclick="document.getElementById('nav').classList.toggle('open')" aria-label="Menu">
+  <button class="menu-btn" onclick="document.getElementById('nav').classList.toggle('open')" aria-label="Toggle navigation menu" aria-controls="nav">
     <span></span><span></span><span></span>
   </button>
-  <nav id="nav">
+  <nav id="nav" aria-label="Main navigation">
     <a href="index.html">Home</a>
     <a href="coaches.html">For Coaches</a>
     <a href="helper.html">For Helpers</a>
@@ -40,27 +56,30 @@
   </nav>
 </header>
 
+<main id="main">
 <section>
   <div class="wrap">
     <div class="eyebrow">For Coaches</div>
-    <h2>Request a <span class="o">helper.</span></h2>
-    <p class="lead" style="margin:14px 0 26px;">Tell us when, what you need, and your offer. We'll line up a vetted helper from your league. You pay your helper directly, like you'd pay a babysitter.</p>
+    <h1>Request a <span class="o">helper.</span></h1>
+    <p class="lead intro-copy">Tell us when, what you need, and your offer. We look for an available helper who serves your league. You pay your helper directly after the game.</p>
 
+    <p class="note mb-5">Free during the Tampa beta. Your offer below goes straight to your helper after the game, app to app. No cash.</p>
     <div class="form-card" id="gameCard">
+      <p class="hint mb-5">Fields marked * are required.</p>
       <div class="field">
-        <label>Your email <span class="req">*</span></label>
-        <input type="email" id="g_email" required>
+        <label for="g_email">Your email <span class="req">*</span></label>
+        <input type="email" id="g_email" autocomplete="email" required>
         <div class="hint">We use this to pull up your team and league. Same email you signed up with.</div>
       </div>
 
       <div class="field">
-        <label>Game date &amp; time <span class="req">*</span></label>
+        <label for="g_datetime">Game date &amp; time <span class="req">*</span></label>
         <input type="datetime-local" id="g_datetime" required>
       </div>
 
       <div class="field">
-        <label>What do you need? <span class="req">*</span></label>
-        <div class="chips" id="g_needs">
+        <div class="field-label">What do you need? <span class="req">*</span></div>
+        <div class="chips" id="g_needs" role="group" aria-label="What do you need?">
           <span class="chip"><input type="checkbox" id="gn1" value="Keep score"><label for="gn1">Keep score</label></span>
           <span class="chip"><input type="checkbox" id="gn2" value="Run GameChanger"><label for="gn2">Run GameChanger</label></span>
           <span class="chip"><input type="checkbox" id="gn3" value="Work scoreboard"><label for="gn3">Work scoreboard</label></span>
@@ -69,66 +88,70 @@
       </div>
 
       <div class="field">
-        <label>Your offer <span class="req">*</span></label>
-        <div class="hint" style="margin-bottom:10px;">You set the stipend for your helper. First hour starts at $20, each additional hour at $15. Pay them directly, like a babysitter.</div>
+        <div class="field-label">Your offer <span class="req">*</span></div>
+        <div class="hint mb-3">You set the offer. The first hour starts at $20 and each additional hour at $15, so the starting two-hour offer is $35. Pay your helper directly after the game.</div>
 
-        <div style="margin-bottom:14px;">
-          <div class="plabel" style="margin-bottom:6px;">First hour</div>
-          <div class="chips" id="g_first">
+        <div class="mb-4">
+          <div class="plabel mb-2">First hour</div>
+          <div class="chips" id="g_first" role="radiogroup" aria-label="First hour rate">
             <span class="chip"><input type="radio" name="first" id="f20" value="20" checked><label for="f20">$20</label></span>
             <span class="chip"><input type="radio" name="first" id="f25" value="25"><label for="f25">$25</label></span>
             <span class="chip"><input type="radio" name="first" id="f30" value="30"><label for="f30">$30</label></span>
           </div>
         </div>
 
-        <div style="margin-bottom:14px;">
-          <div class="plabel" style="margin-bottom:6px;">Each additional hour</div>
-          <div class="chips" id="g_add">
+        <div class="mb-4">
+          <div class="plabel mb-2">Each additional hour</div>
+          <div class="chips" id="g_add" role="radiogroup" aria-label="Additional hour rate">
             <span class="chip"><input type="radio" name="addl" id="a15" value="15" checked><label for="a15">$15</label></span>
             <span class="chip"><input type="radio" name="addl" id="a20" value="20"><label for="a20">$20</label></span>
             <span class="chip"><input type="radio" name="addl" id="a25" value="25"><label for="a25">$25</label></span>
           </div>
         </div>
 
-        <div style="margin-bottom:14px;">
-          <div class="plabel" style="margin-bottom:6px;">Expected game length</div>
-          <div class="chips" id="g_len">
-            <span class="chip"><input type="radio" name="len" id="L1" value="1" checked><label for="L1">1 hr</label></span>
+        <div class="mb-4">
+          <div class="plabel mb-2">Expected game length</div>
+          <div class="chips" id="g_len" role="radiogroup" aria-label="Expected game length">
+            <span class="chip"><input type="radio" name="len" id="L1" value="1"><label for="L1">1 hr</label></span>
             <span class="chip"><input type="radio" name="len" id="L15" value="1.5"><label for="L15">1.5 hr</label></span>
-            <span class="chip"><input type="radio" name="len" id="L2" value="2"><label for="L2">2 hr</label></span>
+            <span class="chip"><input type="radio" name="len" id="L2" value="2" checked><label for="L2">2 hr</label></span>
             <span class="chip"><input type="radio" name="len" id="L25" value="2.5"><label for="L25">2.5 hr</label></span>
             <span class="chip"><input type="radio" name="len" id="L3" value="3"><label for="L3">3 hr</label></span>
           </div>
         </div>
 
-        <div style="background:#0d0d0d;color:#fff;border-radius:12px;padding:18px;text-align:center;">
-          <div style="font-size:13px;font-weight:600;color:#99f6e4;text-transform:uppercase;letter-spacing:1px;">Your offer</div>
-          <div id="offerAmount" style="font-family:'Anton',sans-serif;font-size:40px;color:#f97316;line-height:1.1;margin-top:4px;">$20.00</div>
-          <div style="font-size:12px;color:#9ca3af;font-weight:500;margin-top:4px;">Extra innings add time at your additional-hour rate</div>
+        <div class="offer-card">
+          <div class="plabel">Your offer</div>
+          <div id="offerAmount" role="status" aria-live="polite" aria-atomic="true">$35.00</div>
+          <div class="hint">Extra innings add time at your additional-hour rate</div>
         </div>
       </div>
 
       <div class="field">
-        <label>Field / location <span class="hint" style="display:inline;font-weight:400;">(optional)</span></label>
+        <label for="g_field">Field / location <span class="hint hint-inline">(optional)</span></label>
         <input type="text" id="g_field" placeholder="Which field or park?">
       </div>
 
       <button class="submit" id="g_submit" onclick="submitGame()">Send my offer</button>
-      <div class="err" id="g_err"></div>
+      <div class="err" id="g_err" role="alert" aria-live="assertive"></div>
     </div>
+    <p class="request-sent" role="status">Your request has been sent. Check your email for next steps. A match depends on helper availability.</p>
   </div>
 </section>
 
+</main>
+
 <footer>
   <img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers">
-  <div class="flinks">
+  <div class="flinks" aria-label="Footer links">
     <a href="index.html">Home</a>
     <a href="coaches.html">For Coaches</a>
     <a href="helper.html">For Helpers</a>
     <a href="mailto:info@gamedayhelpers.com">Contact</a>
+    <a href="terms.html">Terms &amp; privacy</a>
   </div>
   <div class="small">You coach. We score. &nbsp;&middot;&nbsp; Tampa Bay, FL &nbsp;&middot;&nbsp; &copy; 2026 GameDay Helpers<br>
-  Currently in beta. <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
+  Serving Tampa Bay. <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
 </footer>
 
 <script>
