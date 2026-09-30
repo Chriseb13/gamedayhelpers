@@ -8,19 +8,19 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="description" content="Coaches: request a scorekeeper for one game. Set your offer, tell us what you need, and a real person matches you with a local helper.">
+<meta name="description" content="Coaches: request a helper for one game. Set your offer, tell us what you need and where, and Chris looks for an available local helper. Two-hour offers start at $35.">
 <link rel="canonical" href="https://gamedayhelpers.com/request-game.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="GameDay Helpers">
 <meta property="og:title" content="Request a Helper | GameDay Helpers">
-<meta property="og:description" content="Coaches: request a scorekeeper for one game. Set your offer, tell us what you need, and a real person matches you with a local helper.">
+<meta property="og:description" content="Coaches: request a helper for one game. Set your offer, tell us what you need and where, and Chris looks for an available local helper. Two-hour offers start at $35.">
 <meta property="og:url" content="https://gamedayhelpers.com/request-game.html">
 <meta property="og:image" content="https://gamedayhelpers.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Request a Helper | GameDay Helpers">
-<meta name="twitter:description" content="Coaches: request a scorekeeper for one game. Set your offer, tell us what you need, and a real person matches you with a local helper.">
+<meta name="twitter:description" content="Coaches: request a helper for one game. Set your offer, tell us what you need and where, and Chris looks for an available local helper. Two-hour offers start at $35.">
 <meta name="twitter:image" content="https://gamedayhelpers.com/og.png">
 <meta name="theme-color" content="#102A43">
 <link rel="stylesheet" href="styles.css">
@@ -30,9 +30,9 @@
 
 <div class="takeover" id="takeover" role="region" aria-label="Confirmation" aria-live="polite">
   <div class="check" aria-hidden="true">OK</div>
-  <h1>Request<span class="o">in.</span></h1>
-  <p>Check your email for next steps. A match depends on helper availability. Contact details are shared when a match is arranged.</p>
-  <div class="inbox">Check your inbox for a confirmation email</div>
+  <h1>Request<span class="o">received.</span></h1>
+  <p>Check your email for a receipt. A helper is not confirmed yet. If one accepts, you get one email with their name, phone, and payment app.</p>
+  <div class="inbox">Not confirmed yet. Watch your inbox.</div>
   <div class="sub">You coach. We score.</div>
   <div class="actions">
     <a class="tbtn tbtn-orange" href="index.html">Back to Home</a>
@@ -40,18 +40,18 @@
   </div>
 </div>
 
-<div class="banner">Tampa Bay &middot; Fall ball 2026</div>
+<div class="banner">Tampa Bay beta &middot; Matching opens at 50 helpers</div>
 
 <header>
-  <a href="index.html"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
-  <button class="menu-btn" onclick="document.getElementById('nav').classList.toggle('open')" aria-label="Toggle navigation menu" aria-controls="nav">
+  <a href="index.html" aria-label="GameDay Helpers home"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
+  <button class="menu-btn" type="button" aria-label="Toggle navigation menu" aria-controls="nav" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
   <nav id="nav" aria-label="Main navigation">
-    <a href="index.html">Home</a>
     <a href="coaches.html">For Coaches</a>
     <a href="helper.html">For Helpers</a>
-    <a href="news.html">News</a>
+    <a href="index.html#how">How It Works</a>
+    <a href="index.html#faq">FAQ</a>
     <a href="mailto:info@gamedayhelpers.com">Contact</a>
   </nav>
 </header>
@@ -61,24 +61,24 @@
   <div class="wrap">
     <div class="eyebrow">For Coaches</div>
     <h1>Request a <span class="o">helper.</span></h1>
-    <p class="lead intro-copy">Tell us when, what you need, and your offer. We look for an available helper who serves your league. You pay your helper directly after the game.</p>
-
-    <p class="note mb-5">Free during the Tampa beta. Your offer below goes straight to your helper after the game, app to app. No cash.</p>
+    <p class="lead intro-copy">Tell us when and where you play, what you need, and your offer. Chris looks for an available helper who serves your league. Submitting a request does not confirm a helper.</p>
+    <p class="status-line mb-5">Matching opens once 50 helpers have joined. Requests sent before then stay in the queue and are worked first when it opens. No matching fee during the Tampa beta. You pay your helper directly after the game.</p>
     <div class="form-card" id="gameCard">
       <p class="hint mb-5">Fields marked * are required.</p>
       <div class="field">
         <label for="g_email">Your email <span class="req">*</span></label>
         <input type="email" id="g_email" autocomplete="email" required>
-        <div class="hint">We use this to pull up your team and league. Same email you signed up with.</div>
+        <div class="hint">The email you registered with. It pulls up your team and league. Not registered yet? <a href="coaches.html" class="text-link">Register your team first</a>.</div>
       </div>
 
       <div class="field">
-        <label for="g_datetime">Game date &amp; time <span class="req">*</span></label>
+        <label for="g_datetime">Game date &amp; first pitch (local time) <span class="req">*</span></label>
         <input type="datetime-local" id="g_datetime" required>
       </div>
 
       <div class="field">
         <div class="field-label">What do you need? <span class="req">*</span></div>
+        <div class="hint mb-2">Pick everything you need from one helper for this game.</div>
         <div class="chips" id="g_needs" role="group" aria-label="What do you need?">
           <span class="chip"><input type="checkbox" id="gn1" value="Keep score"><label for="gn1">Keep score</label></span>
           <span class="chip"><input type="checkbox" id="gn2" value="Run GameChanger"><label for="gn2">Run GameChanger</label></span>
@@ -89,7 +89,7 @@
 
       <div class="field">
         <div class="field-label">Your offer <span class="req">*</span></div>
-        <div class="hint mb-3">You set the offer. The first hour starts at $20 and each additional hour at $15, so the starting two-hour offer is $35. Pay your helper directly after the game.</div>
+        <div class="hint mb-3">You set the offer. Offers start at $20 for the first hour and $15 for each additional hour, so a two-hour offer starts at $35. Half hours count as half the additional-hour rate. You can offer more.</div>
 
         <div class="mb-4">
           <div class="plabel mb-2">First hour</div>
@@ -121,21 +121,23 @@
         </div>
 
         <div class="offer-card">
-          <div class="plabel">Your offer</div>
+          <div class="plabel">Your proposed game pay</div>
           <div id="offerAmount" role="status" aria-live="polite" aria-atomic="true">$35.00</div>
-          <div class="hint">Extra innings add time at your additional-hour rate</div>
+          <div class="hint">Paid by you to the helper after the game. If the game runs long, settle extra time with your helper at your additional-hour rate.</div>
         </div>
       </div>
 
       <div class="field">
-        <label for="g_field">Field / location <span class="hint hint-inline">(optional)</span></label>
-        <input type="text" id="g_field" placeholder="Which field or park?">
+        <label for="g_field">Field / location <span class="req">*</span></label>
+        <input type="text" id="g_field" placeholder="Park name and field number">
+        <div class="hint">Your league name does not tell us the field. Give the park and field number so your helper shows up at the right place.</div>
       </div>
 
-      <button class="submit" id="g_submit" onclick="submitGame()">Send my offer</button>
+      <button class="submit" id="g_submit" onclick="submitGame()">Send my request</button>
+      <div class="what-next"><strong>What happens next:</strong> you get a receipt email restating the game and your offer. Chris looks for an available helper. If one accepts, you get one email with their name, phone, and payment app, and you text each other to confirm. If nobody is available, we email you that too.</div>
       <div class="err" id="g_err" role="alert" aria-live="assertive"></div>
     </div>
-    <p class="request-sent" role="status">Your request has been sent. Check your email for next steps. A match depends on helper availability.</p>
+    <p class="request-sent" role="status">Your request is in. Check your email for a receipt. A helper is not confirmed until you get the match email.</p>
   </div>
 </section>
 
@@ -147,11 +149,13 @@
     <a href="index.html">Home</a>
     <a href="coaches.html">For Coaches</a>
     <a href="helper.html">For Helpers</a>
-    <a href="mailto:info@gamedayhelpers.com">Contact</a>
+    <a href="league.html">Leagues &amp; Tournaments</a>
+    <a href="news.html">News</a>
     <a href="terms.html">Terms &amp; privacy</a>
+    <a href="mailto:info@gamedayhelpers.com">Contact</a>
   </div>
   <div class="small">You coach. We score. &nbsp;&middot;&nbsp; Tampa Bay, FL &nbsp;&middot;&nbsp; &copy; 2026 GameDay Helpers<br>
-  Serving Tampa Bay. <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
+  <a href="mailto:info@gamedayhelpers.com">info@gamedayhelpers.com</a></div>
 </footer>
 
 <script>
@@ -189,9 +193,10 @@
     const length=checkedVal('len');
     const offer=calcOffer().toFixed(2);
     document.getElementById('g_err').style.display='none';
-    if(!coachEmail){showErr('Please enter your email.');return;}
-    if(!datetime){showErr('Pick the game date and time.');return;}
+    if(!coachEmail||!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(coachEmail)){showErr('Enter the email you registered with.');document.getElementById('g_email').focus();return;}
+    if(!datetime){showErr('Pick the game date and first pitch time.');document.getElementById('g_datetime').focus();return;}
     if(!needs){showErr('Pick at least one thing you need.');return;}
+    if(!field){showErr('Add the park and field number.');document.getElementById('g_field').focus();return;}
     const btn=document.getElementById('g_submit');btn.disabled=true;btn.textContent='Sending...';
     const payload={type:'GAMEREQUEST',coachEmail,datetime,notes:needs,field,
       firstRate,addlRate,length,offer};
@@ -200,8 +205,9 @@
       document.getElementById('gameCard').style.display='none';
       document.getElementById('takeover').classList.add('show');
       window.scrollTo({top:0,behavior:'smooth'});
-    }catch(e){btn.disabled=false;btn.textContent='Send my offer';showErr('Something went wrong. Please try again.');}
+    }catch(e){btn.disabled=false;btn.textContent='Send my request';showErr('Something went wrong. Please try again.');}
   }
 </script>
+<script src="site.js"></script>
 </body>
 </html>
