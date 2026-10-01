@@ -335,3 +335,15 @@ footer .small a { color: var(--white); min-height: 44px; align-content: center; 
 @media (forced-colors: active) {
   .chip input:checked + label, .starpick button.on { outline: 3px solid Highlight; outline-offset: -4px; }
 }
+
+/* Logo intro, injected by site.js on every page. */
+  #gdh-intro { position:fixed; inset:0; z-index:2147483000; display:grid; place-content:center; justify-items:center; gap:16px; background:#102A43; color:#F7F9FC; pointer-events:none; }
+  #gdh-intro[hidden] { display:none !important; }
+  #gdh-intro img { width:clamp(120px,28vw,200px); height:auto; transform-origin:center; animation:gdh-pop 1.6s cubic-bezier(.22,.8,.3,1) both; }
+  #gdh-intro p { margin:0; font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:clamp(26px,5vw,40px); animation:gdh-tag .5s .35s ease both; }
+  #gdh-intro.gdh-fly { background:transparent; transition:background .45s ease; }
+  #gdh-intro.gdh-fly p { animation:none; opacity:0; transition:opacity .2s ease; }
+  #gdh-intro.gdh-fly img { animation:none; transition:transform .55s cubic-bezier(.4,0,.2,1), opacity .2s ease .45s; }
+  @keyframes gdh-pop { 0%{opacity:0;transform:perspective(700px) scale(.3) rotateY(0)} 30%{opacity:1;transform:perspective(700px) scale(1) rotateY(0)} 85%{transform:perspective(700px) scale(1.08) rotateY(360deg)} 100%{transform:perspective(700px) scale(1) rotateY(360deg)} }
+  @keyframes gdh-tag { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+  @media (prefers-reduced-motion:reduce) { #gdh-intro { display:none !important; } }

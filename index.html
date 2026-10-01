@@ -188,46 +188,5 @@
 </footer>
 
 <script src="site.js"></script>
-<!-- GameDay Helpers intro: logo pops, then flies into the header logo -->
-<style>
-  #gdh-intro { position:fixed; inset:0; z-index:2147483000; display:grid; place-content:center; justify-items:center; gap:16px; background:#102A43; color:#F7F9FC; pointer-events:none; }
-  #gdh-intro[hidden] { display:none !important; }
-  #gdh-intro img { width:clamp(120px,28vw,200px); height:auto; transform-origin:center; animation:gdh-pop 1.6s cubic-bezier(.22,.8,.3,1) both; }
-  #gdh-intro p { margin:0; font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:clamp(26px,5vw,40px); animation:gdh-tag .5s .35s ease both; }
-  #gdh-intro.gdh-fly { background:transparent; transition:background .45s ease; }
-  #gdh-intro.gdh-fly p { animation:none; opacity:0; transition:opacity .2s ease; }
-  #gdh-intro.gdh-fly img { animation:none; transition:transform .55s cubic-bezier(.4,0,.2,1), opacity .2s ease .45s; }
-  @keyframes gdh-pop { 0%{opacity:0;transform:perspective(700px) scale(.3) rotateY(0)} 30%{opacity:1;transform:perspective(700px) scale(1) rotateY(0)} 85%{transform:perspective(700px) scale(1.08) rotateY(360deg)} 100%{transform:perspective(700px) scale(1) rotateY(360deg)} }
-  @keyframes gdh-tag { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
-  @media (prefers-reduced-motion:reduce) { #gdh-intro { display:none !important; } }
-</style>
-<div id="gdh-intro" aria-hidden="true" hidden>
-  <img src="gdh-logo.png" alt="" width="200" height="54">
-  <p>You coach. We score.</p>
-</div>
-<script>
-(() => {
-  const intro = document.getElementById("gdh-intro");
-  const key = "gdh-intro-seen-v1";
-  let seen = false; try { seen = sessionStorage.getItem(key) === "1"; } catch (_) {}
-  if (!intro || seen || matchMedia("(prefers-reduced-motion: reduce)").matches) { if (intro) intro.remove(); return; }
-  try { sessionStorage.setItem(key, "1"); } catch (_) {}
-  const img = intro.querySelector("img");
-  const target = document.querySelector("header .logo-img");
-  intro.hidden = false;
-  const fly = () => {
-    if (!target) { intro.remove(); return; }
-    const a = img.getBoundingClientRect(), b = target.getBoundingClientRect();
-    const scale = b.width / a.width;
-    const dx = (b.left + b.width / 2) - (a.left + a.width / 2), dy = (b.top + b.height / 2) - (a.top + a.height / 2);
-    intro.classList.add("gdh-fly");
-    img.style.transform = "translate(" + dx + "px," + dy + "px) scale(" + scale + ")";
-    img.style.opacity = "0";
-    setTimeout(() => intro.remove(), 700);
-  };
-  setTimeout(fly, 2000);
-  document.addEventListener("keydown", e => { if (e.key === "Escape") intro.remove(); }, { once: true });
-})();
-</script>
 </body>
 </html>
