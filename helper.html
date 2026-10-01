@@ -143,6 +143,11 @@
           <label for="h_parent_name">Parent / guardian name <span class="req">*</span></label>
           <input type="text" id="h_parent_name">
         </div>
+        <div class="field mb-4">
+          <label for="h_parent_phone">Parent / guardian cell <span class="req">*</span></label>
+          <input type="tel" id="h_parent_phone" autocomplete="off">
+          <div class="hint">Shared only with your matched coach, so they can group text you and your parent.</div>
+        </div>
         <div class="field mb-0">
           <label for="h_parent_email">Parent / guardian email <span class="req">*</span></label>
           <input type="email" id="h_parent_email">
@@ -322,6 +327,7 @@
     const isMinor = ageNum>=14 && ageNum<18;
     const parentName=document.getElementById('h_parent_name').value.trim();
     const parentEmail=document.getElementById('h_parent_email').value.trim();
+    const parentPhone=document.getElementById('h_parent_phone').value.trim();
     const ckPhone=document.getElementById('ck_phone').checked;
     const ckTruth=document.getElementById('ck_truth').checked;
     const ckTerms=document.getElementById('ck_terms').checked;
@@ -338,12 +344,12 @@
     if(!skill){showErr('h_err','Pick your skill level.');return;}
     if(!payApps){showErr('h_err','Pick the app you want to be paid through.');return;}
     if(!payHandle){showErr('h_err','Add your handle on that app so a matched coach can pay you.');document.getElementById('h_payhandle').focus();return;}
-    if(isMinor && (!parentName || !parentEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(parentEmail))){showErr('h_err','Since you are under 18, add a parent or guardian name and a valid email.');document.getElementById('h_parent_name').focus();return;}
+    if(isMinor && (!parentName || !parentPhone || !parentEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(parentEmail))){showErr('h_err','Since you are under 18, add a parent or guardian name, cell, and a valid email.');document.getElementById('h_parent_name').focus();return;}
     if(!ckPhone || !ckTruth || !ckTerms){showErr('h_err','Please check all three boxes to continue.');return;}
 
     const btn=document.getElementById('h_submit');btn.disabled=true;btn.textContent='Sending...';
     const payload={type:'HELPER',name,age,email,phone,leagues,sports,roles,skill,priorGames:prior,
-      availability:avail,notes,payApps,payHandle,isMinor,parentName,parentEmail,
+      availability:avail,notes,payApps,payHandle,isMinor,parentName,parentEmail,parentPhone,
       agreePhone:ckPhone,agreeTruth:ckTruth,agreeTerms:ckTerms,
       submittedAt:new Date().toISOString(),source:getSource()};
     try{

@@ -32,7 +32,7 @@ const HELPER_COLS = ["Submitted","HelperID","Name","Age (private)","Email","Phon
   "Leagues","Sports","Roles","Skill","PriorGames","GDHGames","AvgRating","ReviewCount",
   "Availability","Notes","Approved?",
   "PayApps","PayHandle (private)","Minor?","ParentName","ParentEmail","ConsentStatus","ConsentToken",
-  "Founder#","AgreedTerms","Source"];
+  "Founder#","AgreedTerms","Source","ParentPhone"];
 const COACH_COLS  = ["Submitted","Name","Email","Phone","Team","Leagues","Notes","Contacted?",
   "PayApps","PayHandle (private)","Founder#"];
 const GAME_COLS   = ["GameID","DateTime","Sport","Field","CoachName","CoachEmail",
@@ -44,7 +44,7 @@ const REVIEW_COLS = ["Submitted","GameID","RevieweeID","RevieweeRole","ReviewerR
 // Helper column indexes (0-based) used in lookups
 const H = {ID:1,NAME:2,AGE:3,EMAIL:4,PHONE:5,LEAGUES:6,SPORTS:7,ROLES:8,SKILL:9,PRIOR:10,GDH:11,
   AVG:12,COUNT:13,AVAIL:14,NOTES:15,APPROVED:16,PAYAPPS:17,PAYHANDLE:18,MINOR:19,PNAME:20,PEMAIL:21,
-  CONSENT:22,TOKEN:23,FOUNDER:24};
+  CONSENT:22,TOKEN:23,FOUNDER:24,PPHONE:27};
 const C = {NAME:1,EMAIL:2,PHONE:3,TEAM:4,LEAGUES:5,NOTES:6,PAYAPPS:8,PAYHANDLE:9};
 const G = {ID:0,DT:1,SPORT:2,FIELD:3,CNAME:4,CEMAIL:5,HID:6,HNAME:7,HEMAIL:8,REVSENT:9,
   NEEDS:10,LEAGUE:11,TEAM:12,CPHONE:13,FIRST:14,ADDL:15,LEN:16,OFFER:17,STATUS:18,MATCHSENT:19};
@@ -119,8 +119,8 @@ function handleHelper(d) {
   }
 
   const isMinor = age < 18;
-  const parentName = clean(d.parentName, 80), parentEmail = clean(d.parentEmail, 120).toLowerCase();
-  if (isMinor) need(parentName && validEmail(parentEmail), "Parent name and email required for helpers under 18");
+  const parentName = clean(d.parentName, 80), parentEmail = clean(d.parentEmail, 120).toLowerCase(), parentPhone = cleanPhone(d.parentPhone);
+  if (isMinor) need(parentName && validEmail(parentEmail) && parentPhone, "Parent name, email, and cell required for helpers under 18");
 
   const id = makeHelperId(name);
   const token = isMinor ? Utilities.getUuid() : "";
@@ -130,14 +130,14 @@ function handleHelper(d) {
     clean(d.leagues), clean(d.sports), clean(d.roles), clean(d.skill, 60), num(d.priorGames), 0, "", 0,
     clean(d.availability), clean(d.notes, 1000), "NO",
     clean(d.payApps), clean(d.payHandle, 80), isMinor ? "YES" : "NO", parentName, parentEmail,
-    isMinor ? "PENDING" : "N/A", token, founder || "", "YES", clean(d.source, 40)]);
+    isMinor ? "PENDING" : "N/A", token, founder || "", "YES", clean(d.source, 40), isMinor ? parentPhone : ""]);
 
   confirmEmail(email, name, helperWelcomeBody(name, id, isMinor, founder),
     founder ? "You're Founding Helper #" + founder + " of 50" : (isMinor ? "One step left: parent approval" : "You're on the team"));
   if (isMinor) sendParentConsent(parentEmail, parentName, name, token);
 
   alertOwner("HELPER", name, clean(d.leagues),
-    "Age: " + age + (isMinor ? " (MINOR, consent pending)" : "") + "\nEmail: " + email + "\nPhone: " + phone +
+    "Age: " + age + (isMinor ? " (MINOR, consent pending)\nParent: " + parentName + ", " + parentPhone : "") + "\nEmail: " + email + "\nPhone: " + phone +
     "\nLeagues: " + clean(d.leagues) + "\nSports: " + clean(d.sports) + "\nRoles: " + clean(d.roles) +
     "\nSkill: " + clean(d.skill) + "\nPrior games: " + num(d.priorGames) +
     "\nPay apps: " + clean(d.payApps) + "\nAvailability: " + clean(d.availability) + "\nNotes: " + clean(d.notes) +
@@ -314,7 +314,7 @@ function sendMatchEmails(rowNum){
     tr("Coach", coachName) + tr("Coach phone", coachPhone) + tr("Coach pays via", coachPay) +
     tr("Helper", h[H.NAME]) + tr("Helper phone", h[H.PHONE]) +
     tr("Helper gets paid via", h[H.PAYAPPS] + (h[H.PAYHANDLE] ? " (" + h[H.PAYHANDLE] + ")" : "")) +
-    (isMinor ? tr("Parent", h[H.PNAME]) + tr("Parent email", h[H.PEMAIL]) : "") + "</table>";
+    (isMinor ? tr("Parent", h[H.PNAME]) + tr("Parent cell", h[H.PPHONE] || "") + tr("Parent email", h[H.PEMAIL]) : "") + "</table>";
   const minorRules = isMinor
     ? "<p style='background:#FFF8E1;border-left:4px solid #D7F75B;padding:10px 12px;'><strong>" + hFirst + " is under 18, so two rules:</strong><br>" +
       "1. Group texts only. Coach, " + hFirst + ", and " + esc(firstName(h[H.PNAME]) || "parent") + " on every thread. No one-on-one texts.<br>" +
