@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#102A43">
 <link rel="stylesheet" href="styles.css">
 <style>
-  .board { max-width: 1080px; margin: 0 auto; padding: 0 1.25rem; }
+  .board { max-width: 1240px; margin: 0 auto; padding: 0 1.25rem; }
   .bar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin: 1.5rem 0; }
   .bar input { flex: 1 1 220px; min-height: 48px; }
   .bar .btn { min-height: 48px; padding-inline: 1rem; }
@@ -62,6 +62,29 @@
   .trend text { font-size: 11px; fill: var(--muted); }
   .trend text.v { fill: var(--text); font-weight: 600; }
   .sec { margin-top: 2rem; }
+  .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin: .75rem 0 1rem; }
+  .filters button { min-height: 40px; padding: .375rem .875rem; border-radius: 999px; border: 1.5px solid var(--border); background: var(--white); color: var(--text); font-weight: 600; font-size: .875rem; cursor: pointer; }
+  .filters button[aria-pressed="true"] { background: var(--action); border-color: var(--action); color: var(--white); }
+  .gtable { width: 100%; border-collapse: collapse; font-size: .875rem; }
+  .gtable th { text-align: left; padding: .5rem; color: var(--muted); font-weight: 600; border-bottom: 2px solid var(--border); white-space: nowrap; }
+  .gtable td { padding: .625rem .5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .gtable tr.red td { background: #fdecea; }
+  .gtable tr.green td { background: #eef8f0; }
+  .gtable tr.yellow td { background: #fffaea; }
+  .gtable .who { font-weight: 700; color: var(--dark); }
+  .gtable .sub { color: var(--muted); font-size: .8125rem; }
+  .steps-track { display: flex; gap: .25rem; flex-wrap: wrap; }
+  .stp { display: inline-flex; align-items: center; gap: .25rem; font-size: .75rem; font-weight: 700; padding: .2rem .5rem; border-radius: 999px; border: 1px solid var(--border); background: var(--white); color: var(--muted); white-space: nowrap; }
+  .stp.on { background: #e8f3ea; border-color: #9fcaa8; color: var(--success); }
+  .stp.wait { background: #fff6dc; border-color: #ecd48a; color: #7a5200; }
+  .stp.bad { background: #fdecea; border-color: #f0b3ac; color: var(--error); }
+  .gtable .act { display: flex; flex-direction: column; gap: .375rem; }
+  .gtable .act button { min-height: 40px; padding: .25rem .625rem; font-size: .8125rem; white-space: nowrap; }
+  .gtable textarea { width: 100%; min-height: 56px; font-size: .8125rem; padding: .375rem; border: 1px solid var(--border); border-radius: 6px; }
+  .tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .gtable { min-width: 1080px; }
+  .gtable td:nth-child(1) { min-width: 180px; } .gtable td:nth-child(2) { min-width: 170px; } .gtable td:nth-child(3) { min-width: 230px; } .gtable td:nth-child(4) { min-width: 150px; } .gtable td:nth-child(5) { min-width: 240px; }
+  .gtable .who { white-space: nowrap; }
   @media (min-width: 640px) { .kpis { grid-template-columns: repeat(4, minmax(0,1fr)); } .trends { grid-template-columns: repeat(3, minmax(0,1fr)); } }
 </style>
 </head>
@@ -86,8 +109,15 @@
     <div class="status" id="status" role="status" aria-live="polite">Enter the admin key to load the board.</div>
 
     <div id="app" style="display:none">
-      <h2 class="mb-4">Open <span class="o">requests.</span></h2>
+      <h2 class="mb-4">All <span class="o">games.</span></h2>
+      <div class="filters" id="filters" role="group" aria-label="Filter games"></div>
+      <div class="tablewrap"><table class="gtable" id="gtable"><thead><tr><th>Game</th><th>Coach</th><th>Helper</th><th>Needs</th><th>Progress</th><th>Actions</th></tr></thead><tbody id="gbody"></tbody></table></div>
+      <div class="empty" id="gempty" style="display:none">No games match this filter.</div>
+
+      <div class="sec">
+      <h2 class="mb-4">Open requests: <span class="o">pick a helper.</span></h2>
       <div id="games"></div>
+      </div>
 
       <div class="sec">
         <div class="eyebrow">Numbers</div>
@@ -181,6 +211,7 @@
     const open = DATA.games.filter(g => g.status === 'OPEN').sort((a, b) => new Date(a.when) - new Date(b.when));
     const matched = DATA.games.filter(g => g.status === 'MATCHED').length;
     const ready = DATA.helpers.filter(h => eligible(h).ok).length;
+    renderTable();
     renderKpis(open, matched, ready);
     renderTrends();
 
@@ -189,7 +220,7 @@
     const box = $('games'); box.textContent = '';
     if (!open.length) box.appendChild(el('div', 'empty', 'No open requests. When a coach requests a game, it shows up here.'));
     open.forEach(g => {
-      const card = el('div', 'game');
+      const card = el('div', 'game'); card.id = 'card-' + g.id;
       const head = el('div', 'ghead');
       const left = el('div');
       left.appendChild(el('div', 'when', g.whenText));
@@ -259,6 +290,72 @@
     });
     table.appendChild(tb); t.appendChild(table);
   }
+
+  /* ---------- games table ---------- */
+  let FILTER = 'active';
+  const FILTERS = [['active','Needs attention'],['upcoming','Upcoming'],['done','Done'],['cancelled','Cancelled / unfilled'],['all','All']];
+  function helperOf(id){ return DATA.helpers.find(h => h.id === id) || null; }
+  function coachOf(email){ return DATA.coaches.find(c => c.email === String(email || '').toLowerCase()) || null; }
+  function gameSteps(g){
+    const h = helperOf(g.helperId);
+    const played = hoursUntil(g.when) < -2;
+    const reviews = DATA.reviews.filter(r => r.gameId === g.id);
+    const steps = [];
+    steps.push({ t: 'Requested', k: 'on' });
+    if (g.status === 'CANCELLED') { steps.push({ t: 'Cancelled', k: 'bad' }); return { steps, color: 'red', h }; }
+    if (g.status === 'UNFILLED') { steps.push({ t: 'No helper found', k: 'bad' }); return { steps, color: 'red', h }; }
+    const matched = !!g.matchSent || g.status === 'MATCHED' || g.status === 'DONE';
+    steps.push({ t: matched ? 'Matched' : 'Needs a helper', k: matched ? 'on' : 'wait' });
+    if (matched && h && h.minor) steps.push({ t: h.consent === 'APPROVED' ? 'Parent approved' : 'Parent consent missing', k: h.consent === 'APPROVED' ? 'on' : 'bad' });
+    if (matched) steps.push({ t: 'Match email sent', k: g.matchSent ? 'on' : 'wait' });
+    if (matched) steps.push({ t: played ? 'Game played' : 'Game ' + fmtHours(hoursUntil(g.when)) + ' away', k: played ? 'on' : '' });
+    if (matched && played) steps.push({ t: g.reviewSent ? 'Review links sent' : 'Review links pending', k: g.reviewSent ? 'on' : 'wait' });
+    if (matched && played && g.reviewSent) steps.push({ t: reviews.length ? reviews.length + ' review' + (reviews.length > 1 ? 's' : '') + ' in' : 'No reviews yet', k: reviews.length ? 'on' : 'wait' });
+    const allDone = matched && played && g.reviewSent && reviews.length;
+    const color = !matched ? 'yellow' : (matched && h && h.minor && h.consent !== 'APPROVED') ? 'red' : allDone ? 'green' : '';
+    return { steps, color, h };
+  }
+  function inFilter(g){
+    const upcoming = hoursUntil(g.when) >= -2;
+    if (FILTER === 'all') return true;
+    if (FILTER === 'cancelled') return g.status === 'CANCELLED' || g.status === 'UNFILLED';
+    if (FILTER === 'done') return g.status === 'DONE' || (!upcoming && g.status === 'MATCHED');
+    if (FILTER === 'upcoming') return upcoming && g.status !== 'CANCELLED' && g.status !== 'UNFILLED';
+    // active: open, or matched with something still pending
+    if (g.status === 'OPEN') return true;
+    const st = gameSteps(g); return st.steps.some(x => x.k === 'wait' || x.k === 'bad') && g.status !== 'CANCELLED' && g.status !== 'UNFILLED';
+  }
+  function renderTable(){
+    const fb = $('filters'); fb.textContent = '';
+    FILTERS.forEach(([k, label]) => { const b = el('button', null, label + ' (' + DATA.games.filter(g => { const old = FILTER; FILTER = k; const r = inFilter(g); FILTER = old; return r; }).length + ')'); b.type = 'button'; b.setAttribute('aria-pressed', FILTER === k ? 'true' : 'false'); b.onclick = () => { FILTER = k; renderTable(); }; fb.appendChild(b); });
+    const list = DATA.games.filter(inFilter).sort((a, b) => new Date(a.when) - new Date(b.when));
+    const tb = $('gbody'); tb.textContent = ''; $('gempty').style.display = list.length ? 'none' : '';
+    list.forEach(g => {
+      const { steps, color, h } = gameSteps(g); const c = coachOf(g.coachEmail);
+      const tr = el('tr', color); 
+      const td1 = el('td'); td1.appendChild(el('div', 'who', g.whenText)); td1.appendChild(el('div', 'sub', [g.league, g.team, g.field].filter(Boolean).join(' \u00b7 ') || 'No field')); td1.appendChild(el('div', 'sub', '$' + g.offer + ' \u00b7 ' + g.length + ' hr \u00b7 ' + g.id + ' \u00b7 ' + statusPillText(g.status))); tr.appendChild(td1);
+      const td2 = el('td'); td2.appendChild(el('div', 'who', g.coach || (c && c.name) || 'Not registered')); td2.appendChild(el('div', 'sub', g.coachEmail)); if (g.coachPhone || (c && c.phone)) td2.appendChild(el('div', 'sub', g.coachPhone || c.phone)); if (c && c.payApps) td2.appendChild(el('div', 'sub', 'Pays via ' + c.payApps)); tr.appendChild(td2);
+      const td3 = el('td');
+      if (h) { td3.appendChild(el('div', 'who', h.name + (h.founder ? ' #' + h.founder : ''))); const w = el('div', 'why');
+        w.appendChild(h.minor ? pill(h.consent === 'APPROVED' ? 'Minor, parent approved' : 'Minor, consent ' + (h.consent || 'pending'), h.consent === 'APPROVED' ? 'good' : 'bad') : pill('Adult'));
+        w.appendChild(pill(h.avg ? '\u2605 ' + h.avg + ' (' + h.count + ')' : 'No ratings yet')); w.appendChild(pill(h.gdh + ' GDH games')); td3.appendChild(w);
+        td3.appendChild(el('div', 'sub', h.phone + ' \u00b7 ' + h.email)); if (h.minor && h.parentName) td3.appendChild(el('div', 'sub', 'Parent: ' + h.parentName + (h.parentPhone ? ' \u00b7 ' + h.parentPhone : '')));
+      } else td3.appendChild(el('div', 'sub', g.status === 'OPEN' ? 'Pick one below' : 'None'));
+      tr.appendChild(td3);
+      const td4 = el('td'); const ta = el('textarea'); ta.value = g.needs || ''; ta.setAttribute('aria-label', 'Needs and notes for ' + g.id); const sv = el('button', 'btn btn-dark', 'Save'); sv.type = 'button'; sv.style.minHeight = '36px'; sv.style.marginTop = '.25rem'; sv.onclick = () => doNote(g, ta.value, sv); td4.appendChild(ta); td4.appendChild(sv); tr.appendChild(td4);
+      const td5 = el('td'); const st = el('div', 'steps-track'); steps.forEach(x => st.appendChild(el('span', 'stp ' + x.k, (x.k === 'on' ? '\u2713 ' : x.k === 'bad' ? '\u2717 ' : x.k === 'wait' ? '\u25cb ' : '') + x.t))); td5.appendChild(st); tr.appendChild(td5);
+      const td6 = el('td'); const act = el('div', 'act');
+      if (g.status === 'OPEN') { const b = el('button', 'btn btn-orange', 'Pick helper'); b.type = 'button'; b.onclick = () => { const card = document.getElementById('card-' + g.id); if (card) card.scrollIntoView({ behavior: 'smooth' }); }; act.appendChild(b); }
+      if (h && g.status !== 'CANCELLED') { const b = el('button', 'btn btn-dark', 'Resend match email'); b.type = 'button'; b.onclick = () => doResend(g, b); act.appendChild(b); }
+      if (g.status !== 'CANCELLED' && g.status !== 'DONE') { const b = el('button', 'btn btn-dark', 'Cancel game'); b.type = 'button'; b.onclick = () => doCancel(g, b); act.appendChild(b); }
+      td6.appendChild(act); tr.appendChild(td6);
+      tb.appendChild(tr);
+    });
+  }
+  function statusPillText(s){ return s === 'OPEN' ? 'Open' : s === 'MATCHED' ? 'Matched' : s === 'DONE' ? 'Done' : s === 'UNFILLED' ? 'Unfilled' : s === 'CANCELLED' ? 'Cancelled' : s; }
+  async function doResend(g, btn){ if (!confirm('Resend the match email for ' + g.whenText + '?')) return; btn.disabled = true; try { const r = await post({ type: 'RESEND', gameId: g.id }); setStatus(r.message, r.result !== 'success'); await load(); } catch (e) { setStatus('Request failed.', true); btn.disabled = false; } }
+  async function doCancel(g, btn){ const reason = prompt('Cancel ' + g.whenText + '. Reason (goes in the email, optional):'); if (reason === null) return; btn.disabled = true; try { const r = await post({ type: 'CANCEL', gameId: g.id, reason }); setStatus(r.message, r.result !== 'success'); await load(); } catch (e) { setStatus('Request failed.', true); btn.disabled = false; } }
+  async function doNote(g, needs, btn){ btn.disabled = true; btn.textContent = 'Saving'; try { const r = await post({ type: 'NOTE', gameId: g.id, needs }); setStatus(r.message, r.result !== 'success'); g.needs = needs; } catch (e) { setStatus('Request failed.', true); } btn.disabled = false; btn.textContent = 'Save'; }
 
   /* ---------- time helpers ---------- */
   function hoursSince(iso){ const d = new Date(iso); return isNaN(d) ? null : (Date.now() - d.getTime()) / 36e5; }

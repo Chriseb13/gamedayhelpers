@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v18 - Founding 50 launch, parent cell, one shared match email, status pages (Oct 1, 2026)
+ *  v19 - dashboard games table: cancel, resend, edit needs (Oct 1, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -70,6 +70,9 @@ function doPost(e) {
     else if (type === "MATCH")       out = adminMatch(data);
     else if (type === "APPROVE")     out = adminApprove(data);
     else if (type === "UNFILL")      out = adminUnfill(data);
+    else if (type === "CANCEL")      out = adminCancel(data);
+    else if (type === "RESEND")      out = adminResend(data);
+    else if (type === "NOTE")        out = adminNote(data);
     else                             out = { result: "error", message: "Unknown type" };
     return json(out);
   } catch (err) {
@@ -377,7 +380,7 @@ function statusData(token){
   if (hr) {
     const h = hr.row;
     out.helper = { name: h[H.NAME], id: h[H.ID], profileUrl: profileUrl(h[H.ID]), skill: h[H.SKILL], leagues: h[H.LEAGUES], roles: h[H.ROLES], avail: h[H.AVAIL],
-      approved: h[H.APPROVED] === "YES", minor: h[H.MINOR] === "YES", consent: h[H.CONSENT], founder: h[H.FOUNDER] || "", gdh: Number(h[H.GDH]) || 0, avg: h[H.AVG] === "" ? null : Number(h[H.AVG]), count: Number(h[H.COUNT]) || 0, games: [] };
+      approved: h[H.APPROVED] === "YES", minor: h[H.MINOR] === "YES", consent: h[H.CONSENT], founder: h[H.FOUNDER] || "", phone: h[H.PHONE], email: h[H.EMAIL], parentName: h[H.PNAME], parentPhone: h[H.PPHONE] || "", gdh: Number(h[H.GDH]) || 0, avg: h[H.AVG] === "" ? null : Number(h[H.AVG]), count: Number(h[H.COUNT]) || 0, games: [] };
     for (let i = 1; i < gRows.length; i++) { const r = gRows[i]; if (String(r[G.HID]) !== String(h[H.ID])) continue;
       const matched = r[G.STATUS] === "MATCHED" || r[G.STATUS] === "DONE";
       const cr2 = findRowByEmail(cs, C.EMAIL, String(r[G.CEMAIL]).toLowerCase());
@@ -414,7 +417,8 @@ function adminBoard(key){
       firstRate: Number(r[G.FIRST]) || 0, addlRate: Number(r[G.ADDL]) || 0,
       whenText: isNaN(dt.getTime()) ? String(r[G.DT]) : Utilities.formatDate(dt, tz, "EEE MMM d, h:mm a"),
       field: r[G.FIELD], coach: r[G.CNAME], coachEmail: r[G.CEMAIL], coachPhone: r[G.CPHONE], league: r[G.LEAGUE], team: r[G.TEAM],
-      needs: r[G.NEEDS], offer: r[G.OFFER], length: r[G.LEN], status: r[G.STATUS] || "OPEN", helperId: r[G.HID], helperName: r[G.HNAME] });
+      needs: r[G.NEEDS], offer: r[G.OFFER], length: r[G.LEN], status: r[G.STATUS] || "OPEN", helperId: r[G.HID], helperName: r[G.HNAME],
+      reviewSent: r[G.REVSENT] instanceof Date ? r[G.REVSENT].toISOString() : "" });
   }
   const hRows = tab("Helpers", HELPER_COLS).getDataRange().getValues();
   const helpers = [];
@@ -423,7 +427,7 @@ function adminBoard(key){
     helpers.push({ row: i + 1, id: h[H.ID], name: h[H.NAME], submitted: h[0] instanceof Date ? h[0].toISOString() : "", leagues: String(h[H.LEAGUES] || ""), sports: String(h[H.SPORTS] || ""),
       roles: String(h[H.ROLES] || ""), skill: h[H.SKILL], prior: Number(h[H.PRIOR]) || 0, gdh: Number(h[H.GDH]) || 0,
       avg: h[H.AVG] === "" ? null : Number(h[H.AVG]), count: Number(h[H.COUNT]) || 0, avail: String(h[H.AVAIL] || ""),
-      approved: h[H.APPROVED] === "YES", minor: h[H.MINOR] === "YES", consent: h[H.CONSENT], founder: h[H.FOUNDER] || "",
+      approved: h[H.APPROVED] === "YES", minor: h[H.MINOR] === "YES", consent: h[H.CONSENT], founder: h[H.FOUNDER] || "", phone: h[H.PHONE], email: h[H.EMAIL], parentName: h[H.PNAME], parentPhone: h[H.PPHONE] || "",
       notes: String(h[H.NOTES] || "").slice(0, 200) });
   }
   const cRows = tab("Coaches", COACH_COLS).getDataRange().getValues();
@@ -462,6 +466,38 @@ function adminApprove(d){
   if (!hr) return { result: "error", message: "Helper not found" };
   h.getRange(hr.index, H.APPROVED + 1).setValue(d.approved === false ? "NO" : "YES");
   return { result: "success", message: (d.approved === false ? "Unapproved " : "Approved ") + hr.row[H.NAME] };
+}
+function adminCancel(d){
+  if (!adminOk(d.key)) return { result: "error", message: "Bad key" };
+  const g = tab("Games", GAME_COLS);
+  const gr = findRowByValue(g, G.ID, clean(d.gameId, 40));
+  if (!gr) return { result: "error", message: "Game not found" };
+  const r = gr.row, reason = clean(d.reason, 200);
+  g.getRange(gr.index, G.STATUS + 1).setValue("CANCELLED");
+  const when = r[G.DT] instanceof Date ? Utilities.formatDate(r[G.DT], Session.getScriptTimeZone(), "EEE MMM d, h:mm a") : String(r[G.DT]);
+  const body = "<p>The game on <strong>" + esc(when) + "</strong>" + (r[G.FIELD] ? " at " + esc(r[G.FIELD]) : "") + " is cancelled." + (reason ? " Reason: " + esc(reason) + "." : "") + "</p>" +
+    "<p>Reminder on the cancellation rule: cancelled at least two hours before the helper's arrival time, nothing is owed. Later than that, including a rainout, the coach pays the helper $15 that day.</p>";
+  const to = [r[G.CEMAIL], r[G.HEMAIL]].filter(Boolean);
+  if (r[G.HID]) { const h = findRowByValue(tab("Helpers", HELPER_COLS), H.ID, r[G.HID]); if (h && h.row[H.MINOR] === "YES" && h.row[H.PEMAIL]) to.push(h.row[H.PEMAIL]); }
+  if (to.length) MailApp.sendEmail({ to: to.join(","), cc: OWNER_EMAIL, name: "GameDay Helpers", replyTo: OWNER_EMAIL, subject: "Cancelled: " + when, htmlBody: brandWrap("team", body) });
+  return { result: "success", message: "Cancelled " + r[G.ID] + (to.length ? " and emailed " + to.length + " people" : "") };
+}
+function adminResend(d){
+  if (!adminOk(d.key)) return { result: "error", message: "Bad key" };
+  const g = tab("Games", GAME_COLS);
+  const gr = findRowByValue(g, G.ID, clean(d.gameId, 40));
+  if (!gr) return { result: "error", message: "Game not found" };
+  if (!gr.row[G.HID]) return { result: "error", message: "No helper on this game yet" };
+  const msg = sendMatchEmails(gr.index);
+  return { result: /^Match email/.test(msg) ? "success" : "error", message: msg };
+}
+function adminNote(d){
+  if (!adminOk(d.key)) return { result: "error", message: "Bad key" };
+  const g = tab("Games", GAME_COLS);
+  const gr = findRowByValue(g, G.ID, clean(d.gameId, 40));
+  if (!gr) return { result: "error", message: "Game not found" };
+  g.getRange(gr.index, G.NEEDS + 1).setValue(clean(d.needs, 500));
+  return { result: "success", message: "Saved" };
 }
 function adminUnfill(d){
   if (!adminOk(d.key)) return { result: "error", message: "Bad key" };
