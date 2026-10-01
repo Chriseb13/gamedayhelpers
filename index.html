@@ -192,7 +192,7 @@
 <style>
   #gdh-intro { position:fixed; inset:0; z-index:2147483000; display:grid; place-content:center; justify-items:center; gap:16px; background:#102A43; color:#F7F9FC; pointer-events:none; }
   #gdh-intro[hidden] { display:none !important; }
-  #gdh-intro img { width:clamp(120px,28vw,200px); height:auto; transform-origin:center; animation:gdh-pop .9s cubic-bezier(.22,.8,.3,1) both; }
+  #gdh-intro img { width:clamp(120px,28vw,200px); height:auto; transform-origin:center; animation:gdh-pop 1.3s cubic-bezier(.22,.8,.3,1) both; }
   #gdh-intro p { margin:0; font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:clamp(26px,5vw,40px); animation:gdh-tag .5s .35s ease both; }
   #gdh-intro.gdh-fly { background:transparent; transition:background .45s ease; }
   #gdh-intro.gdh-fly p { animation:none; opacity:0; transition:opacity .2s ease; }
@@ -225,7 +225,7 @@
     img.style.opacity = "0";
     setTimeout(() => intro.remove(), 700);
   };
-  setTimeout(fly, 1150);
+  setTimeout(fly, 1650);
   document.addEventListener("keydown", e => { if (e.key === "Escape") intro.remove(); }, { once: true });
 })();
 </script>
