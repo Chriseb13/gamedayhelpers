@@ -188,5 +188,206 @@
 </footer>
 
 <script src="site.js"></script>
+<!-- GameDay Helpers entry gate -->
+<style>
+  #gdh-gate { --navy:#102A43; --cobalt:#1747C8; --lime:#D7F75B; --light:#F7F9FC; position:fixed; inset:0; z-index:2147483000; height:100vh; height:100dvh; overflow:hidden; isolation:isolate; background:var(--navy); color:var(--light); font-family:"Inter",sans-serif; opacity:1; transition:opacity 240ms ease; }
+  #gdh-gate[hidden] { display:none !important; }
+  #gdh-gate, #gdh-gate * { box-sizing:border-box; }
+  #gdh-gate.gdh-leaving { opacity:0; pointer-events:none; }
+  #gdh-gate .gdh-intro { position:absolute; inset:0; z-index:5; display:grid; place-content:center; justify-items:center; gap:18px; background:var(--navy); pointer-events:none; animation:gdh-intro-away 1.15s linear both; }
+  #gdh-gate .gdh-intro img { width:clamp(100px,24vw,170px); height:auto; max-height:170px; object-fit:contain; animation:gdh-logo-reveal 1.1s cubic-bezier(.22,.8,.3,1) both; }
+  #gdh-gate .gdh-tagline { margin:0; color:var(--light); font-family:"Barlow Condensed",sans-serif; font-size:clamp(25px,5vw,36px); font-weight:700; }
+  #gdh-gate .gdh-choices { position:absolute; inset:0; visibility:hidden; pointer-events:none; }
+  #gdh-gate.gdh-reveal .gdh-choices { visibility:visible; }
+  #gdh-gate.gdh-ready .gdh-choices { pointer-events:auto; }
+  #gdh-gate .gdh-choice { position:absolute; inset:0; display:block; width:100%; height:100%; min-height:48px; margin:0; padding:0; border:0; border-radius:0; appearance:none; text-align:left; text-decoration:none; font:inherit; cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; transition:filter 180ms ease; }
+  #gdh-gate .gdh-coach { color:var(--light); background:var(--navy); clip-path:polygon(0 0,100% 0,100% 35%,0 43%); }
+  #gdh-gate .gdh-learn { color:var(--navy); background:var(--lime); clip-path:polygon(0 43%,100% 35%,100% 57%,0 65%); }
+  #gdh-gate .gdh-helper { color:var(--light); background:var(--cobalt); clip-path:polygon(0 65%,100% 57%,100% 100%,0 100%); }
+  #gdh-gate .gdh-copy { position:absolute; left:8%; width:84%; display:flex; flex-direction:column; align-items:flex-start; gap:10px; transform:translateY(-50%); transition:scale 180ms ease; }
+  #gdh-gate .gdh-coach .gdh-copy { top:20%; }
+  #gdh-gate .gdh-helper .gdh-copy { top:79%; }
+  #gdh-gate .gdh-learn .gdh-copy { top:50%; left:14%; width:72%; align-items:center; gap:9px; text-align:center; }
+  #gdh-gate .gdh-eyebrow { display:inline-block; color:var(--lime); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+  #gdh-gate .gdh-title { margin:0; font-family:"Barlow Condensed",sans-serif; font-size:clamp(32px,9vw,48px); font-weight:700; line-height:.98; letter-spacing:-.015em; text-wrap:balance; }
+  #gdh-gate .gdh-description { max-width:31ch; font-size:clamp(13px,3.5vw,16px); line-height:1.5; }
+  #gdh-gate .gdh-action { display:inline-flex; align-items:center; gap:10px; min-height:28px; color:var(--lime); font-size:13px; font-weight:700; }
+  #gdh-gate .gdh-band-logo { display:block; width:44px; height:44px; padding:7px; border-radius:10px; background:var(--navy); object-fit:contain; }
+  #gdh-gate .gdh-learn-label { max-width:27ch; font-size:clamp(13px,3.7vw,16px); font-weight:700; line-height:1.4; text-wrap:balance; }
+  #gdh-gate .gdh-choice:focus-visible { outline:none; filter:brightness(1.1); }
+  #gdh-gate .gdh-choice:focus-visible .gdh-copy { outline:3px solid currentColor; outline-offset:10px; border-radius:4px; }
+  #gdh-gate .gdh-choice:active { filter:brightness(1.12); }
+  #gdh-gate .gdh-choice:active .gdh-copy { scale:1.015; }
+  @media (hover:hover) { #gdh-gate .gdh-choice:hover { filter:brightness(1.1); } #gdh-gate .gdh-choice:hover .gdh-copy { scale:1.025; } }
+  @media (min-width:800px) and (min-height:560px) {
+    #gdh-gate .gdh-coach { clip-path:polygon(0 0,76% 0,0 76%); }
+    #gdh-gate .gdh-learn { clip-path:polygon(76% 0,100% 0,100% 24%,24% 100%,0 100%,0 76%); }
+    #gdh-gate .gdh-helper { clip-path:polygon(100% 24%,100% 100%,24% 100%); }
+    #gdh-gate .gdh-coach .gdh-copy { top:23%; left:7%; width:32%; }
+    #gdh-gate .gdh-helper .gdh-copy { top:77%; left:61%; width:32%; }
+    #gdh-gate .gdh-learn .gdh-copy { top:50%; left:39%; width:22%; }
+    #gdh-gate .gdh-title { font-size:clamp(40px,4.8vw,72px); }
+    #gdh-gate .gdh-description { font-size:16px; }
+    #gdh-gate .gdh-band-logo { width:54px; height:54px; }
+  }
+  @media (max-height:559px) {
+    #gdh-gate .gdh-copy { gap:5px; }
+    #gdh-gate .gdh-title { font-size:clamp(24px,6vh,32px); }
+    #gdh-gate .gdh-description, #gdh-gate .gdh-learn-label { font-size:12px; line-height:1.3; }
+    #gdh-gate .gdh-eyebrow, #gdh-gate .gdh-action { display:none; }
+    #gdh-gate .gdh-learn .gdh-copy { flex-direction:row; justify-content:center; gap:12px; }
+    #gdh-gate .gdh-band-logo { width:32px; height:32px; padding:5px; flex-shrink:0; }
+  }
+  #gdh-gate.gdh-reveal .gdh-coach { animation:gdh-coach-in 400ms cubic-bezier(.2,.8,.2,1) both; }
+  #gdh-gate.gdh-reveal .gdh-learn { animation:gdh-band-in 400ms cubic-bezier(.2,.8,.2,1) both; }
+  #gdh-gate.gdh-reveal .gdh-helper { animation:gdh-helper-in 400ms cubic-bezier(.2,.8,.2,1) both; }
+  #gdh-gate .gdh-timer { position:absolute; z-index:8; left:0; right:0; bottom:0; height:4px; background:rgba(16,42,67,.35); opacity:0; pointer-events:none; transition:opacity 160ms ease; }
+  #gdh-gate.gdh-counting .gdh-timer { opacity:1; }
+  #gdh-gate .gdh-timer-fill { width:100%; height:100%; background:var(--lime); transform-origin:left center; }
+  #gdh-gate .gdh-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  @keyframes gdh-logo-reveal { 0%{opacity:0;transform:perspective(700px) scale(.35) rotateY(0deg);} 25%{opacity:1;transform:perspective(700px) scale(1) rotateY(0deg);} 88%{opacity:1;transform:perspective(700px) scale(1.1) rotateY(360deg);} 100%{opacity:1;transform:perspective(700px) scale(1) rotateY(360deg);} }
+  @keyframes gdh-intro-away { 0%,94%{opacity:1;} 100%{opacity:0;visibility:hidden;} }
+  @keyframes gdh-coach-in { from{transform:translate(-12%,-12%);opacity:0;} to{transform:translate(0,0);opacity:1;} }
+  @keyframes gdh-band-in { from{transform:translate(12%,-12%);opacity:0;} to{transform:translate(0,0);opacity:1;} }
+  @keyframes gdh-helper-in { from{transform:translate(12%,12%);opacity:0;} to{transform:translate(0,0);opacity:1;} }
+  @media (prefers-reduced-motion:reduce) { #gdh-gate, #gdh-gate * { animation:none !important; transition:none !important; } #gdh-gate .gdh-intro { display:none; } }
+</style>
+
+<div id="gdh-gate" role="dialog" aria-modal="true" aria-labelledby="gdh-gate-title" aria-describedby="gdh-gate-help" tabindex="-1" hidden>
+  <h2 id="gdh-gate-title" class="gdh-sr-only">Welcome to GameDay Helpers. Choose your next step.</h2>
+  <p id="gdh-gate-help" class="gdh-sr-only">The homepage opens automatically after five seconds. Interacting with a choice stops the timer. Press Escape to open the homepage.</p>
+  <div class="gdh-intro" aria-hidden="true">
+    <img src="gdh-logo.png" alt="" width="170" height="170">
+    <p class="gdh-tagline">You coach. We score.</p>
+  </div>
+  <div class="gdh-choices" inert>
+    <a class="gdh-choice gdh-coach" href="coaches.html">
+      <span class="gdh-copy">
+        <span class="gdh-eyebrow">You coach. We score.</span>
+        <span class="gdh-title">I'm a Coach</span>
+        <span class="gdh-description">Get a scorekeeper for your next game</span>
+        <span class="gdh-action" aria-hidden="true">Find a helper <span>&#8599;</span></span>
+      </span>
+    </a>
+    <button class="gdh-choice gdh-learn" type="button">
+      <span class="gdh-copy">
+        <img class="gdh-band-logo" src="gdh-logo.png" alt="" width="54" height="54">
+        <span class="gdh-learn-label">I don't know. I want to learn more.</span>
+      </span>
+    </button>
+    <a class="gdh-choice gdh-helper" href="helper.html">
+      <span class="gdh-copy">
+        <span class="gdh-eyebrow">Tampa Bay &middot; Founding helpers</span>
+        <span class="gdh-title">I'm a GameChanger Helper</span>
+        <span class="gdh-description">Get paid to keep score. Founding 50 spots open.</span>
+        <span class="gdh-action" aria-hidden="true">Become a helper <span>&#8599;</span></span>
+      </span>
+    </a>
+  </div>
+  <div class="gdh-timer" aria-hidden="true"><div class="gdh-timer-fill"></div></div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const gate = document.getElementById("gdh-gate");
+  const storageKey = "gdh-entry-gate-seen-v1";
+  if (!gate || gate.dataset.initialized) return;
+  gate.dataset.initialized = "true";
+  let alreadySeen = false;
+  try { alreadySeen = sessionStorage.getItem(storageKey) === "1"; } catch (_) {}
+  if (alreadySeen || new URLSearchParams(location.search).has("ref")) { gate.remove(); return; }
+  document.body.appendChild(gate);
+  const choices = gate.querySelector(".gdh-choices");
+  const controls = [...gate.querySelectorAll(".gdh-choice")];
+  const learnButton = gate.querySelector(".gdh-learn");
+  const progress = gate.querySelector(".gdh-timer-fill");
+  const helperText = gate.querySelector("#gdh-gate-help");
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  const previousFocus = document.activeElement;
+  const previousOverflow = document.body.style.overflow;
+  const previousHtmlOverflow = document.documentElement.style.overflow;
+  const background = [...document.body.children].filter(el => el !== gate).map(el => ({ element: el, wasInert: el.hasAttribute("inert") }));
+  let interacted = false, closing = false, ready = false, frame = 0, revealTimer = 0, readyTimer = 0, lastTime = 0, remaining = 5000;
+  function rememberChoice() { try { sessionStorage.setItem(storageKey, "1"); } catch (_) {} }
+  function stopCountdown() {
+    if (interacted || closing) return;
+    interacted = true; cancelAnimationFrame(frame); gate.classList.remove("gdh-counting");
+    helperText.textContent = "Choose a destination, or press Escape to open the homepage.";
+  }
+  function restorePage() {
+    background.forEach(({ element, wasInert }) => { if (!wasInert) element.removeAttribute("inert"); });
+    document.body.style.overflow = previousOverflow; document.documentElement.style.overflow = previousHtmlOverflow;
+    document.removeEventListener("keydown", handleKey); document.removeEventListener("visibilitychange", resetFrameClock);
+  }
+  function closeGate() {
+    if (closing) return;
+    closing = true; rememberChoice();
+    clearTimeout(revealTimer); clearTimeout(readyTimer); cancelAnimationFrame(frame);
+    gate.classList.remove("gdh-counting"); gate.classList.add("gdh-leaving");
+    const finish = () => {
+      restorePage(); gate.remove();
+      if (previousFocus && previousFocus !== document.body && previousFocus.isConnected && typeof previousFocus.focus === "function") {
+        previousFocus.focus({ preventScroll: true });
+      } else {
+        const target = document.querySelector("main, #main, h1");
+        if (target) {
+          const oldTabIndex = target.getAttribute("tabindex");
+          target.setAttribute("tabindex", "-1"); target.focus({ preventScroll: true });
+          if (oldTabIndex === null) target.removeAttribute("tabindex"); else target.setAttribute("tabindex", oldTabIndex);
+        }
+      }
+    };
+    if (reducedMotion.matches) finish(); else setTimeout(finish, 250);
+  }
+  function tick(now) {
+    if (closing || interacted) return;
+    if (!document.hidden && lastTime) remaining = Math.max(0, remaining - (now - lastTime));
+    lastTime = now;
+    progress.style.transform = `scaleX(${remaining / 5000})`;
+    if (remaining <= 0) closeGate(); else frame = requestAnimationFrame(tick);
+  }
+  function resetFrameClock() { lastTime = 0; }
+  function showChoices() {
+    if (closing || ready) return;
+    ready = true;
+    gate.classList.add("gdh-reveal", "gdh-ready"); choices.removeAttribute("inert");
+    if (!interacted) { gate.classList.add("gdh-counting"); lastTime = 0; frame = requestAnimationFrame(tick); }
+  }
+  function handleKey(event) {
+    if (closing) return;
+    if (event.key === "Escape") { event.preventDefault(); closeGate(); return; }
+    if (event.key !== "Tab") return;
+    event.preventDefault(); stopCountdown();
+    if (!ready) { clearTimeout(revealTimer); clearTimeout(readyTimer); gate.querySelector(".gdh-intro").style.display = "none"; showChoices(); }
+    const current = controls.indexOf(document.activeElement);
+    const next = event.shiftKey ? (current <= 0 ? controls.length - 1 : current - 1) : (current + 1) % controls.length;
+    controls[next].focus({ preventScroll: true });
+  }
+  // A cursor already resting on the page would fire pointerenter the moment the choices appear.
+  // Only real movement over a choice counts as interest.
+  let lastPointer = null;
+  choices.addEventListener("pointermove", event => {
+    if (event.pointerType && event.pointerType !== "mouse") return;
+    if (lastPointer && (Math.abs(event.clientX - lastPointer.x) > 3 || Math.abs(event.clientY - lastPointer.y) > 3)) stopCountdown();
+    lastPointer = { x: event.clientX, y: event.clientY };
+  });
+  controls.forEach(control => {
+    control.addEventListener("pointerdown", stopCountdown);
+    control.addEventListener("focus", stopCountdown);
+    if (control.tagName === "A") {
+      control.addEventListener("click", closeGate);
+      control.addEventListener("auxclick", event => { if (event.button === 1) closeGate(); });
+    }
+  });
+  learnButton.addEventListener("click", closeGate);
+  background.forEach(({ element }) => element.setAttribute("inert", ""));
+  document.body.style.overflow = "hidden"; document.documentElement.style.overflow = "hidden";
+  document.addEventListener("keydown", handleKey); document.addEventListener("visibilitychange", resetFrameClock);
+  gate.hidden = false; gate.focus({ preventScroll: true });
+  if (reducedMotion.matches) showChoices();
+  else { revealTimer = setTimeout(() => { gate.classList.add("gdh-reveal"); }, 1100); readyTimer = setTimeout(showChoices, 1500); }
+})();
+</script>
 </body>
 </html>
