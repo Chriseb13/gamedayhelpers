@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v15 - Founding 50 launch: badge email, share link, beta timeline, signup source
+ *  v15 - Founding 50 launch + one shared match email (coach, helper, parent if minor)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -306,33 +306,37 @@ function sendMatchEmails(rowNum){
   const details = "<table style='border-collapse:collapse;font-size:14px;'>" + tr("Game", dt) + tr("Field", row[G.FIELD] || "TBD") +
     tr("League", row[G.LEAGUE] || "") + tr("Team", row[G.TEAM] || "") + tr("Needs", row[G.NEEDS] || "") + tr("Pay", offer) + "</table>";
 
-  // Coach email: helper's name, phone, pay apps + handle
-  confirmEmail(row[G.CEMAIL], coachName,
-    "<p>You're matched. Here is your helper:</p>" +
-    "<table style='border-collapse:collapse;font-size:14px;'>" + tr("Helper", h[H.NAME]) + tr("Phone", h[H.PHONE]) +
-    tr("Pays via", h[H.PAYAPPS] + (h[H.PAYHANDLE] ? " (" + h[H.PAYHANDLE] + ")" : "")) + tr("Skill", h[H.SKILL]) + "</table>" +
-    details +
-    "<p><strong>Do this now:</strong> text " + esc(firstName(h[H.NAME])) + " to confirm and share the GameChanger team invite. After the game, pay " + offer + " straight to their app. No cash.</p>" +
-"<p><strong>Cancellations:</strong> text " + esc(firstName(h[H.NAME])) + " at least two hours before their arrival time and you owe nothing. Later than that, including a rainout, pay them $15 that day. If the game started, pay for time worked at your rates, $15 minimum.</p>" +
-    "<p>You will get a one tap review link a few hours after first pitch. Problem before the game? Reply here" + (OWNER_CELL ? " or text " + OWNER_NAME + " at " + OWNER_CELL : "") + ".</p>" +
-    profileLine(h[H.ID]),
-    "MATCHED: " + firstName(h[H.NAME]) + " is scoring your game " + dt);
-
-  // Helper email: coach's name, phone, pay app
-  confirmEmail(h[H.EMAIL], h[H.NAME],
-    "<p>You got the game. Here is your coach:</p>" +
-    "<table style='border-collapse:collapse;font-size:14px;'>" + tr("Coach", coachName) + tr("Phone", coachPhone) + tr("Pays via", coachPay) + "</table>" +
-    details +
-    "<p><strong>Do this now:</strong> text Coach " + esc(firstName(coachName)) + " to confirm. Ask for the GameChanger invite. Show up 15 minutes early, phone charged.</p>" +
-"<p><strong>Cancellations:</strong> if the coach cancels less than two hours before your arrival time, including a rainout, they owe you $15 that day. Reply here if that does not land.</p>" +
-    "<p>After the game the coach pays " + offer + " to your app. If it has not landed by the next morning, reply to this email and we handle it.</p>",
-    "YOU'RE IN: " + dt + " with Coach " + firstName(coachName));
+  // ONE shared email: coach + helper (+ parent if minor), owner CC'd. Reply-all = group thread.
+  const isMinor = h[H.MINOR] === "YES";
+  const hFirst = esc(firstName(h[H.NAME])), cFirst = esc(firstName(coachName));
+  const recipients = [row[G.CEMAIL], h[H.EMAIL]].concat(isMinor && h[H.PEMAIL] ? [h[H.PEMAIL]] : []).filter(Boolean);
+  const who = "<table style='border-collapse:collapse;font-size:14px;'>" +
+    tr("Coach", coachName) + tr("Coach phone", coachPhone) + tr("Coach pays via", coachPay) +
+    tr("Helper", h[H.NAME]) + tr("Helper phone", h[H.PHONE]) +
+    tr("Helper gets paid via", h[H.PAYAPPS] + (h[H.PAYHANDLE] ? " (" + h[H.PAYHANDLE] + ")" : "")) +
+    (isMinor ? tr("Parent", h[H.PNAME]) + tr("Parent email", h[H.PEMAIL]) : "") + "</table>";
+  const minorRules = isMinor
+    ? "<p style='background:#FFF8E1;border-left:4px solid #D7F75B;padding:10px 12px;'><strong>" + hFirst + " is under 18, so two rules:</strong><br>" +
+      "1. Group texts only. Coach, " + hFirst + ", and " + esc(firstName(h[H.PNAME]) || "parent") + " on every thread. No one-on-one texts.<br>" +
+      "2. " + hFirst + " gets to and from the field on their own or with family. Coaches never drive helpers.</p>"
+    : "";
+  const body =
+    "<p><strong>Game on.</strong> Everyone who needs to know is on this email. Reply all to keep it in one thread.</p>" +
+    who + details + minorRules +
+    "<p><strong>Coach " + cFirst + ":</strong> start a " + (isMinor ? "group " : "") + "text to confirm and share the GameChanger team invite. After the game, pay " + offer + " straight to " + hFirst + "'s app. No cash.</p>" +
+    "<p><strong>" + hFirst + ":</strong> confirm when the coach texts, accept the GameChanger invite, and show up 15 minutes early, phone charged.</p>" +
+    "<p><strong>Cancellations:</strong> coach cancels at least two hours before arrival time, nothing owed. Later than that, including a rainout, $15 that day. If the game started, pay for time worked at the agreed rates, $15 minimum.</p>" +
+    "<p>Review links go out a few hours after first pitch. Problem? Reply all" + (OWNER_CELL ? " or text " + OWNER_NAME + " at " + OWNER_CELL : "") + ".</p>" +
+    profileLine(h[H.ID]);
+  MailApp.sendEmail({ to: recipients.join(","), cc: OWNER_EMAIL, name: "GameDay Helpers",
+    subject: "GAME ON: " + firstName(h[H.NAME]) + " + Coach " + firstName(coachName) + ", " + dt,
+    htmlBody: brandWrap("team", body) });
 
   g.getRange(rowNum, G.STATUS + 1).setValue("MATCHED");
   g.getRange(rowNum, G.MATCHSENT + 1).setValue(new Date());
   g.getRange(rowNum, G.HNAME + 1).setValue(h[H.NAME]);
   g.getRange(rowNum, G.HEMAIL + 1).setValue(h[H.EMAIL]);
-  return "Match emails sent to " + coachName + " and " + h[H.NAME] + ".";
+  return "Match email sent to " + coachName + ", " + h[H.NAME] + (isMinor ? ", and parent " + h[H.PNAME] : "") + ".";
 }
 
 /* ==========================================================
