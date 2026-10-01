@@ -12,6 +12,7 @@ gamedayhelpers.com/match.html. Open requests sit at the top, longest waiting fir
 - **Send match**: writes the HelperID to the Games row and sends both match emails. Same code as the GDH menu.
 - **Approve**: flips `Approved?` to YES after you have looked at the profile. Unapprove is in the All helpers table.
 - **No helper available, notify coach**: marks the game UNFILLED and emails the coach.
+- **GameChanger link**: a matched game with no team link shows a red chip. Add it with the GC link button on the row, or ask the coach. The match email tells the helper to follow the team and the coach to add them as a scorekeeper under Staff.
 - **All games table** (top of the page): every game with a step tracker (requested, matched, parent consent, match email sent, game played, review links, reviews in). Yellow row = needs a helper, red = cancelled, unfilled, or a minor without consent, green = fully done. Filters: Needs attention, Upcoming, Done, Cancelled, All. Actions per row: Pick helper, Resend match email, Cancel game (emails everyone, parent included for minors), and an editable Needs box.
 
 The Sheet method below still works and is the fallback.

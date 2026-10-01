@@ -113,6 +113,11 @@
         <input type="text" id="c_team">
       </div>
       <div class="field">
+        <label for="c_gclink">GameChanger team link</label>
+        <input type="url" id="c_gclink" inputmode="url" placeholder="https://gc.com/t/...">
+        <div class="hint">In GameChanger: open your team, tap Share or Invite, copy the link. Your helper uses it to follow the team, then you add them as a scorekeeper under Staff. You can also add it per game.</div>
+      </div>
+      <div class="field">
         <div class="field-label">Which league are you in? <span class="req">*</span></div>
         <div class="chips" id="c_leagues" role="group" aria-label="Which league are you in?">
           <span class="chip"><input type="checkbox" id="cl1" value="Bayshore"><label for="cl1">Bayshore</label></span>
@@ -191,6 +196,7 @@
     const email=document.getElementById('c_email').value.trim();
     const phone=document.getElementById('c_phone').value.trim();
     const team=document.getElementById('c_team').value.trim();
+    const gcLink=document.getElementById('c_gclink').value.trim();
     const leagues=getChecked('c_leagues');
     const notes=document.getElementById('c_notes').value.trim();
     const payApps=getChecked('c_payapps');
@@ -202,8 +208,9 @@
     if(!leagues){showErr('c_err','Pick your league, or Other.');return;}
     if(!payApps){showErr('c_err','Pick the payment app you will use.');return;}
     if(!payHandle){showErr('c_err','Add your handle on that payment app.');document.getElementById('c_payhandle').focus();return;}
+    if(gcLink && !/^https?:\/\/\S+$/i.test(gcLink)){showErr('c_err','The GameChanger link should start with https://');document.getElementById('c_gclink').focus();return;}
     const btn=document.getElementById('c_submit');btn.disabled=true;btn.textContent='Sending...';
-    const payload={type:'COACH',name,email,phone,team,leagues,notes,payApps,payHandle,submittedAt:new Date().toISOString()};
+    const payload={type:'COACH',name,email,phone,team,leagues,notes,payApps,payHandle,gcLink,submittedAt:new Date().toISOString()};
     try{
       await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
       document.getElementById('coachCard').style.display='none';
