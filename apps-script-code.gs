@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v16 - status pages, AccessToken columns (Oct 1, 2026)
+ *  v17 - no personal name in emails (Oct 1, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -23,7 +23,7 @@ const OWNER_EMAIL        = "info@gamedayhelpers.com";
 const SITE_BASE_URL      = "https://gamedayhelpers.com";
 const REVIEW_DELAY_HOURS = 3;
 const FOUNDER_LIMIT      = 50;
-const OWNER_NAME         = "Chris";
+const OWNER_NAME         = "The GameDay Helpers team";   // used only in the email signature
 const OWNER_CELL         = "";   // optional, shown in match emails so both sides can text you
 const ADMIN_KEY          = "";   // set in the editor only. Unlocks match.html. Empty = match board disabled.
 
@@ -199,7 +199,7 @@ function handleGameRequest(d) {
     tr("Game", when) + tr("Field", clean(d.field) || "TBD") + tr("You need", clean(d.notes)) +
     tr("Your offer", "$" + clean(d.offer) + " (" + clean(d.length) + " hr, $" + num(d.firstRate) + " first hour, $" + num(d.addlRate) + " each additional)") +
     "</table>" +
-    "<p><strong>What happens next:</strong> " + OWNER_NAME + " looks for an available helper from your league. A helper is not confirmed yet. If one accepts, you will get one email with your helper's name, phone, and payment app. Then you two text each other and lock it in.</p>" +
+    "<p><strong>What happens next:</strong> We look for an available helper from your league. A helper is not confirmed yet. If one accepts, you will get one email with your helper's name, phone, and payment app. Then you two text each other and lock it in.</p>" +
     "<p>Pay your helper directly after the game, app to app. No cash.</p>" +
     (c ? "" : "<p style='color:#b45309;'><strong>Heads up:</strong> we could not find a coach profile under this email. Take 60 seconds and <a href='" + SITE_BASE_URL + "/coaches.html'>create one</a> so we can match you faster.</p>") +
     "<p>Need to change anything? Reply to this email.</p>" + statusLine(email);
@@ -222,7 +222,7 @@ function handleLeague(d) {
   need(validEmail(email), "Invalid email");
   tab("Leagues", LEAGUE_COLS).appendRow([new Date(), name, org, email, phone, clean(d.notes, 1000), "NO"]);
   confirmEmail(email, name,
-    "<p>Thanks for reaching out about <strong>" + esc(org) + "</strong>. " + OWNER_NAME + " will reach out soon to talk through covering your fields.</p>" +
+    "<p>Thanks for reaching out about <strong>" + esc(org) + "</strong>. We will reach out soon to talk through covering your fields.</p>" +
     "<p>Quick preview of how it works for leagues: your coaches request helpers, a real person matches them, and coaches pay helpers directly. GameDay Helpers is free for coaches and helpers during the Tampa beta. We can walk through it on a quick call.</p>",
     "Got your league inquiry");
   alertOwner("LEAGUE", name, org, "Email: " + email + "\nPhone: " + phone + "\nNotes: " + clean(d.notes));
@@ -315,7 +315,7 @@ function sendMatchEmails(rowNum){
     details +
     "<p><strong>Do this now:</strong> text " + esc(firstName(h[H.NAME])) + " to confirm and share the GameChanger team invite. After the game, pay " + offer + " straight to their app. No cash.</p>" +
 "<p><strong>Cancellations:</strong> text " + esc(firstName(h[H.NAME])) + " at least two hours before their arrival time and you owe nothing. Later than that, including a rainout, pay them $15 that day. If the game started, pay for time worked at your rates, $15 minimum.</p>" +
-    "<p>You will get a one tap review link a few hours after first pitch. Problem before the game? Reply here" + (OWNER_CELL ? " or text " + OWNER_NAME + " at " + OWNER_CELL : "") + ".</p>" +
+    "<p>You will get a one tap review link a few hours after first pitch. Problem before the game? Reply here" + (OWNER_CELL ? " or text us at " + OWNER_CELL : "") + ".</p>" +
     profileLine(h[H.ID]) + statusLine(row[G.CEMAIL]),
     "MATCHED: " + firstName(h[H.NAME]) + " is scoring your game " + dt);
 
@@ -632,7 +632,7 @@ function coachWelcomeBody(name, founder){
   return f +
     "<p><strong>Got a game coming up? Request a helper now:</strong></p>" +
     "<p style='text-align:center;margin:20px 0;'><a href='" + SITE_BASE_URL + "/request-game.html' style='background:#1747C8;color:#fff;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:10px;display:inline-block;'>Request a scorekeeper</a></p>" +
-    "<p>Takes 60 seconds: date, what you need, your offer. " + OWNER_NAME + " personally matches you with a helper from your league and emails you their name, phone, and payment app. You text them, they show up, you pay them after the game, app to app.</p>" +
+    "<p>Takes 60 seconds: date, what you need, your offer. We match you by hand with a helper from your league and emails you their name, phone, and payment app. You text them, they show up, you pay them after the game, app to app.</p>" +
     "<p><strong>What it costs you:</strong> just the helper's pay, which you set when you request. Two hour offers start at $35. No matching fee to GameDay Helpers during the Tampa beta.</p>" +
     "<p>Tip: request as early as you can. Two days notice gives us the best shot at finding you a helper. Two hours is a coin flip.</p>";
 }
