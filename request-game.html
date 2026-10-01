@@ -128,6 +128,11 @@
       </div>
 
       <div class="field">
+        <label for="g_details">Anything else your helper should know? <span class="hint hint-inline">(optional)</span></label>
+        <textarea id="g_details" maxlength="200" rows="3" placeholder="Gate code, which dugout, scorebook or app only, parking, etc."></textarea>
+        <div class="hint"><span id="g_count">0</span>/200</div>
+      </div>
+      <div class="field">
         <label for="g_field">Field / location <span class="req">*</span></label>
         <input type="text" id="g_field" placeholder="Park name and field number">
         <div class="hint">Your league name does not tell us the field. Give the park and field number so your helper shows up at the right place.</div>
@@ -165,6 +170,7 @@
   const emailParam = params.get('email');
   if (emailParam) document.getElementById('g_email').value = emailParam;
 
+  document.getElementById('g_details').addEventListener('input',e=>{document.getElementById('g_count').textContent=e.target.value.length;});
   function checkedVal(name){const el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';}
   function getChecked(id){return Array.from(document.querySelectorAll('#'+id+' input:checked')).map(e=>e.value).join(', ');}
   function showErr(m){const e=document.getElementById('g_err');e.textContent=m;e.style.display='block';}
@@ -187,6 +193,7 @@
     const coachEmail=document.getElementById('g_email').value.trim();
     const datetime=document.getElementById('g_datetime').value.trim();
     const needs=getChecked('g_needs');
+    const details=document.getElementById('g_details').value.trim().slice(0,200);
     const field=document.getElementById('g_field').value.trim();
     const firstRate=checkedVal('first');
     const addlRate=checkedVal('addl');
@@ -198,7 +205,7 @@
     if(!needs){showErr('Pick at least one thing you need.');return;}
     if(!field){showErr('Add the park and field number.');document.getElementById('g_field').focus();return;}
     const btn=document.getElementById('g_submit');btn.disabled=true;btn.textContent='Sending...';
-    const payload={type:'GAMEREQUEST',coachEmail,datetime,notes:needs,field,
+    const payload={type:'GAMEREQUEST',coachEmail,datetime,notes:needs+(details?' | Notes: '+details:''),field,
       firstRate,addlRate,length,offer};
     try{
       await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
