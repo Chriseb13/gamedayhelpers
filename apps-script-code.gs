@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v17 - no personal name in emails (Oct 1, 2026)
+ *  v18 - Founding 50 launch, parent cell, one shared match email, status pages (Oct 1, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -32,7 +32,7 @@ const HELPER_COLS = ["Submitted","HelperID","Name","Age (private)","Email","Phon
   "Leagues","Sports","Roles","Skill","PriorGames","GDHGames","AvgRating","ReviewCount",
   "Availability","Notes","Approved?",
   "PayApps","PayHandle (private)","Minor?","ParentName","ParentEmail","ConsentStatus","ConsentToken",
-  "Founder#","AgreedTerms","AccessToken"];
+  "Founder#","AgreedTerms","AccessToken","Source","ParentPhone"];
 const COACH_COLS  = ["Submitted","Name","Email","Phone","Team","Leagues","Notes","Contacted?",
   "PayApps","PayHandle (private)","Founder#","AccessToken"];
 const GAME_COLS   = ["GameID","DateTime","Sport","Field","CoachName","CoachEmail",
@@ -44,7 +44,7 @@ const REVIEW_COLS = ["Submitted","GameID","RevieweeID","RevieweeRole","ReviewerR
 // Helper column indexes (0-based) used in lookups
 const H = {ID:1,NAME:2,AGE:3,EMAIL:4,PHONE:5,LEAGUES:6,SPORTS:7,ROLES:8,SKILL:9,PRIOR:10,GDH:11,
   AVG:12,COUNT:13,AVAIL:14,NOTES:15,APPROVED:16,PAYAPPS:17,PAYHANDLE:18,MINOR:19,PNAME:20,PEMAIL:21,
-  CONSENT:22,TOKEN:23,FOUNDER:24,ACCESS:26};
+  CONSENT:22,TOKEN:23,FOUNDER:24,ACCESS:26,SOURCE:27,PPHONE:28};
 const C = {SUB:0,NAME:1,EMAIL:2,PHONE:3,TEAM:4,LEAGUES:5,NOTES:6,CONTACTED:7,PAYAPPS:8,PAYHANDLE:9,FOUNDER:10,ACCESS:11};
 const G = {ID:0,DT:1,SPORT:2,FIELD:3,CNAME:4,CEMAIL:5,HID:6,HNAME:7,HEMAIL:8,REVSENT:9,
   NEEDS:10,LEAGUE:11,TEAM:12,CPHONE:13,FIRST:14,ADDL:15,LEN:16,OFFER:17,STATUS:18,MATCHSENT:19,REQ:20};
@@ -116,13 +116,13 @@ function handleHelper(d) {
   if (existing) {
     // Duplicate: do not create a second profile. Re-send their info.
     const row = existing.row;
-    confirmEmail(email, name, helperWelcomeBody(row[H.NAME], row[H.ID], row[H.MINOR] === "YES"), "You're already on the team");
-    return { result: "success", helperId: row[H.ID], duplicate: true };
+    confirmEmail(email, name, helperWelcomeBody(row[H.NAME], row[H.ID], row[H.MINOR] === "YES", row[H.FOUNDER]), "You're already on the team");
+    return { result: "success", helperId: row[H.ID], founder: row[H.FOUNDER] || 0, duplicate: true };
   }
 
   const isMinor = age < 18;
-  const parentName = clean(d.parentName, 80), parentEmail = clean(d.parentEmail, 120).toLowerCase();
-  if (isMinor) need(parentName && validEmail(parentEmail), "Parent name and email required for helpers under 18");
+  const parentName = clean(d.parentName, 80), parentEmail = clean(d.parentEmail, 120).toLowerCase(), parentPhone = cleanPhone(d.parentPhone);
+  if (isMinor) need(parentName && validEmail(parentEmail) && parentPhone, "Parent name, email, and cell required for helpers under 18");
 
   const id = makeHelperId(name);
   const token = isMinor ? Utilities.getUuid() : "";
@@ -132,19 +132,20 @@ function handleHelper(d) {
     clean(d.leagues), clean(d.sports), clean(d.roles), clean(d.skill, 60), num(d.priorGames), 0, "", 0,
     clean(d.availability), clean(d.notes, 1000), "NO",
     clean(d.payApps), clean(d.payHandle, 80), isMinor ? "YES" : "NO", parentName, parentEmail,
-    isMinor ? "PENDING" : "N/A", token, founder || "", "YES", Utilities.getUuid()]);
+    isMinor ? "PENDING" : "N/A", token, founder || "", "YES", Utilities.getUuid(), clean(d.source, 40), isMinor ? parentPhone : ""]);
 
-  confirmEmail(email, name, helperWelcomeBody(name, id, isMinor, founder) + statusLine(email), isMinor ? "One step left: parent approval" : "You're on the team");
+  confirmEmail(email, name, helperWelcomeBody(name, id, isMinor, founder) + statusLine(email),
+    founder ? "You're Founding Helper #" + founder + " of 50" : (isMinor ? "One step left: parent approval" : "You're on the team"));
   if (isMinor) sendParentConsent(parentEmail, parentName, name, token);
 
   alertOwner("HELPER", name, clean(d.leagues),
-    "Age: " + age + (isMinor ? " (MINOR, consent pending)" : "") + "\nEmail: " + email + "\nPhone: " + phone +
+    "Age: " + age + (isMinor ? " (MINOR, consent pending)\nParent: " + parentName + ", " + parentPhone : "") + "\nEmail: " + email + "\nPhone: " + phone +
     "\nLeagues: " + clean(d.leagues) + "\nSports: " + clean(d.sports) + "\nRoles: " + clean(d.roles) +
     "\nSkill: " + clean(d.skill) + "\nPrior games: " + num(d.priorGames) +
     "\nPay apps: " + clean(d.payApps) + "\nAvailability: " + clean(d.availability) + "\nNotes: " + clean(d.notes) +
-    (founder ? "\nFounding Helper #" + founder : "") + "\nProfile: " + profileUrl(id));
+    (founder ? "\nFounding Helper #" + founder : "") + "\nSource: " + (clean(d.source, 40) || "direct") + "\nProfile: " + profileUrl(id));
 
-  return { result: "success", helperId: id, profileUrl: profileUrl(id) };
+  return { result: "success", helperId: id, founder: founder || 0, profileUrl: profileUrl(id) };
 }
 
 /* ==========================================================
@@ -307,33 +308,37 @@ function sendMatchEmails(rowNum){
   const details = "<table style='border-collapse:collapse;font-size:14px;'>" + tr("Game", dt) + tr("Field", row[G.FIELD] || "TBD") +
     tr("League", row[G.LEAGUE] || "") + tr("Team", row[G.TEAM] || "") + tr("Needs", row[G.NEEDS] || "") + tr("Pay", offer) + "</table>";
 
-  // Coach email: helper's name, phone, pay apps + handle
-  confirmEmail(row[G.CEMAIL], coachName,
-    "<p>You're matched. Here is your helper:</p>" +
-    "<table style='border-collapse:collapse;font-size:14px;'>" + tr("Helper", h[H.NAME]) + tr("Phone", h[H.PHONE]) +
-    tr("Pays via", h[H.PAYAPPS] + (h[H.PAYHANDLE] ? " (" + h[H.PAYHANDLE] + ")" : "")) + tr("Skill", h[H.SKILL]) + "</table>" +
-    details +
-    "<p><strong>Do this now:</strong> text " + esc(firstName(h[H.NAME])) + " to confirm and share the GameChanger team invite. After the game, pay " + offer + " straight to their app. No cash.</p>" +
-"<p><strong>Cancellations:</strong> text " + esc(firstName(h[H.NAME])) + " at least two hours before their arrival time and you owe nothing. Later than that, including a rainout, pay them $15 that day. If the game started, pay for time worked at your rates, $15 minimum.</p>" +
-    "<p>You will get a one tap review link a few hours after first pitch. Problem before the game? Reply here" + (OWNER_CELL ? " or text us at " + OWNER_CELL : "") + ".</p>" +
-    profileLine(h[H.ID]) + statusLine(row[G.CEMAIL]),
-    "MATCHED: " + firstName(h[H.NAME]) + " is scoring your game " + dt);
-
-  // Helper email: coach's name, phone, pay app
-  confirmEmail(h[H.EMAIL], h[H.NAME],
-    "<p>You got the game. Here is your coach:</p>" +
-    "<table style='border-collapse:collapse;font-size:14px;'>" + tr("Coach", coachName) + tr("Phone", coachPhone) + tr("Pays via", coachPay) + "</table>" +
-    details +
-    "<p><strong>Do this now:</strong> text Coach " + esc(firstName(coachName)) + " to confirm. Ask for the GameChanger invite. Show up 15 minutes early, phone charged.</p>" +
-"<p><strong>Cancellations:</strong> if the coach cancels less than two hours before your arrival time, including a rainout, they owe you $15 that day. Reply here if that does not land.</p>" +
-    "<p>After the game the coach pays " + offer + " to your app. If it has not landed by the next morning, reply to this email and we handle it.</p>" + statusLine(h[H.EMAIL]),
-    "YOU'RE IN: " + dt + " with Coach " + firstName(coachName));
+  // ONE shared email: coach + helper (+ parent if minor), owner CC'd. Reply-all = group thread.
+  const isMinor = h[H.MINOR] === "YES";
+  const hFirst = esc(firstName(h[H.NAME])), cFirst = esc(firstName(coachName));
+  const recipients = [row[G.CEMAIL], h[H.EMAIL]].concat(isMinor && h[H.PEMAIL] ? [h[H.PEMAIL]] : []).filter(Boolean);
+  const who = "<table style='border-collapse:collapse;font-size:14px;'>" +
+    tr("Coach", coachName) + tr("Coach phone", coachPhone) + tr("Coach pays via", coachPay) +
+    tr("Helper", h[H.NAME]) + tr("Helper phone", h[H.PHONE]) +
+    tr("Helper gets paid via", h[H.PAYAPPS] + (h[H.PAYHANDLE] ? " (" + h[H.PAYHANDLE] + ")" : "")) +
+    (isMinor ? tr("Parent", h[H.PNAME]) + tr("Parent cell", h[H.PPHONE] || "") + tr("Parent email", h[H.PEMAIL]) : "") + "</table>";
+  const minorRules = isMinor
+    ? "<p style='background:#FFF8E1;border-left:4px solid #D7F75B;padding:10px 12px;'><strong>" + hFirst + " is under 18, so two rules:</strong><br>" +
+      "1. Group texts only. Coach, " + hFirst + ", and " + esc(firstName(h[H.PNAME]) || "parent") + " on every thread. No one-on-one texts.<br>" +
+      "2. " + hFirst + " gets to and from the field on their own or with family. Coaches never drive helpers.</p>"
+    : "";
+  const body =
+    "<p><strong>Game on.</strong> Everyone who needs to know is on this email. Reply all to keep it in one thread.</p>" +
+    who + details + minorRules +
+    "<p><strong>Coach " + cFirst + ":</strong> start a " + (isMinor ? "group " : "") + "text to confirm and share the GameChanger team invite. After the game, pay " + offer + " straight to " + hFirst + "'s app. No cash.</p>" +
+    "<p><strong>" + hFirst + ":</strong> confirm when the coach texts, accept the GameChanger invite, and show up 15 minutes early, phone charged.</p>" +
+    "<p><strong>Cancellations:</strong> coach cancels at least two hours before arrival time, nothing owed. Later than that, including a rainout, $15 that day. If the game started, pay for time worked at the agreed rates, $15 minimum.</p>" +
+    "<p>Review links go out a few hours after first pitch. Problem? Reply all" + (OWNER_CELL ? " or text us at " + OWNER_CELL : "") + ".</p>" +
+    profileLine(h[H.ID]) + "<p style='font-size:13px;color:#666;'>Both of you can see this game any time at <a href='" + SITE_BASE_URL + "/me.html'>gamedayhelpers.com/me.html</a> (enter your email for a private link).</p>";
+  MailApp.sendEmail({ to: recipients.join(","), cc: OWNER_EMAIL, name: "GameDay Helpers",
+    subject: "GAME ON: " + firstName(h[H.NAME]) + " + Coach " + firstName(coachName) + ", " + dt,
+    htmlBody: brandWrap("team", body) });
 
   g.getRange(rowNum, G.STATUS + 1).setValue("MATCHED");
   g.getRange(rowNum, G.MATCHSENT + 1).setValue(new Date());
   g.getRange(rowNum, G.HNAME + 1).setValue(h[H.NAME]);
   g.getRange(rowNum, G.HEMAIL + 1).setValue(h[H.EMAIL]);
-  return "Match emails sent to " + coachName + " and " + h[H.NAME] + ".";
+  return "Match email sent to " + coachName + ", " + h[H.NAME] + (isMinor ? ", and parent " + h[H.PNAME] : "") + ".";
 }
 
 /* ==========================================================
@@ -577,7 +582,7 @@ function renderProfile(helperId) {
 
   const body =
     "<div class='phead'><div class='pname'>" + esc(name) + "</div><span class='pskill'>" + esc(skill) + "</span>" +
-    (founder ? "<span class='pskill' style='background:#fff;color:#172B4D;margin-left:8px;'>&#9733; Founding Helper #" + esc(founder) + "</span>" : "") + "</div>" +
+    (founder ? "<span class='pskill' style='background:#102A43;color:#D7F75B;border:2px solid #D7F75B;margin-left:8px;box-shadow:0 0 0 3px rgba(215,247,91,.25);'>&#9733; Founding 50 &middot; #" + esc(founder) + "</span>" : "") + "</div>" +
     "<div class='pbody'>" +
       section("Sports scored", tags(sports)) +
       section("Leagues served", tags(leagues)) +
@@ -616,16 +621,36 @@ function profileShell(body){
 /* ==========================================================
  *  EMAIL COPY
  * ========================================================== */
+const HELPER_SHARE_URL = SITE_BASE_URL + "/helper.html?ref=share";
+const BETA_TIMELINE = "Beta games: late fall to early winter 2026. Full launch: 2027.";
+
+function founderBadgeEmail(n){
+  return "<table role='presentation' cellpadding='0' cellspacing='0' align='center' style='margin:6px auto 18px;border-collapse:separate;'><tr><td style='background:#102A43;border:3px solid #D7F75B;border-radius:18px;padding:18px 34px;text-align:center;'>" +
+    "<div style='color:#D7F75B;font-size:12px;font-weight:bold;letter-spacing:3px;'>&#9733; FOUNDING 50 &#9733;</div>" +
+    "<div style='color:#ffffff;font-family:Impact,Arial Narrow,Arial,sans-serif;font-size:56px;line-height:1;margin:6px 0 4px;'>#" + esc(n) + "</div>" +
+    "<div style='display:inline-block;background:#1747C8;color:#fff;font-size:11px;font-weight:bold;letter-spacing:2px;padding:5px 12px;border-radius:999px;'>GAMEDAY HELPERS &middot; TAMPA BAY</div>" +
+    "</td></tr></table>";
+}
+function shareButtonEmail(){
+  const subj = "I just joined GameDay Helpers";
+  const body = "Hey! I just signed up as a Founding Helper with GameDay Helpers. Local youth baseball and softball coaches pay helpers to keep score and run GameChanger at games, usually $35+ for a two hour game. Only 50 founding spots. Grab one here: " + HELPER_SHARE_URL;
+  const href = "mailto:?subject=" + encodeURIComponent(subj) + "&body=" + encodeURIComponent(body);
+  return "<p style='text-align:center;margin:20px 0 6px;'><a href='" + href + "' style='background:#D7F75B;color:#102A43;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:10px;display:inline-block;'>Invite a friend to the Founding 50</a></p>" +
+    "<p style='text-align:center;font-size:13px;color:#666;margin-top:0;'>Or send them this link: <a href='" + HELPER_SHARE_URL + "'>" + HELPER_SHARE_URL + "</a></p>";
+}
 function helperWelcomeBody(name, id, isMinor, founder){
-  const f = founder ? "<p style='background:#EEF3FF;border:1.5px solid #1747C8;border-radius:10px;padding:12px;'><strong>&#9733; Founding Helper #" + founder + ".</strong> Only 50 exist. It is on your profile for good.</p>" : "";
-  const next = isMinor
-    ? "<p><strong>One step left:</strong> we just emailed your parent or guardian a one tap approval. Nudge them. The second they approve, you are active.</p>"
-    : "<p><strong>You are active.</strong> Nothing to do now. Once matching opens and a coach in one of your leagues needs a scorekeeper, you get an email with the date, field, and pay. Say yes to the ones you want, skip the rest.</p>";
-  return f + next +
-    "<p><strong>How pay works:</strong> the coach pays you straight to your app after the game. Two hour offers start at $35, set by the coach, and GameDay Helpers takes none of it. No cash, ever.</p>" +
-    "<p><strong>Three things that get you rebooked:</strong> show up 15 minutes early, phone charged, and text the coach the day before to confirm.</p>" +
-    profileLine(id) +
-    "<p>Know another kid or parent who can run GameChanger? Forward this. Founding spots are going.</p>";
+  const f = founder
+    ? founderBadgeEmail(founder) +
+      "<p><strong>You are one of the Founding 50.</strong> Your number is locked to your profile for good.</p>" +
+      "<p><strong>What happens next:</strong> once we reach 50 helpers, we start connecting you with coaches who need you at games. Not before. Every share gets us there faster.</p>"
+    : "<p><strong>You are on the team.</strong> We will email you when coaches in your leagues need a helper.</p>";
+  const timeline = "<p style='background:#F7F9FC;border-left:4px solid #1747C8;padding:10px 12px;'><strong>Timeline:</strong> " + BETA_TIMELINE + "</p>";
+  const minor = isMinor
+    ? "<p><strong>One step left:</strong> we just emailed your parent or guardian a one tap approval. Nudge them. The second they approve, you are active.</p>" : "";
+  return f + minor + timeline +
+    "<p><strong>How pay works:</strong> the coach pays you straight to your app after the game. Two hour offers start at $35, set by the coach. No cash, ever.</p>" +
+    shareButtonEmail() +
+    profileLine(id);
 }
 function coachWelcomeBody(name, founder){
   const f = founder ? "<p style='background:#EEF3FF;border:1.5px solid #1747C8;border-radius:10px;padding:12px;'><strong>&#9733; Founding Coach #" + founder + ".</strong> One of the first 50 in Tampa Bay. Free for you for the whole beta.</p>" : "";

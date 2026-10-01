@@ -29,14 +29,39 @@
 <a class="skip-link" href="#main">Skip to content</a>
 
 <div class="takeover" id="takeover" role="region" aria-label="Confirmation" aria-live="polite">
-  <div class="check" aria-hidden="true">OK</div>
-  <h1>Profile<span class="o">created.</span></h1>
-  <p id="takeoverMsg">Check your email for your confirmation and profile link. Game offers start once matching opens at 50 helpers.</p>
-  <div class="inbox">Check your inbox for a confirmation email</div>
-  <div class="sub">You coach. We score.</div>
+  <div class="f50" id="f50" aria-hidden="true">
+    <svg viewBox="0 0 220 250" width="200" height="228">
+      <defs>
+        <linearGradient id="f50g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1747C8"/><stop offset="1" stop-color="#0b1f38"/></linearGradient>
+        <linearGradient id="f50r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F2FFB8"/><stop offset=".5" stop-color="#D7F75B"/><stop offset="1" stop-color="#9DBB2A"/></linearGradient>
+      </defs>
+      <path d="M110 8 L200 40 V120 C200 178 160 216 110 240 C60 216 20 178 20 120 V40 Z" fill="url(#f50g)" stroke="url(#f50r)" stroke-width="7"/>
+      <path d="M110 24 L186 51 V120 C186 170 152 202 110 223 C68 202 34 170 34 120 V51 Z" fill="none" stroke="#D7F75B" stroke-opacity=".35" stroke-width="1.5" stroke-dasharray="4 5"/>
+      <g fill="#D7F75B"><path d="M110 44l4.7 9.5 10.5 1.5-7.6 7.4 1.8 10.4-9.4-4.9-9.4 4.9 1.8-10.4-7.6-7.4 10.5-1.5z"/></g>
+      <text x="110" y="100" text-anchor="middle" fill="#D7F75B" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="17" letter-spacing="4">FOUNDING 50</text>
+      <text id="f50num" x="110" y="168" text-anchor="middle" fill="#fff" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="72">&#9733;</text>
+      <rect x="44" y="184" width="132" height="24" rx="12" fill="#D7F75B"/>
+      <text x="110" y="201" text-anchor="middle" fill="#102A43" font-family="Inter, Arial, sans-serif" font-weight="700" font-size="11" letter-spacing="2">TAMPA BAY &middot; 2026</text>
+    </svg>
+  </div>
+  <h1 id="takeoverTitle">You're a <span class="o">Founding Helper.</span></h1>
+  <p id="takeoverMsg">You are one of the Founding 50. Once we reach 50 helpers, we start connecting you with coaches who need you at games. Not before.</p>
+  <div class="tl" aria-label="Launch timeline">
+    <div class="tl-step done"><span class="dot"></span><b>Now</b><small>Founding 50 signup</small></div>
+    <div class="tl-step"><span class="dot"></span><b>Late fall / early winter</b><small>Beta games start</small></div>
+    <div class="tl-step"><span class="dot"></span><b>2027</b><small>Full launch</small></div>
+  </div>
+  <div class="share-box">
+    <div class="share-h">Get us to 50 faster. Invite a friend.</div>
+    <div class="actions share-actions">
+      <a class="tbtn tbtn-orange" id="shareEmail" href="#">Email a friend</a>
+      <a class="tbtn tbtn-ghost" id="shareText" href="#">Text a friend</a>
+      <button class="tbtn tbtn-ghost" id="shareCopy" type="button">Copy link</button>
+    </div>
+  </div>
+  <div class="inbox">Check your inbox for your confirmation and badge</div>
   <div class="actions">
-    <a class="tbtn tbtn-orange" href="index.html">Back to Home</a>
-    <button class="tbtn tbtn-ghost" onclick="document.getElementById('takeover').classList.remove('show')">Done</button>
+    <a class="tbtn tbtn-ghost" href="index.html">Back to Home</a>
   </div>
 </div>
 
@@ -118,6 +143,11 @@
         <div class="field mb-4">
           <label for="h_parent_name">Parent / guardian name <span class="req">*</span></label>
           <input type="text" id="h_parent_name">
+        </div>
+        <div class="field mb-4">
+          <label for="h_parent_phone">Parent / guardian cell <span class="req">*</span></label>
+          <input type="tel" id="h_parent_phone" autocomplete="off">
+          <div class="hint">Shared only with your matched coach, so they can group text you and your parent.</div>
         </div>
         <div class="field mb-0">
           <label for="h_parent_email">Parent / guardian email <span class="req">*</span></label>
@@ -261,6 +291,26 @@
     document.getElementById('parentBlock').style.display = (a >= 14 && a < 18) ? 'block' : 'none';
   });
 
+  const SHARE_URL="https://gamedayhelpers.com/helper.html?ref=share";
+  const SHARE_MSG="Hey! I just signed up as a Founding Helper with GameDay Helpers. Local youth baseball and softball coaches pay helpers to keep score and run GameChanger at games, usually $35+ for a two hour game. Only 50 founding spots. Grab one here: "+SHARE_URL;
+  function getSource(){
+    try{const r=new URLSearchParams(location.search).get('ref');if(r)sessionStorage.setItem('gdh_ref',r);return r||sessionStorage.getItem('gdh_ref')||'direct';}catch(e){return 'direct';}
+  }
+  getSource();
+  function showFounder(n,isMinor){
+    const minorLine=isMinor?" First, your parent or guardian needs to tap the approval link we just emailed them.":"";
+    if(n>0){
+      document.getElementById('f50num').textContent='#'+n;
+      document.getElementById('takeoverTitle').innerHTML='Founding Helper <span class="o">#'+n+'.</span>';
+    }
+    document.getElementById('takeoverMsg').textContent="You are one of the Founding 50. Once we reach 50 helpers, we start connecting you with coaches who need you at games. Not before."+minorLine;
+  }
+  document.getElementById('shareEmail').href="mailto:?subject="+encodeURIComponent("I just joined GameDay Helpers")+"&body="+encodeURIComponent(SHARE_MSG);
+  document.getElementById('shareText').href="sms:?&body="+encodeURIComponent(SHARE_MSG);
+  document.getElementById('shareCopy').addEventListener('click',async function(){
+    try{await navigator.clipboard.writeText(SHARE_MSG);this.textContent='Copied!';}catch(e){prompt('Copy this:',SHARE_MSG);}
+  });
+
   async function submitHelper(){
     const name=document.getElementById('h_name').value.trim();
     const age=document.getElementById('h_age').value.trim();
@@ -279,6 +329,7 @@
     const isMinor = ageNum>=14 && ageNum<18;
     const parentName=document.getElementById('h_parent_name').value.trim();
     const parentEmail=document.getElementById('h_parent_email').value.trim();
+    const parentPhone=document.getElementById('h_parent_phone').value.trim();
     const ckPhone=document.getElementById('ck_phone').checked;
     const ckTruth=document.getElementById('ck_truth').checked;
     const ckTerms=document.getElementById('ck_terms').checked;
@@ -295,19 +346,26 @@
     if(!skill){showErr('h_err','Pick your skill level.');return;}
     if(!payApps){showErr('h_err','Pick the app you want to be paid through.');return;}
     if(!payHandle){showErr('h_err','Add your handle on that app so a matched coach can pay you.');document.getElementById('h_payhandle').focus();return;}
-    if(isMinor && (!parentName || !parentEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(parentEmail))){showErr('h_err','Since you are under 18, add a parent or guardian name and a valid email.');document.getElementById('h_parent_name').focus();return;}
+    if(isMinor && (!parentName || !parentPhone || !parentEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(parentEmail))){showErr('h_err','Since you are under 18, add a parent or guardian name, cell, and a valid email.');document.getElementById('h_parent_name').focus();return;}
     if(!ckPhone || !ckTruth || !ckTerms){showErr('h_err','Please check all three boxes to continue.');return;}
 
     const btn=document.getElementById('h_submit');btn.disabled=true;btn.textContent='Sending...';
     const payload={type:'HELPER',name,age,email,phone,leagues,sports,roles,skill,priorGames:prior,
-      availability:avail,notes,payApps,payHandle,isMinor,parentName,parentEmail,
+      availability:avail,notes,payApps,payHandle,isMinor,parentName,parentEmail,parentPhone,
       agreePhone:ckPhone,agreeTruth:ckTruth,agreeTerms:ckTerms,
-      submittedAt:new Date().toISOString()};
+      submittedAt:new Date().toISOString(),source:getSource()};
     try{
-      await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-      if(isMinor){
-        document.getElementById('takeoverMsg').textContent="Almost there. We just emailed your parent or guardian a one-tap approval. You are active once they confirm. Game offers start once matching opens at 50 helpers.";
+      let founder=0;
+      try{
+        const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+        const j=await r.json();
+        if(j.result==='error'){btn.disabled=false;btn.textContent='Create my profile';showErr('h_err',j.message||'Something went wrong. Please try again.');return;}
+        founder=Number(j.founder)||0;
+      }catch(readErr){
+        // Response unreadable (CORS). Backend dedupes by email, so a blind resend is safe.
+        await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
       }
+      showFounder(founder,isMinor);
       document.getElementById('helperCard').style.display='none';
       document.getElementById('takeover').classList.add('show');
       window.scrollTo({top:0,behavior:'smooth'});
