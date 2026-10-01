@@ -308,11 +308,13 @@
     steps.push({ t: matched ? 'Matched' : 'Needs a helper', k: matched ? 'on' : 'wait' });
     if (matched && h && h.minor) steps.push({ t: h.consent === 'APPROVED' ? 'Parent approved' : 'Parent consent missing', k: h.consent === 'APPROVED' ? 'on' : 'bad' });
     if (matched) steps.push({ t: 'Match email sent', k: g.matchSent ? 'on' : 'wait' });
+    if (matched) { const c = coachOf(g.coachEmail); const link = g.gcLink || (c && c.gcLink); steps.push({ t: link ? 'GameChanger link' : 'No GameChanger link', k: link ? 'on' : 'bad' }); }
     if (matched) steps.push({ t: played ? 'Game played' : 'Game ' + fmtHours(hoursUntil(g.when)) + ' away', k: played ? 'on' : '' });
     if (matched && played) steps.push({ t: g.reviewSent ? 'Review links sent' : 'Review links pending', k: g.reviewSent ? 'on' : 'wait' });
     if (matched && played && g.reviewSent) steps.push({ t: reviews.length ? reviews.length + ' review' + (reviews.length > 1 ? 's' : '') + ' in' : 'No reviews yet', k: reviews.length ? 'on' : 'wait' });
     const allDone = matched && played && g.reviewSent && reviews.length;
-    const color = !matched ? 'yellow' : (matched && h && h.minor && h.consent !== 'APPROVED') ? 'red' : allDone ? 'green' : '';
+    const noLink = matched && !(g.gcLink || (coachOf(g.coachEmail) || {}).gcLink);
+    const color = !matched ? 'yellow' : ((h && h.minor && h.consent !== 'APPROVED') || noLink) ? 'red' : allDone ? 'green' : '';
     return { steps, color, h };
   }
   function inFilter(g){
@@ -346,6 +348,7 @@
       const td5 = el('td'); const st = el('div', 'steps-track'); steps.forEach(x => st.appendChild(el('span', 'stp ' + x.k, (x.k === 'on' ? '\u2713 ' : x.k === 'bad' ? '\u2717 ' : x.k === 'wait' ? '\u25cb ' : '') + x.t))); td5.appendChild(st); tr.appendChild(td5);
       const td6 = el('td'); const act = el('div', 'act');
       if (g.status === 'OPEN') { const b = el('button', 'btn btn-orange', 'Pick helper'); b.type = 'button'; b.onclick = () => { const card = document.getElementById('card-' + g.id); if (card) card.scrollIntoView({ behavior: 'smooth' }); }; act.appendChild(b); }
+      if (g.status !== 'CANCELLED' && g.status !== 'DONE') { const b = el('button', 'btn btn-dark', (g.gcLink || (coachOf(g.coachEmail) || {}).gcLink) ? 'Change GC link' : 'Add GC link'); b.type = 'button'; b.onclick = () => doGcLink(g, b); act.appendChild(b); }
       if (h && g.status !== 'CANCELLED') { const b = el('button', 'btn btn-dark', 'Resend match email'); b.type = 'button'; b.onclick = () => doResend(g, b); act.appendChild(b); }
       if (g.status !== 'CANCELLED' && g.status !== 'DONE') { const b = el('button', 'btn btn-dark', 'Cancel game'); b.type = 'button'; b.onclick = () => doCancel(g, b); act.appendChild(b); }
       td6.appendChild(act); tr.appendChild(td6);
@@ -355,6 +358,7 @@
   function statusPillText(s){ return s === 'OPEN' ? 'Open' : s === 'MATCHED' ? 'Matched' : s === 'DONE' ? 'Done' : s === 'UNFILLED' ? 'Unfilled' : s === 'CANCELLED' ? 'Cancelled' : s; }
   async function doResend(g, btn){ if (!confirm('Resend the match email for ' + g.whenText + '?')) return; btn.disabled = true; try { const r = await post({ type: 'RESEND', gameId: g.id }); setStatus(r.message, r.result !== 'success'); await load(); } catch (e) { setStatus('Request failed.', true); btn.disabled = false; } }
   async function doCancel(g, btn){ const reason = prompt('Cancel ' + g.whenText + '. Reason (goes in the email, optional):'); if (reason === null) return; btn.disabled = true; try { const r = await post({ type: 'CANCEL', gameId: g.id, reason }); setStatus(r.message, r.result !== 'success'); await load(); } catch (e) { setStatus('Request failed.', true); btn.disabled = false; } }
+  async function doGcLink(g, btn){ const link = prompt('GameChanger team link for ' + g.whenText + ':', g.gcLink || ''); if (!link) return; btn.disabled = true; try { const r = await post({ type: 'GCLINK', gameId: g.id, gcLink: link.trim() }); setStatus(r.message, r.result !== 'success'); await load(); } catch (e) { setStatus('Request failed.', true); btn.disabled = false; } }
   async function doNote(g, needs, btn){ btn.disabled = true; btn.textContent = 'Saving'; try { const r = await post({ type: 'NOTE', gameId: g.id, needs }); setStatus(r.message, r.result !== 'success'); g.needs = needs; } catch (e) { setStatus('Request failed.', true); } btn.disabled = false; btn.textContent = 'Save'; }
 
   /* ---------- time helpers ---------- */

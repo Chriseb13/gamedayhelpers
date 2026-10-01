@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v19 - dashboard games table: cancel, resend, edit needs (Oct 1, 2026)
+ *  v20 - GameChanger team link on coaches and games (Oct 1, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -34,10 +34,10 @@ const HELPER_COLS = ["Submitted","HelperID","Name","Age (private)","Email","Phon
   "PayApps","PayHandle (private)","Minor?","ParentName","ParentEmail","ConsentStatus","ConsentToken",
   "Founder#","AgreedTerms","AccessToken","Source","ParentPhone"];
 const COACH_COLS  = ["Submitted","Name","Email","Phone","Team","Leagues","Notes","Contacted?",
-  "PayApps","PayHandle (private)","Founder#","AccessToken"];
+  "PayApps","PayHandle (private)","Founder#","AccessToken","GCLink"];
 const GAME_COLS   = ["GameID","DateTime","Sport","Field","CoachName","CoachEmail",
   "HelperID","HelperName","HelperEmail","ReviewSent",
-  "Needs","League","Team","CoachPhone","FirstRate","AddlRate","Length","Offer","Status","MatchSent","Requested"];
+  "Needs","League","Team","CoachPhone","FirstRate","AddlRate","Length","Offer","Status","MatchSent","Requested","GCLink"];
 const LEAGUE_COLS = ["Submitted","Name","Org","Email","Phone","Notes","Contacted?"];
 const REVIEW_COLS = ["Submitted","GameID","RevieweeID","RevieweeRole","ReviewerRole","Stars","Comment"];
 
@@ -45,9 +45,9 @@ const REVIEW_COLS = ["Submitted","GameID","RevieweeID","RevieweeRole","ReviewerR
 const H = {ID:1,NAME:2,AGE:3,EMAIL:4,PHONE:5,LEAGUES:6,SPORTS:7,ROLES:8,SKILL:9,PRIOR:10,GDH:11,
   AVG:12,COUNT:13,AVAIL:14,NOTES:15,APPROVED:16,PAYAPPS:17,PAYHANDLE:18,MINOR:19,PNAME:20,PEMAIL:21,
   CONSENT:22,TOKEN:23,FOUNDER:24,ACCESS:26,SOURCE:27,PPHONE:28};
-const C = {SUB:0,NAME:1,EMAIL:2,PHONE:3,TEAM:4,LEAGUES:5,NOTES:6,CONTACTED:7,PAYAPPS:8,PAYHANDLE:9,FOUNDER:10,ACCESS:11};
+const C = {SUB:0,NAME:1,EMAIL:2,PHONE:3,TEAM:4,LEAGUES:5,NOTES:6,CONTACTED:7,PAYAPPS:8,PAYHANDLE:9,FOUNDER:10,ACCESS:11,GCLINK:12};
 const G = {ID:0,DT:1,SPORT:2,FIELD:3,CNAME:4,CEMAIL:5,HID:6,HNAME:7,HEMAIL:8,REVSENT:9,
-  NEEDS:10,LEAGUE:11,TEAM:12,CPHONE:13,FIRST:14,ADDL:15,LEN:16,OFFER:17,STATUS:18,MATCHSENT:19,REQ:20};
+  NEEDS:10,LEAGUE:11,TEAM:12,CPHONE:13,FIRST:14,ADDL:15,LEN:16,OFFER:17,STATUS:18,MATCHSENT:19,REQ:20,GCLINK:21};
 
 /* ==========================================================
  *  ROUTER
@@ -73,6 +73,7 @@ function doPost(e) {
     else if (type === "CANCEL")      out = adminCancel(data);
     else if (type === "RESEND")      out = adminResend(data);
     else if (type === "NOTE")        out = adminNote(data);
+    else if (type === "GCLINK")      out = adminGcLink(data);
     else                             out = { result: "error", message: "Unknown type" };
     return json(out);
   } catch (err) {
@@ -100,6 +101,7 @@ function doGet(e) {
  * ========================================================== */
 function clean(v, max){ return String(v == null ? "" : v).trim().slice(0, max || 300); }
 function validEmail(s){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s); }
+function cleanUrl(s){ s = clean(s, 300); return /^https?:\/\/\S+$/i.test(s) ? s : ""; }
 function cleanPhone(s){ return clean(s, 30).replace(/[^\d+()\-.\s]/g,""); }
 function need(cond, msg){ if(!cond){ const e = new Error(msg); e.validation = true; throw e; } }
 
@@ -167,7 +169,7 @@ function handleCoach(d) {
   }
   const founder = nextFounderNumber(sheet, 10);
   sheet.appendRow([new Date(), name, email, phone, clean(d.team, 80), clean(d.leagues), clean(d.notes, 1000), "NO",
-    clean(d.payApps), clean(d.payHandle, 80), founder || "", Utilities.getUuid()]);
+    clean(d.payApps), clean(d.payHandle, 80), founder || "", Utilities.getUuid(), cleanUrl(d.gcLink)]);
 
   confirmEmail(email, name, coachWelcomeBody(name, founder) + statusLine(email), "You're in. Here's how to get a scorekeeper");
   alertOwner("COACH", name, clean(d.leagues),
@@ -188,13 +190,14 @@ function handleGameRequest(d) {
   const coaches = tab("Coaches", COACH_COLS);
   const c = findRowByEmail(coaches, C.EMAIL, email);
   const coachName = c ? c.row[C.NAME] : "", team = c ? c.row[C.TEAM] : "", league = c ? c.row[C.LEAGUES] : "", cphone = c ? c.row[C.PHONE] : "";
+  const gcLink = cleanUrl(d.gcLink) || (c ? String(c.row[C.GCLINK] || "") : "");
 
   const games = tab("Games", GAME_COLS);
   const gameId = "G" + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyMMdd") + "-" + Math.random().toString(36).slice(2,6).toUpperCase();
   const dt = new Date(clean(d.datetime));
   games.appendRow([gameId, isNaN(dt.getTime()) ? clean(d.datetime) : dt, "", clean(d.field, 120), coachName, email,
     "", "", "", "",
-    clean(d.notes), league, team, cphone, num(d.firstRate), num(d.addlRate), clean(d.length, 5), clean(d.offer, 10), "OPEN", "", new Date()]);
+    clean(d.notes), league, team, cphone, num(d.firstRate), num(d.addlRate), clean(d.length, 5), clean(d.offer, 10), "OPEN", "", new Date(), gcLink]);
 
   const when = isNaN(dt.getTime()) ? clean(d.datetime) : Utilities.formatDate(dt, Session.getScriptTimeZone(), "EEE MMM d, h:mm a");
   const body =
@@ -206,6 +209,7 @@ function handleGameRequest(d) {
     "<p><strong>What happens next:</strong> We look for an available helper from your league. A helper is not confirmed yet. If one accepts, you will get one email with your helper's name, phone, and payment app. Then you two text each other and lock it in.</p>" +
     "<p>Pay your helper directly after the game, app to app. No cash.</p>" +
     (c ? "" : "<p style='color:#b45309;'><strong>Heads up:</strong> we could not find a coach profile under this email. Take 60 seconds and <a href='" + SITE_BASE_URL + "/coaches.html'>create one</a> so we can match you faster.</p>") +
+    (gcLink ? "" : "<p style='color:#b45309;'><strong>One thing missing:</strong> we do not have a GameChanger team link for this game. Reply to this email with it so your helper can join the team before first pitch.</p>") +
     "<p>Need to change anything? Reply to this email.</p>" + statusLine(email);
   confirmEmail(email, coachName || "Coach", body, "Helper request received: " + when);
 
@@ -320,6 +324,12 @@ function sendMatchEmails(rowNum){
     tr("Helper", h[H.NAME]) + tr("Helper phone", h[H.PHONE]) +
     tr("Helper gets paid via", h[H.PAYAPPS] + (h[H.PAYHANDLE] ? " (" + h[H.PAYHANDLE] + ")" : "")) +
     (isMinor ? tr("Parent", h[H.PNAME]) + tr("Parent cell", h[H.PPHONE] || "") + tr("Parent email", h[H.PEMAIL]) : "") + "</table>";
+  const gcLink = String(row[G.GCLINK] || (cr ? cr.row[C.GCLINK] : "") || "");
+  const gcBlock = gcLink
+    ? "<p style='background:#EEF3FF;border-left:4px solid #1747C8;padding:10px 12px;'><strong>GameChanger access, do this today:</strong><br>" +
+      "1. " + hFirst + ": tap <a href='" + gcLink + "'>this team link</a> and request to follow the team.<br>" +
+      "2. Coach " + cFirst + ": in GameChanger open the team, go to Staff, and make " + hFirst + " a scorekeeper. Never share your password.</p>"
+    : "<p style='background:#FFF8E1;border-left:4px solid #D7F75B;padding:10px 12px;'><strong>GameChanger access:</strong> Coach " + cFirst + ", reply all with your team's GameChanger link so " + hFirst + " can follow the team, then add them as a scorekeeper under Staff.</p>";
   const minorRules = isMinor
     ? "<p style='background:#FFF8E1;border-left:4px solid #D7F75B;padding:10px 12px;'><strong>" + hFirst + " is under 18, so two rules:</strong><br>" +
       "1. Group texts only. Coach, " + hFirst + ", and " + esc(firstName(h[H.PNAME]) || "parent") + " on every thread. No one-on-one texts.<br>" +
@@ -327,7 +337,7 @@ function sendMatchEmails(rowNum){
     : "";
   const body =
     "<p><strong>Game on.</strong> Everyone who needs to know is on this email. Reply all to keep it in one thread.</p>" +
-    who + details + minorRules +
+    who + details + minorRules + gcBlock +
     "<p><strong>Coach " + cFirst + ":</strong> start a " + (isMinor ? "group " : "") + "text to confirm and share the GameChanger team invite. After the game, pay " + offer + " straight to " + hFirst + "'s app. No cash.</p>" +
     "<p><strong>" + hFirst + ":</strong> confirm when the coach texts, accept the GameChanger invite, and show up 15 minutes early, phone charged.</p>" +
     "<p><strong>Cancellations:</strong> coach cancels at least two hours before arrival time, nothing owed. Later than that, including a rainout, $15 that day. If the game started, pay for time worked at the agreed rates, $15 minimum.</p>" +
@@ -384,7 +394,7 @@ function statusData(token){
     for (let i = 1; i < gRows.length; i++) { const r = gRows[i]; if (String(r[G.HID]) !== String(h[H.ID])) continue;
       const matched = r[G.STATUS] === "MATCHED" || r[G.STATUS] === "DONE";
       const cr2 = findRowByEmail(cs, C.EMAIL, String(r[G.CEMAIL]).toLowerCase());
-      out.helper.games.push({ id: r[G.ID], when: fmt(r[G.DT]), whenIso: r[G.DT] instanceof Date ? r[G.DT].toISOString() : "", field: r[G.FIELD], league: r[G.LEAGUE], team: r[G.TEAM], needs: r[G.NEEDS], offer: r[G.OFFER], status: r[G.STATUS],
+      out.helper.games.push({ gcLink: matched ? String(r[G.GCLINK] || (cr2 ? cr2.row[C.GCLINK] : "") || "") : "", id: r[G.ID], when: fmt(r[G.DT]), whenIso: r[G.DT] instanceof Date ? r[G.DT].toISOString() : "", field: r[G.FIELD], league: r[G.LEAGUE], team: r[G.TEAM], needs: r[G.NEEDS], offer: r[G.OFFER], status: r[G.STATUS],
         coach: matched ? { name: r[G.CNAME] || (cr2 ? cr2.row[C.NAME] : ""), phone: r[G.CPHONE] || (cr2 ? cr2.row[C.PHONE] : ""), payApps: cr2 ? cr2.row[C.PAYAPPS] : "" } : null }); }
   }
   if (cr) {
@@ -394,7 +404,7 @@ function statusData(token){
       const matched = r[G.STATUS] === "MATCHED" || r[G.STATUS] === "DONE";
       let helper = null;
       if (matched && r[G.HID]) { const h2 = findRowByValue(hs, H.ID, r[G.HID]); if (h2) helper = { name: h2.row[H.NAME], phone: h2.row[H.PHONE], payApps: h2.row[H.PAYAPPS], payHandle: h2.row[H.PAYHANDLE], profileUrl: profileUrl(h2.row[H.ID]) }; }
-      out.coach.games.push({ id: r[G.ID], when: fmt(r[G.DT]), whenIso: r[G.DT] instanceof Date ? r[G.DT].toISOString() : "", field: r[G.FIELD], needs: r[G.NEEDS], offer: r[G.OFFER], status: r[G.STATUS], helper: helper }); }
+      out.coach.games.push({ gcLink: String(r[G.GCLINK] || c[C.GCLINK] || ""), id: r[G.ID], when: fmt(r[G.DT]), whenIso: r[G.DT] instanceof Date ? r[G.DT].toISOString() : "", field: r[G.FIELD], needs: r[G.NEEDS], offer: r[G.OFFER], status: r[G.STATUS], helper: helper }); }
   }
   return out;
 }
@@ -418,7 +428,7 @@ function adminBoard(key){
       whenText: isNaN(dt.getTime()) ? String(r[G.DT]) : Utilities.formatDate(dt, tz, "EEE MMM d, h:mm a"),
       field: r[G.FIELD], coach: r[G.CNAME], coachEmail: r[G.CEMAIL], coachPhone: r[G.CPHONE], league: r[G.LEAGUE], team: r[G.TEAM],
       needs: r[G.NEEDS], offer: r[G.OFFER], length: r[G.LEN], status: r[G.STATUS] || "OPEN", helperId: r[G.HID], helperName: r[G.HNAME],
-      reviewSent: r[G.REVSENT] instanceof Date ? r[G.REVSENT].toISOString() : "" });
+      reviewSent: r[G.REVSENT] instanceof Date ? r[G.REVSENT].toISOString() : "", gcLink: String(r[G.GCLINK] || "") });
   }
   const hRows = tab("Helpers", HELPER_COLS).getDataRange().getValues();
   const helpers = [];
@@ -435,7 +445,7 @@ function adminBoard(key){
   for (let i = 1; i < cRows.length; i++) {
     const c = cRows[i]; if (!c[C.EMAIL]) continue;
     coaches.push({ row: i + 1, name: c[C.NAME], email: String(c[C.EMAIL]).toLowerCase(), phone: c[C.PHONE], team: c[C.TEAM], leagues: String(c[C.LEAGUES] || ""),
-      submitted: c[C.SUB] instanceof Date ? c[C.SUB].toISOString() : "", contacted: c[C.CONTACTED], founder: c[C.FOUNDER] || "", payApps: c[C.PAYAPPS] });
+      submitted: c[C.SUB] instanceof Date ? c[C.SUB].toISOString() : "", contacted: c[C.CONTACTED], founder: c[C.FOUNDER] || "", payApps: c[C.PAYAPPS], gcLink: String(c[C.GCLINK] || "") });
   }
   const lRows = tab("Leagues", LEAGUE_COLS).getDataRange().getValues();
   const leagues = [];
@@ -498,6 +508,15 @@ function adminNote(d){
   if (!gr) return { result: "error", message: "Game not found" };
   g.getRange(gr.index, G.NEEDS + 1).setValue(clean(d.needs, 500));
   return { result: "success", message: "Saved" };
+}
+function adminGcLink(d){
+  if (!adminOk(d.key)) return { result: "error", message: "Bad key" };
+  const g = tab("Games", GAME_COLS);
+  const gr = findRowByValue(g, G.ID, clean(d.gameId, 40));
+  if (!gr) return { result: "error", message: "Game not found" };
+  const link = cleanUrl(d.gcLink); if (!link) return { result: "error", message: "Paste a full https:// link" };
+  g.getRange(gr.index, G.GCLINK + 1).setValue(link);
+  return { result: "success", message: "GameChanger link saved" };
 }
 function adminUnfill(d){
   if (!adminOk(d.key)) return { result: "error", message: "Bad key" };

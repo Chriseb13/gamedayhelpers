@@ -128,6 +128,11 @@
       </div>
 
       <div class="field">
+        <label for="g_gclink">GameChanger team link <span class="hint hint-inline">(if not on your profile)</span></label>
+        <input type="url" id="g_gclink" inputmode="url" placeholder="https://gc.com/t/...">
+        <div class="hint">Your helper follows the team with this link, then you make them a scorekeeper under Staff. Leave blank if you added it when you registered.</div>
+      </div>
+      <div class="field">
         <label for="g_details">Anything else your helper should know? <span class="hint hint-inline">(optional)</span></label>
         <textarea id="g_details" maxlength="200" rows="3" placeholder="Gate code, which dugout, scorebook or app only, parking, etc."></textarea>
         <div class="hint"><span id="g_count">0</span>/200</div>
@@ -194,6 +199,7 @@
     const datetime=document.getElementById('g_datetime').value.trim();
     const needs=getChecked('g_needs');
     const details=document.getElementById('g_details').value.trim().slice(0,200);
+    const gcLink=document.getElementById('g_gclink').value.trim();
     const field=document.getElementById('g_field').value.trim();
     const firstRate=checkedVal('first');
     const addlRate=checkedVal('addl');
@@ -204,9 +210,10 @@
     if(!datetime){showErr('Pick the game date and first pitch time.');document.getElementById('g_datetime').focus();return;}
     if(!needs){showErr('Pick at least one thing you need.');return;}
     if(!field){showErr('Add the park and field number.');document.getElementById('g_field').focus();return;}
+    if(gcLink && !/^https?:\/\/\S+$/i.test(gcLink)){showErr('The GameChanger link should start with https://');document.getElementById('g_gclink').focus();return;}
     const btn=document.getElementById('g_submit');btn.disabled=true;btn.textContent='Sending...';
     const payload={type:'GAMEREQUEST',coachEmail,datetime,notes:needs+(details?' | Notes: '+details:''),field,
-      firstRate,addlRate,length,offer};
+      firstRate,addlRate,length,offer,gcLink};
     try{
       await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
       document.getElementById('gameCard').style.display='none';

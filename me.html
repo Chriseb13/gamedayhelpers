@@ -147,6 +147,8 @@
       if (other.phone) { const p = el('div'); p.appendChild(document.createTextNode('Text: ')); p.appendChild(tel(other.phone)); box.appendChild(p); }
       if (other.payApps) box.appendChild(el('div', null, (side === 'helper' ? 'Pays via ' : 'Paid via ') + other.payApps + (other.payHandle ? ' (' + other.payHandle + ')' : '')));
       if (other.profileUrl) { const a = el('a', 'text-link', 'View profile'); a.href = other.profileUrl; box.appendChild(a); }
+      if (g.gcLink) { const gl = el('div'); const a = el('a', 'text-link', side === 'helper' ? 'Follow the team in GameChanger' : 'Team GameChanger link'); a.href = g.gcLink; a.target = '_blank'; a.rel = 'noopener'; gl.appendChild(a); box.appendChild(gl); box.appendChild(el('div', 'hint', side === 'helper' ? 'Tap it, request to follow, and the coach makes you a scorekeeper.' : 'Once your helper follows, open Staff in GameChanger and make them a scorekeeper.')); }
+      else if (side === 'coach') box.appendChild(el('div', 'hint', 'No GameChanger link on file. Reply to your match email with the team link so your helper can join.'));
       box.appendChild(el('div', 'hint', side === 'helper' ? 'Text the coach to confirm. Show up 15 minutes early, phone charged.' : 'Text your helper to confirm and send the GameChanger scorekeeper invite. Pay after the game, app to app.'));
       b.appendChild(box);
     } else if (g.status === 'OPEN') {
