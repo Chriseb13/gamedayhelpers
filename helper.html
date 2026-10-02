@@ -45,14 +45,14 @@
     </svg>
   </div>
   <h1 id="takeoverTitle">You're a <span class="o">Founding Helper.</span></h1>
-  <p id="takeoverMsg">You are one of the Founding 50. Once we reach 50 helpers, we start connecting you with coaches who need you at games. Not before.</p>
+  <p id="takeoverMsg">You are one of the Founding 50. A few test games run this fall and winter by invitation. Full launch is spring 2027. Until then it may be quiet, and that is normal.</p>
   <div class="tl" aria-label="Launch timeline">
     <div class="tl-step done"><span class="dot"></span><b>Now</b><small>Founding 50 signup</small></div>
-    <div class="tl-step"><span class="dot"></span><b>Late fall / early winter</b><small>Beta games start</small></div>
-    <div class="tl-step"><span class="dot"></span><b>2027</b><small>Full launch</small></div>
+    <div class="tl-step"><span class="dot"></span><b>Fall and winter</b><small>A few test games</small></div>
+    <div class="tl-step"><span class="dot"></span><b>Spring 2027</b><small>Full launch</small></div>
   </div>
   <div class="share-box">
-    <div class="share-h">Get us to 50 faster. Invite a friend.</div>
+    <div class="share-h">Help fill the Founding 50. Invite a friend.</div>
     <div class="actions share-actions">
       <a class="tbtn tbtn-orange" id="shareEmail" href="#">Email a friend</a>
       <a class="tbtn tbtn-ghost" id="shareText" href="#">Text a friend</a>
@@ -65,7 +65,7 @@
   </div>
 </div>
 
-<div class="banner">Tampa Bay beta &middot; Signing up helpers now &middot; Matching opens at 50 helpers</div>
+<div class="banner">Tampa Bay &middot; Building our roster now &middot; Test games fall and winter &middot; Full launch spring 2027</div>
 
 <header>
   <a href="index.html" aria-label="GameDay Helpers home"><img class="logo-img" src="gdh-logo.png" alt="GameDay Helpers"></a>
@@ -87,7 +87,7 @@
   <div class="eyebrow">For Helpers</div>
   <h1>Get Paid to Run<span class="o">GameChanger.</span></h1>
   <p class="lead">Coaches in Tampa Bay need someone who already knows the app. Two-hour offers start at $35, set by the coach and paid straight to you after the game. You keep 100%.</p>
-  <p class="note">Ages 14 and up. Under 18 needs a parent or guardian to approve by email before your first game. We are signing up helpers now. Matching opens once 50 helpers have joined.</p>
+  <p class="note">Ages 14 and up. Under 18 needs a parent or guardian to approve by email before your first game. Honest timeline: we are building the roster now, running a few test games this fall and winter, and launching fully in spring 2027. Until then it may be quiet. We only email you when there is something real.</p>
   <div class="cta">
     <a class="btn btn-orange" href="#apply"><span>Create my profile</span></a>
   </div>
@@ -101,7 +101,7 @@
     <h2>Your games, <span class="o">your schedule.</span></h2>
     <div class="steps">
       <div class="step"><div class="n">01</div><div><div class="st">CREATE A PROFILE</div><div class="sd">Pick the leagues you can get to, what you can do (keep score, run GameChanger, work a scoreboard, run a livestream), and when you are free. Your profile goes live right away with a link you can share.</div></div></div>
-      <div class="step"><div class="n">02</div><div><div class="st">GET OFFERED GAMES</div><div class="sd">Once matching opens, We email you when a coach in one of your leagues needs help, with the date, field, and pay. Choose games that fit your schedule. Once you accept, commit to the agreed arrival time. If a coach cancels less than two hours before your arrival time, including a rainout, they owe you $15 that day.</div></div></div>
+      <div class="step"><div class="n">02</div><div><div class="st">GET OFFERED GAMES</div><div class="sd">Starting with test games this fall and winter, we email you when a coach in one of your leagues needs help, with the date, field, and pay. Choose games that fit your schedule. Once you accept, commit to the agreed arrival time. If a coach cancels less than two hours before your arrival time, including a rainout, they owe you $15 that day.</div></div></div>
       <div class="step"><div class="n">03</div><div><div class="st">GET PAID AFTER THE GAME</div><div class="sd">The coach pays you directly through Venmo, Cash App, PayPal, or Zelle. Coaches rate you afterward and the rating shows on your profile.</div></div></div>
     </div>
     <p class="note mt-5">Skill level is self-reported. Every profile is reviewed by hand before a first match. Founding Helper #1 through #50 goes on the first 50 profiles for good.</p>
@@ -245,13 +245,13 @@
       </div>
 
       <button class="submit" id="h_submit" onclick="submitHelper()">Create my profile</button>
-      <div class="what-next"><strong>What happens next:</strong> your profile is created right away and you get a confirmation email with your profile link. If you are under 18, your parent or guardian gets an approval email. Game offers start once matching opens at 50 helpers.</div>
+      <div class="what-next"><strong>What happens next:</strong> your profile is created right away and you get a confirmation email with your profile link. If you are under 18, your parent or guardian gets an approval email. A few test games run this fall and winter by invitation. Full launch is spring 2027. Until then it may be quiet. We only email you when there is something real.</div>
       <div class="err" id="h_err" role="alert" aria-live="assertive"></div>
     </div>
 
     <div class="success" id="helperSuccess" role="status" aria-live="polite">
       <h2>Profile <span class="o">created.</span></h2>
-      <p id="successMsg">Check your email for your confirmation and profile link. Game offers start once matching opens.</p>
+      <p id="successMsg">Check your email for your confirmation and profile link. Test games this fall and winter, full launch spring 2027.</p>
     </div>
   </div>
 </section>
@@ -303,7 +303,7 @@
       document.getElementById('f50num').textContent='#'+n;
       document.getElementById('takeoverTitle').innerHTML='Founding Helper <span class="o">#'+n+'.</span>';
     }
-    document.getElementById('takeoverMsg').textContent="You are one of the Founding 50. Once we reach 50 helpers, we start connecting you with coaches who need you at games. Not before."+minorLine;
+    document.getElementById('takeoverMsg').textContent="You are one of the Founding 50. A few test games run this fall and winter by invitation. Full launch is spring 2027. Until then it may be quiet, and that is normal."+minorLine;
   }
   document.getElementById('shareEmail').href="mailto:?subject="+encodeURIComponent("I just joined GameDay Helpers")+"&body="+encodeURIComponent(SHARE_MSG);
   document.getElementById('shareText').href="sms:?&body="+encodeURIComponent(SHARE_MSG);

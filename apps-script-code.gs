@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v20 - GameChanger team link on coaches and games (Oct 1, 2026)
+ *  v21 - honest timeline in emails: test games fall/winter, full launch spring 2027 (Oct 2, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -171,7 +171,7 @@ function handleCoach(d) {
   sheet.appendRow([new Date(), name, email, phone, clean(d.team, 80), clean(d.leagues), clean(d.notes, 1000), "NO",
     clean(d.payApps), clean(d.payHandle, 80), founder || "", Utilities.getUuid(), cleanUrl(d.gcLink)]);
 
-  confirmEmail(email, name, coachWelcomeBody(name, founder) + statusLine(email), "You're in. Here's how to get a scorekeeper");
+  confirmEmail(email, name, coachWelcomeBody(name, founder) + statusLine(email), "You're registered. Here is the honest timeline");
   alertOwner("COACH", name, clean(d.leagues),
     "Email: " + email + "\nPhone: " + phone + "\nTeam: " + clean(d.team) +
     "\nLeagues: " + clean(d.leagues) + "\nPay apps: " + clean(d.payApps) + "\nNotes: " + clean(d.notes) +
@@ -206,7 +206,7 @@ function handleGameRequest(d) {
     tr("Game", when) + tr("Field", clean(d.field) || "TBD") + tr("You need", clean(d.notes)) +
     tr("Your offer", "$" + clean(d.offer) + " (" + clean(d.length) + " hr, $" + num(d.firstRate) + " first hour, $" + num(d.addlRate) + " each additional)") +
     "</table>" +
-    "<p><strong>What happens next:</strong> We look for an available helper from your league. A helper is not confirmed yet. If one accepts, you will get one email with your helper's name, phone, and payment app. Then you two text each other and lock it in.</p>" +
+    "<p><strong>What happens next:</strong> We are still building the helper roster (test games this fall and winter, full launch spring 2027), so there may not be a helper for this game yet. We will email you either way. A helper is not confirmed yet. If one accepts, you will get one email with your helper's name, phone, and payment app. Then you two text each other and lock it in.</p>" +
     "<p>Pay your helper directly after the game, app to app. No cash.</p>" +
     (c ? "" : "<p style='color:#b45309;'><strong>Heads up:</strong> we could not find a coach profile under this email. Take 60 seconds and <a href='" + SITE_BASE_URL + "/coaches.html'>create one</a> so we can match you faster.</p>") +
     (gcLink ? "" : "<p style='color:#b45309;'><strong>One thing missing:</strong> we do not have a GameChanger team link for this game. Reply to this email with it so your helper can join the team before first pitch.</p>") +
@@ -259,8 +259,8 @@ function handleConsent(token){
       if (rows[i][H.CONSENT] !== "APPROVED") {
         sheet.getRange(i + 1, H.CONSENT + 1).setValue("APPROVED");
         sheet.getRange(i + 1, H.CONSENT + 2).setValue("");  // burn the token
-        confirmEmail(email, name, "<p>Your parent or guardian just approved you. You are active. Keep your phone close: when a coach in your league needs a scorekeeper, you will get an email with the game details. Say yes to the ones you want.</p>" + profileLine(rows[i][H.ID]), "You're approved. You're active.");
-        confirmEmail(pemail, pname, "<p>Thanks. " + esc(firstName(name)) + " is now active on GameDay Helpers. You will not get another email from us unless you write to us. Questions any time: " + OWNER_EMAIL + "</p>", "Approved: " + firstName(name) + " is active");
+        confirmEmail(email, name, "<p>Your parent or guardian just approved you, so your profile is ready. " + BETA_TIMELINE + "</p>" + profileLine(rows[i][H.ID]), "You're approved");
+        confirmEmail(pemail, pname, "<p>Thanks. " + esc(firstName(name)) + " is approved on GameDay Helpers. We are building the roster now, running a few test games this fall and winter, and launching in spring 2027. You will only hear from us again if " + esc(firstName(name)) + " is offered a game. Questions any time: " + OWNER_EMAIL + "</p>", "Approved: " + firstName(name) + " is approved");
         alertOwner("CONSENT APPROVED", name, rows[i][H.LEAGUES], "Parent " + pname + " (" + pemail + ") approved. Helper is active.");
       }
       return consentShell("<h1>Approved. Thank you.</h1><p>" + esc(firstName(name)) + " is now active on GameDay Helpers. You can close this page.</p>");
@@ -677,7 +677,7 @@ function profileShell(body){
  *  EMAIL COPY
  * ========================================================== */
 const HELPER_SHARE_URL = SITE_BASE_URL + "/helper.html?ref=share";
-const BETA_TIMELINE = "Beta games: late fall to early winter 2026. Full launch: 2027.";
+const BETA_TIMELINE = "Right now we are building the roster. A few test games run this fall and winter by invitation. Full launch is spring 2027. Until then it may be quiet, and that is normal. We only email when there is something real.";
 
 function founderBadgeEmail(n){
   return "<table role='presentation' cellpadding='0' cellspacing='0' align='center' style='margin:6px auto 18px;border-collapse:separate;'><tr><td style='background:#102A43;border:3px solid #D7F75B;border-radius:18px;padding:18px 34px;text-align:center;'>" +
@@ -697,22 +697,23 @@ function helperWelcomeBody(name, id, isMinor, founder){
   const f = founder
     ? founderBadgeEmail(founder) +
       "<p><strong>You are one of the Founding 50.</strong> Your number is locked to your profile for good.</p>" +
-      "<p><strong>What happens next:</strong> once we reach 50 helpers, we start connecting you with coaches who need you at games. Not before. Every share gets us there faster.</p>"
-    : "<p><strong>You are on the team.</strong> We will email you when coaches in your leagues need a helper.</p>";
+      "<p><strong>What happens next:</strong> nothing right away. See the timeline below. Every friend you invite helps fill the roster.</p>"
+    : "<p><strong>You are on the team.</strong> We will email you when there is a real game for you in one of your leagues.</p>";
   const timeline = "<p style='background:#F7F9FC;border-left:4px solid #1747C8;padding:10px 12px;'><strong>Timeline:</strong> " + BETA_TIMELINE + "</p>";
   const minor = isMinor
-    ? "<p><strong>One step left:</strong> we just emailed your parent or guardian a one tap approval. Nudge them. The second they approve, you are active.</p>" : "";
+    ? "<p><strong>One step left:</strong> we just emailed your parent or guardian a one tap approval. Nudge them. Once they approve, your profile is ready for test games this fall and winter.</p>" : "";
   return f + minor + timeline +
     "<p><strong>How pay works:</strong> the coach pays you straight to your app after the game. Two hour offers start at $35, set by the coach. No cash, ever.</p>" +
     shareButtonEmail() +
     profileLine(id);
 }
 function coachWelcomeBody(name, founder){
-  const f = founder ? "<p style='background:#EEF3FF;border:1.5px solid #1747C8;border-radius:10px;padding:12px;'><strong>&#9733; Founding Coach #" + founder + ".</strong> One of the first 50 in Tampa Bay. Free for you for the whole beta.</p>" : "";
+  const f = founder ? "<p style='background:#EEF3FF;border:1.5px solid #1747C8;border-radius:10px;padding:12px;'><strong>&#9733; Founding Coach #" + founder + ".</strong> One of the first 50 in Tampa Bay. No matching fee for the whole beta.</p>" : "";
   return f +
-    "<p><strong>Got a game coming up? Request a helper now:</strong></p>" +
+    "<p style='background:#F7F9FC;border-left:4px solid #1747C8;padding:10px 12px;'><strong>Honest timeline:</strong> " + BETA_TIMELINE + "</p>" +
+    "<p><strong>Have a game this fall or winter?</strong> You can still send a request. We will tell you whether we have a helper for it.</p>" +
     "<p style='text-align:center;margin:20px 0;'><a href='" + SITE_BASE_URL + "/request-game.html' style='background:#1747C8;color:#fff;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:10px;display:inline-block;'>Request a scorekeeper</a></p>" +
-    "<p>Takes 60 seconds: date, what you need, your offer. We match you by hand with a helper from your league and emails you their name, phone, and payment app. You text them, they show up, you pay them after the game, app to app.</p>" +
+    "<p>Takes 60 seconds: date, what you need, your offer. When we have a helper, we match you by hand and email you their name, phone, and payment app. You text them, they show up, you pay them after the game, app to app.</p>" +
     "<p><strong>What it costs you:</strong> just the helper's pay, which you set when you request. Two hour offers start at $35. No matching fee to GameDay Helpers during the Tampa beta.</p>" +
     "<p>Tip: request as early as you can. Two days notice gives us the best shot at finding you a helper. Two hours is a coin flip.</p>";
 }
