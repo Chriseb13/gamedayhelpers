@@ -27,6 +27,16 @@
   .pill.bad { background: #fdecea; border-color: #f0b3ac; color: var(--error); }
   .contact { margin-top: .75rem; padding: .875rem 1rem; border-radius: var(--radius); background: var(--surface); border-left: 4px solid var(--action); }
   .contact a { font-weight: 700; }
+  .contact .who { font-family: var(--display); font-size: 1.375rem; line-height: 1.15; margin-bottom: .5rem; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+  .contact .lbl { font-size: .6875rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .contact .row { margin-bottom: .375rem; }
+  .contact .row .k { min-width: 76px; }
+  .contact .row a { overflow-wrap: anywhere; }
+  .contact .sub { margin-top: .75rem; padding-top: .75rem; border-top: 1px solid var(--border); }
+  .contact .rule { margin-top: .75rem; padding: .625rem .75rem; border-radius: var(--radius); background: #fff6dc; border: 1px solid #ecd48a; color: #5c3d00; font-size: .875rem; }
+  .contact .acts { display: flex; flex-wrap: wrap; gap: .5rem; margin: .75rem 0 .25rem; }
+  .contact .act { display: inline-block; padding: .625rem 1rem; border-radius: 999px; background: var(--action); color: var(--white); text-decoration: none; font-size: .9375rem; }
+  .contact .act.alt { background: var(--white); color: var(--action); border: 1px solid var(--action); }
   .section-h { margin: 2rem 0 .75rem; }
 </style>
 </head>
@@ -122,7 +132,14 @@
   function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   function pill(t, k){ return el('span', 'pill' + (k ? ' ' + k : ''), t); }
   function kv(k, v){ const r = el('div', 'row'); r.appendChild(el('span', 'k', k)); r.appendChild(el('span', null, v || 'not set')); return r; }
-  function tel(n){ const a = el('a', null, n); a.href = 'sms:' + String(n).replace(/[^\d+]/g, ''); return a; }
+  function digits(n){ const d = String(n || '').replace(/[^\d+]/g, ''); return /^\d{10}$/.test(d) ? '+1' + d : d; }
+  // One number: plain sms: link. Several: one group thread (iOS and Android use different formats).
+  function smsHref(nums){ const l = nums.map(digits).filter(Boolean); if (!l.length) return ''; if (l.length === 1) return 'sms:' + l[0];
+    return /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'sms://open?addresses=' + l.join(',') : 'sms:' + l.join(','); }
+  function link(text, href, cls){ const a = el('a', cls || null, text); a.href = href; return a; }
+  function krow(k, node){ const r = el('div', 'row'); r.appendChild(el('span', 'k', k)); const v = el('span'); if (node) v.appendChild(typeof node === 'string' ? document.createTextNode(node) : node); r.appendChild(v); return r; }
+  function addPhone(box, k, n){ if (n) box.appendChild(krow(k, link(n, 'tel:' + digits(n)))); }
+  function addEmail(box, k, e){ if (e) box.appendChild(krow(k, link(e, 'mailto:' + e))); }
 
   async function sendLink(){
     const email = $('l_email').value.trim();
@@ -143,13 +160,38 @@
     const other = side === 'helper' ? g.coach : g.helper;
     if (other) {
       const box = el('div', 'contact');
-      box.appendChild(el('div', null, side === 'helper' ? 'Your coach: ' + other.name : 'Your helper: ' + other.name));
-      if (other.phone) { const p = el('div'); p.appendChild(document.createTextNode('Text: ')); p.appendChild(tel(other.phone)); box.appendChild(p); }
-      if (other.payApps) box.appendChild(el('div', null, (side === 'helper' ? 'Pays via ' : 'Paid via ') + other.payApps + (other.payHandle ? ' (' + other.payHandle + ')' : '')));
-      if (other.profileUrl) { const a = el('a', 'text-link', 'View profile'); a.href = other.profileUrl; box.appendChild(a); }
+      const minor = side === 'coach' && other.minor;
+      box.appendChild(el('div', 'lbl', side === 'helper' ? 'Your coach' : 'Your helper'));
+      const who = el('div', 'who'); who.appendChild(document.createTextNode(other.name || 'Name on your GAME ON email')); if (minor) who.appendChild(pill('Under 18', 'wait')); box.appendChild(who);
+      if (minor) { if (other.phone) box.appendChild(krow('Cell', other.phone)); } else addPhone(box, 'Cell', other.phone);   // a minor's number is never a one-tap call or text
+      addEmail(box, 'Email', other.email);
+      if (other.payApps) box.appendChild(krow(side === 'helper' ? 'Pays via' : 'Pay via', other.payApps + (other.payHandle ? ' (' + other.payHandle + ')' : '')));
+      if (minor) {
+        const sub = el('div', 'sub'); sub.appendChild(el('div', 'lbl', 'Parent or guardian'));
+        sub.appendChild(krow('Name', other.parentName || 'On your GAME ON email'));
+        addPhone(sub, 'Cell', other.parentPhone); addEmail(sub, 'Email', other.parentEmail);
+        box.appendChild(sub);
+        box.appendChild(el('div', 'rule', 'Under 18: group texts only, with the parent on every thread. No one-on-one texts. Helpers get to the field on their own or with family.'));
+      }
+      const acts = el('div', 'acts');
+      // A minor is never texted alone: the button opens one thread with helper and parent, or it is not shown.
+      const nums = minor ? (other.phone && other.parentPhone ? [other.phone, other.parentPhone] : []) : [other.phone];
+      const sms = smsHref(nums);
+      if (sms) acts.appendChild(link(minor ? 'Start group text' : (side === 'helper' ? 'Text your coach' : 'Text your helper'), sms, 'act'));
+      const mails = [other.email, minor ? other.parentEmail : ''].filter(Boolean);
+      if (mails.length) acts.appendChild(link(mails.length > 1 ? 'Email both' : 'Email', 'mailto:' + mails.join(','), 'act alt'));
+      if (other.profileUrl) acts.appendChild(link('View profile', other.profileUrl, 'act alt'));
+      if (acts.children.length) box.appendChild(acts);
+      if (minor && !sms) box.appendChild(el('div', 'hint', 'No parent cell on file. Reply all on your GAME ON email to set up the group text.'));
       if (g.gcLink) { const gl = el('div'); const a = el('a', 'text-link', side === 'helper' ? 'Follow the team in GameChanger' : 'Team GameChanger link'); a.href = g.gcLink; a.target = '_blank'; a.rel = 'noopener'; gl.appendChild(a); box.appendChild(gl); box.appendChild(el('div', 'hint', side === 'helper' ? 'Tap it, request to follow, and the coach makes you a scorekeeper.' : 'Once your helper follows, open Staff in GameChanger and make them a scorekeeper.')); }
       else if (side === 'coach') box.appendChild(el('div', 'hint', 'No GameChanger link on file. Reply to your match email with the team link so your helper can join.'));
-      box.appendChild(el('div', 'hint', side === 'helper' ? 'Text the coach to confirm. Show up 15 minutes early, phone charged.' : 'Text your helper to confirm and send the GameChanger scorekeeper invite. Pay after the game, app to app.'));
+      box.appendChild(el('div', 'hint', side === 'helper' ? 'Text the coach to confirm. Show up 15 minutes early, phone charged.' : (minor ? 'Confirm in the group text' : 'Text your helper to confirm') + ' and send the GameChanger scorekeeper invite. Pay after the game, app to app.'));
+      b.appendChild(box);
+    } else if (g.status === 'MATCHED' || g.status === 'DONE') {
+      // Never a blank card on a matched game.
+      const box = el('div', 'contact');
+      box.appendChild(el('div', null, side === 'coach' ? 'Your helper is confirmed. Their name and cell are on your GAME ON email.' : 'You are confirmed. Your coach\'s name and cell are on your GAME ON email.'));
+      const a = link('Email us and we will send it again', 'mailto:info@gamedayhelpers.com?subject=' + encodeURIComponent('Resend my match details: ' + g.when), 'text-link'); box.appendChild(a);
       b.appendChild(box);
     } else if (g.status === 'OPEN') {
       b.appendChild(el('div', 'hint', side === 'coach' ? 'We are looking for a helper. You get an email the moment one accepts.' : ''));

@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  GAMEDAY HELPERS - FULL BACKEND  (Google Apps Script)
- *  v21 - honest timeline in emails: test games fall/winter, full launch spring 2027 (Oct 2, 2026)
+ *  v22 - match board no longer wipes HelperID after sending; status page shows full contact card (Oct 2, 2026)
  * ============================================================
  *  Handles POST types from the site:
  *    HELPER | COACH | GAMEREQUEST | LEAGUE | REVIEW
@@ -351,7 +351,30 @@ function sendMatchEmails(rowNum){
   g.getRange(rowNum, G.MATCHSENT + 1).setValue(new Date());
   g.getRange(rowNum, G.HNAME + 1).setValue(h[H.NAME]);
   g.getRange(rowNum, G.HEMAIL + 1).setValue(h[H.EMAIL]);
-  return "Match email sent to " + coachName + ", " + h[H.NAME] + (isMinor ? ", and parent " + h[H.PNAME] : "") + ".";
+  return MATCH_OK + " to " + coachName + ", " + h[H.NAME] + (isMinor ? ", and parent " + h[H.PNAME] : "") + ".";
+}
+// One source of truth for "did the match email go out". adminMatch and adminResend both read it.
+const MATCH_OK = "Match email sent";
+function matchSent(msg){ return String(msg || "").indexOf(MATCH_OK) === 0; }
+
+// A MATCHED game must carry its HelperID. Older board sends cleared it after emailing, which hid the
+// helper from both status pages and skipped review emails. Refill it from HelperEmail.
+function healHelperIds(){
+  const g = tab("Games", GAME_COLS), rows = g.getDataRange().getValues();
+  let hs = null, fixed = 0;
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (r[G.STATUS] !== "MATCHED" || r[G.HID] || !r[G.HEMAIL]) continue;
+    hs = hs || tab("Helpers", HELPER_COLS);
+    const hr = findRowByEmail(hs, H.EMAIL, String(r[G.HEMAIL]).toLowerCase().trim());
+    if (hr) { g.getRange(i + 1, G.HID + 1).setValue(hr.row[H.ID]); fixed++; }
+  }
+  return fixed;
+}
+// The helper on a game row: by HelperID, or by HelperEmail when the ID is blank.
+function gameHelper(hs, r){
+  if (r[G.HID]) return findRowByValue(hs, H.ID, r[G.HID]);
+  return r[G.HEMAIL] ? findRowByEmail(hs, H.EMAIL, String(r[G.HEMAIL]).toLowerCase().trim()) : null;
 }
 
 /* ==========================================================
@@ -391,11 +414,14 @@ function statusData(token){
     const h = hr.row;
     out.helper = { name: h[H.NAME], id: h[H.ID], profileUrl: profileUrl(h[H.ID]), skill: h[H.SKILL], leagues: h[H.LEAGUES], roles: h[H.ROLES], avail: h[H.AVAIL],
       approved: h[H.APPROVED] === "YES", minor: h[H.MINOR] === "YES", consent: h[H.CONSENT], founder: h[H.FOUNDER] || "", phone: h[H.PHONE], email: h[H.EMAIL], parentName: h[H.PNAME], parentPhone: h[H.PPHONE] || "", gdh: Number(h[H.GDH]) || 0, avg: h[H.AVG] === "" ? null : Number(h[H.AVG]), count: Number(h[H.COUNT]) || 0, games: [] };
-    for (let i = 1; i < gRows.length; i++) { const r = gRows[i]; if (String(r[G.HID]) !== String(h[H.ID])) continue;
+    const hEmail = String(h[H.EMAIL]).toLowerCase().trim();
+    for (let i = 1; i < gRows.length; i++) { const r = gRows[i];
       const matched = r[G.STATUS] === "MATCHED" || r[G.STATUS] === "DONE";
+      const mine = r[G.HID] ? String(r[G.HID]) === String(h[H.ID]) : (matched && hEmail && String(r[G.HEMAIL]).toLowerCase().trim() === hEmail);
+      if (!mine) continue;
       const cr2 = findRowByEmail(cs, C.EMAIL, String(r[G.CEMAIL]).toLowerCase());
       out.helper.games.push({ gcLink: matched ? String(r[G.GCLINK] || (cr2 ? cr2.row[C.GCLINK] : "") || "") : "", id: r[G.ID], when: fmt(r[G.DT]), whenIso: r[G.DT] instanceof Date ? r[G.DT].toISOString() : "", field: r[G.FIELD], league: r[G.LEAGUE], team: r[G.TEAM], needs: r[G.NEEDS], offer: r[G.OFFER], status: r[G.STATUS],
-        coach: matched ? { name: r[G.CNAME] || (cr2 ? cr2.row[C.NAME] : ""), phone: r[G.CPHONE] || (cr2 ? cr2.row[C.PHONE] : ""), payApps: cr2 ? cr2.row[C.PAYAPPS] : "" } : null }); }
+        coach: matched ? { name: r[G.CNAME] || (cr2 ? cr2.row[C.NAME] : ""), phone: r[G.CPHONE] || (cr2 ? cr2.row[C.PHONE] : ""), email: r[G.CEMAIL], payApps: cr2 ? cr2.row[C.PAYAPPS] : "" } : null }); }
   }
   if (cr) {
     const c = cr.row;
@@ -403,7 +429,10 @@ function statusData(token){
     for (let i = 1; i < gRows.length; i++) { const r = gRows[i]; if (String(r[G.CEMAIL]).toLowerCase() !== String(c[C.EMAIL]).toLowerCase()) continue;
       const matched = r[G.STATUS] === "MATCHED" || r[G.STATUS] === "DONE";
       let helper = null;
-      if (matched && r[G.HID]) { const h2 = findRowByValue(hs, H.ID, r[G.HID]); if (h2) helper = { name: h2.row[H.NAME], phone: h2.row[H.PHONE], payApps: h2.row[H.PAYAPPS], payHandle: h2.row[H.PAYHANDLE], profileUrl: profileUrl(h2.row[H.ID]) }; }
+      if (matched) { const h2 = gameHelper(hs, r); if (h2) { const x = h2.row, minor = x[H.MINOR] === "YES";
+        // Same facts the GAME ON email carries. Age itself is never sent, only the under-18 flag.
+        helper = { name: x[H.NAME], phone: x[H.PHONE], email: x[H.EMAIL], payApps: x[H.PAYAPPS], payHandle: x[H.PAYHANDLE], profileUrl: profileUrl(x[H.ID]), minor: minor,
+          parentName: minor ? x[H.PNAME] : "", parentPhone: minor ? (x[H.PPHONE] || "") : "", parentEmail: minor ? x[H.PEMAIL] : "" }; } }
       out.coach.games.push({ gcLink: String(r[G.GCLINK] || c[C.GCLINK] || ""), id: r[G.ID], when: fmt(r[G.DT]), whenIso: r[G.DT] instanceof Date ? r[G.DT].toISOString() : "", field: r[G.FIELD], needs: r[G.NEEDS], offer: r[G.OFFER], status: r[G.STATUS], helper: helper }); }
   }
   return out;
@@ -416,6 +445,7 @@ function adminOk(key){ return ADMIN_KEY && key && String(key) === ADMIN_KEY; }
 function adminBoard(key){
   if (!adminOk(key)) return { result: "error", message: "Bad key" };
   const tz = Session.getScriptTimeZone();
+  try { healHelperIds(); } catch (_) {}
   const gRows = tab("Games", GAME_COLS).getDataRange().getValues();
   const games = [];
   for (let i = 1; i < gRows.length; i++) {
@@ -465,7 +495,7 @@ function adminMatch(d){
   if (gr.row[G.STATUS] === "MATCHED" || gr.row[G.STATUS] === "DONE") return { result: "error", message: "Game already " + gr.row[G.STATUS] };
   g.getRange(gr.index, G.HID + 1).setValue(clean(d.helperId, 120));
   const msg = sendMatchEmails(gr.index);
-  const ok = /^Match emails sent/.test(msg);
+  const ok = matchSent(msg);
   if (!ok) g.getRange(gr.index, G.HID + 1).setValue("");
   return { result: ok ? "success" : "error", message: msg };
 }
@@ -499,7 +529,7 @@ function adminResend(d){
   if (!gr) return { result: "error", message: "Game not found" };
   if (!gr.row[G.HID]) return { result: "error", message: "No helper on this game yet" };
   const msg = sendMatchEmails(gr.index);
-  return { result: /^Match email/.test(msg) ? "success" : "error", message: msg };
+  return { result: matchSent(msg) ? "success" : "error", message: msg };
 }
 function adminNote(d){
   if (!adminOk(d.key)) return { result: "error", message: "Bad key" };
@@ -563,6 +593,7 @@ function recalcHelperRating(helperId) {
  *  HOURLY REVIEW SWEEP
  * ========================================================== */
 function sendReviewRequests() {
+  try { healHelperIds(); } catch (_) {}
   const g = tab("Games", GAME_COLS);
   const rows = g.getDataRange().getValues();
   const now = new Date();
