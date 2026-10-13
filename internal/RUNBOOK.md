@@ -9,7 +9,7 @@ verified against `apps-script-code.gs` in code. It was not exercised against the
 
 gamedayhelpers.com/match.html. Open requests sit at the top, longest waiting first, with waiting time and time to game. Below that: tap any number tile (helpers, coaches, requests, average offer, average hourly pay, time to match, ratings, league inquiries, minors) to see the rows behind it. Then 8-week trends for helper signups, coach signups, and game requests. Enter the admin key (set as `ADMIN_KEY` in the Apps Script editor, never in the repo). The board lists every OPEN game with helpers ranked for it: eligible first (reviewed, and parent-approved if under 18), then league match, then tasks, then day availability, then rating and games scored. Green badges are reasons to pick, red are blockers, yellow are cautions.
 
-- **Send match**: writes the HelperID to the Games row and sends both match emails. Same code as the GDH menu.
+- **Send match**: writes the HelperID to the Games row and sends the one shared GAME ON email. Same code as the GDH menu. (Before v22 the board cleared the HelperID right after sending, which hid the helper on both status pages and skipped review emails. v22 fixes it and refills any blank HelperID on a MATCHED row from HelperEmail whenever the board loads or the hourly sweep runs.)
 - **Approve**: flips `Approved?` to YES after you have looked at the profile. Unapprove is in the All helpers table.
 - **No helper available, notify coach**: marks the game UNFILLED and emails the coach.
 - **GameChanger link**: a matched game with no team link shows a red chip. Add it with the GC link button on the row, or ask the coach. The match email tells the helper to follow the team and the coach to add them as a scorekeeper under Staff.
@@ -19,7 +19,7 @@ The Sheet method below still works and is the fallback.
 
 ## 0b. Status pages (me.html)
 
-Anyone registered can go to gamedayhelpers.com/me.html, enter their email, and get a private link by email. The page shows their profile status, every game they are on, and the other side's name, phone, and payment app once matched. Links are in every welcome, receipt, and match email too. A lost link: send them to me.html again, the same link is re-sent. To revoke someone's link, clear their AccessToken cell (last column on Helpers or Coaches).
+Anyone registered can go to gamedayhelpers.com/me.html, enter their email, and get a private link by email. The page shows their profile status and every game they are on. Once matched, a coach sees the helper's name, cell, email, and pay app and handle; for a helper under 18 it also shows the Under 18 flag, the parent's name, cell, and email, and a Start group text button that opens one thread with helper and parent (the helper's own number is not a tap-to-text link). A helper sees the coach's name, cell, email, and pay app. A matched game never renders blank: if the helper cannot be resolved it tells the coach to use the GAME ON email. Links are in every welcome, receipt, and match email too. A lost link: send them to me.html again, the same link is re-sent. To revoke someone's link, clear their AccessToken cell (last column on Helpers or Coaches).
 
 ## 1. Match a game in the Sheet (under 2 minutes)
 
@@ -33,7 +33,7 @@ Trigger: an email with subject `GDH GAME REQUEST: <coach> (<league>)`. It contai
 3. Copy their HelperID (column B).
 4. Back on Games, paste it into **column G (HelperID)** on the game row.
 5. Click any cell in that row, then **GDH menu > Send match emails for selected Games row**.
-6. A popup confirms "Match emails sent to <coach> and <helper>". The row's Status becomes `MATCHED`, MatchSent gets a timestamp, HelperName and HelperEmail fill in.
+6. A popup confirms "Match email sent to <coach>, <helper>" (plus the parent for a minor). The row's Status becomes `MATCHED`, MatchSent gets a timestamp, HelperName and HelperEmail fill in.
 
 What went out: the coach got the helper's name, phone, pay apps and handle, skill, and profile link. The helper got the coach's name, phone, and pay app. Both were told to text each other now.
 
